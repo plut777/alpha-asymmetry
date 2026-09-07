@@ -595,6 +595,97 @@ survivable — it identifies the person independently of how the name is spelled
 on any given paper. If both forms are going to exist across records, an ORCID
 stops being optional.
 
+---
+
+## Referee report — this is a review of OUR work, not of the published paper
+
+**Registered before responding, at Tofig's direction, because it determines the
+posture of the reply.**
+
+Reviewer 3's report is on the **corrected manuscript produced in this revision**,
+not on `4d21c69`. The evidence is in the quotations: comment 1 quotes the
+annualized return of −0.71% with its interval, comment 3 quotes "evaluated at
+each Friday close for as long as a direction is held", and comment 8 quotes
+"−0.012 bps weekly" — all three are sentences written in this revision and
+absent from the published version.
+
+**Four of the eight comments are correct**, and two of those change what the
+paper says. We answer as authors, not as contributors relaying a report about
+someone else's paper. The response letter is written in the first person plural
+and concedes what is conceded without distancing.
+
+| # | Comment | Verdict |
+|---|---|---|
+| 8 | Intercept unit mismatch | correct — ours, 100× |
+| 6 | Newey-West invalid on non-contiguous weeks | correct — weakens our new finding |
+| 5 | Normal-theory SE is a strawman | correct — our attribution was wrong |
+| 3 | AI lookback window absent from the specification | correct — ours |
+| 7 | Temporal aliasing in the tail signal | direction correct, both figures wrong |
+| 4 | 5-week declustering excessive | reasonable, asserted consequence false |
+| 1 | Inconsistent bootstrap schemes | fair; needs justification, not a defect |
+| 2 | Random candidate dilutes the tests | mechanism runs the other way in this data |
+
+### The retreat on comment 6, recorded in full
+
+Cluster-robust standard errors by holding episode are adopted as the primary
+specification. The momentum finding survives at 5% under every specification
+tried, and weakens substantially:
+
+| Standard errors | t | p |
+|---|---|---|
+| HAC Newey-West, 4 lags (what we published) | −3.73 | 0.00019 |
+| **Cluster-robust by episode (now primary)** | **−2.61** | **0.0091** |
+| HC3 | −2.17 | 0.0304 |
+
+Our sentence "the in-position estimate at p = 0.00019 clears that bar
+comfortably", referring to a Bonferroni threshold of 0.008, **is now false**. At
+p = 0.0091 it falls just short. That sentence is deleted rather than reframed.
+Tofig pre-committed to reporting whatever the check produced, and this is what it
+produced.
+
+**The confidence pass is the reason this retreat is survivable.** That pass had
+already removed "a disguised short-momentum bet", "largely explained", the
+one-for-one claim and the section heading "It Is Not Trading Asymmetry", and had
+already corrected an argument that ran opposite to its own conclusion. Had the
+reviewer met the pre-confidence-pass text, the retreat forced by comment 6 would
+have been considerably larger: a claim that the strategy *is* a disguised
+momentum bet, resting on p = 0.00019, would have had to be withdrawn rather than
+qualified. Softening a claim before it is challenged is cheaper than defending
+it after.
+
+### Comments 3 and 8 were ours, and we shipped them
+
+Both are errors this revision introduced, and neither was caught by any check
+this project built. That is worth knowing about the method, not only about the
+two errors.
+
+**Comment 3 — a parameter that exists only in code.** Equation 10 sizes the
+position from `AI_t` and never states the lookback window. The code uses a
+20-week rolling window with `min_periods=10` on fast alpha. The window is
+mentioned once in the manuscript, incidentally, in a Trading Frequency paragraph
+about turnover — never in the specification where a replicator would look. The
+strategy is not reproducible from the paper alone.
+
+**No check could have caught this**, because every check compares reported
+figures against pipeline output. Both agreed. The defect is an *absence* in the
+paper, and there is nothing for a value-comparison to compare.
+
+**Comment 8 — a correct figure in the wrong units.** The factor table note
+reported "an intercept of −0.012 bps weekly". The coefficient is −0.00012 in
+decimal weekly return, which is −0.012 **percent**, or −1.2 bps. Off by 100×.
+
+**The machine check passed it**, because the check verified that the string
+"−0.00012" in the table matched the JSON. It did. The error was in a different
+sentence, restating the same correct number in a unit the checker knew nothing
+about.
+
+**What this says about the verification method.** It is strong against one class
+of error — a reported number disagreeing with the number that was computed — and
+blind to at least two others: a parameter that is never reported at all, and a
+correct number restated in wrong units. Both were caught by a human reading for
+meaning. The apparatus reduces the surface a reader has to check; it does not
+remove the need for one.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and

@@ -130,6 +130,36 @@ def block_bootstrap_skew_ci(x, b=2000, block=13, seed=SEED):
     return np.percentile(boot, [2.5, 97.5]), float(boot.std(ddof=1))
 
 
+def iid_bootstrap_skew_ci(x, b=2000, seed=SEED):
+    """Skewness CI with NO dependence correction.
+
+    The comparison against the block bootstrap separates two explanations for a
+    wide interval: serial dependence, and non-normality of the marginal.  If the
+    i.i.d. interval is already wide, dependence is not what widened it.
+    """
+    values = np.asarray(x, dtype=float)
+    rng = np.random.default_rng(seed)
+    boot = np.array([stats.skew(rng.choice(values, len(values), replace=True), bias=False)
+                     for _ in range(b)])
+    return np.percentile(boot, [2.5, 97.5]), float(boot.std(ddof=1))
+
+
+def episode_ids(position_ledger):
+    """Episode number governing each week's realized return.
+
+    Needed because the in-position weeks are non-contiguous: 55 weeks drawn from
+    15 episodes scattered across a decade.  Lag-based HAC corrections assume the
+    rows are consecutive in time, which these are not.
+    """
+    decision, current = {}, 0
+    for date, row in position_ledger.iterrows():
+        if row["event_type"] in ("entry", "reversal"):
+            current += 1
+        decision[date] = current if float(row["new_position"]) != 0 else 0
+    order = list(position_ledger.index)
+    return pd.Series({d: (decision[order[i - 1]] if i else 0) for i, d in enumerate(order)})
+
+
 def stationary_bootstrap_indices(n, expected_block=4.0, size=None, rng=None):
     rng = rng or np.random.default_rng()
     size = size or n
@@ -157,18 +187,45 @@ def performance(rets: pd.Series, position: pd.Series) -> dict:
     }
 
 
-def hac_reg(frame: pd.DataFrame) -> dict | None:
+def hac_reg(frame: pd.DataFrame, clusters=None) -> dict | None:
+    """Factor regression reported under three standard-error families.
+
+    ``cluster`` is primary wherever clusters are supplied.  The in-position
+    sample is 55 weeks drawn from 15 separate holding episodes spread over ten
+    years; stacking them and applying a lag-based HAC correction treats rows as
+    consecutive in time when they may be years apart.  Clustering by episode
+    respects that structure.  HAC and HC3 are reported alongside so the reader
+    can see the coefficient under every convention rather than one chosen for
+    us.
+    """
     dat = frame.dropna()
     if len(dat) <= 10:
         return None
-    model = sm.OLS(dat["strat"], sm.add_constant(dat[["carry", "mom", "dollar"]])).fit(
-        cov_type="HAC", cov_kwds={"maxlags": 4}
-    )
+    y, X = dat["strat"], sm.add_constant(dat[["carry", "mom", "dollar"]])
+    fits = {"hac": sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": 4}),
+            "hc3": sm.OLS(y, X).fit(cov_type="HC3")}
+    if clusters is not None:
+        g = pd.Series(clusters).reindex(dat.index)
+        fits["cluster"] = sm.OLS(y, X).fit(cov_type="cluster", cov_kwds={"groups": g.to_numpy()})
+    primary = "cluster" if "cluster" in fits else "hac"
+    base_fit = fits[primary]
+
+    def coefs(model):
+        out = {}
+        for name in ["const", "carry", "mom", "dollar"]:
+            lo, hi = model.conf_int().loc[name]
+            out[name] = {"b": float(model.params[name]), "t": float(model.tvalues[name]),
+                         "p": float(model.pvalues[name]), "se": float(model.bse[name]),
+                         "ci": [float(lo), float(hi)]}
+        return out
+
     return {
-        "n": int(model.nobs), "r2": float(model.rsquared), "adj_r2": float(model.rsquared_adj),
-        "f": float(model.fvalue),
-        "coef": {name: {"b": float(model.params[name]), "t": float(model.tvalues[name]), "p": float(model.pvalues[name])}
-                 for name in ["const", "carry", "mom", "dollar"]},
+        "n": int(base_fit.nobs), "r2": float(base_fit.rsquared),
+        "adj_r2": float(base_fit.rsquared_adj), "f": float(base_fit.fvalue),
+        "primary_standard_errors": primary,
+        "n_clusters": int(pd.Series(clusters).reindex(dat.index).nunique()) if clusters is not None else None,
+        "coef": coefs(base_fit),
+        "standard_error_variants": {k: coefs(v) for k, v in fits.items()},
     }
 
 
@@ -290,6 +347,7 @@ def main() -> int:
         skew = float(stats.skew(x, bias=False))
         kurt = float(stats.kurtosis(x, bias=False))
         ci, bse = block_bootstrap_skew_ci(x)
+        iid_ci, iid_bse = iid_bootstrap_skew_ci(x)
         lb = acorr_ljungbox(x, lags=[4], return_df=True)
         sw, sw_p = stats.shapiro(x)
         k2, k2_p = stats.normaltest(x)
@@ -297,7 +355,10 @@ def main() -> int:
         jb = n_col / 6 * (skew ** 2 + kurt ** 2 / 4)
         table_stats[col] = {
             "n": n_col, "skew": skew, "ex_kurt": kurt, "skew_ci": list(ci),
-            "skew_boot_se": bse, "ai": compute_ai(x), "por": float((x > 0).mean() * 100),
+            "skew_boot_se": bse, "skew_ci_iid": list(iid_ci), "skew_boot_se_iid": iid_bse,
+            "normal_theory_se": float(np.sqrt(6 / n_col)),
+            "ai": compute_ai(x), "por": float((x > 0).mean() * 100),
+            "nonzero_obs": int((x != 0).sum()),
             "skew_t_iid": skew / np.sqrt(6 / n_col), "jb": float(jb), "sw": float(sw), "sw_p": float(sw_p),
             "k2": float(k2), "k2_p": float(k2_p), "lb_q4": float(lb["lb_stat"].iloc[0]),
             "lb_q4_p": float(lb["lb_pvalue"].iloc[0]),
@@ -434,7 +495,15 @@ def main() -> int:
     factor["mom"] = simple_strategy(np.sign(weekly["Close"].pct_change(12, fill_method=None)), weekly["weekly_return"])
     factor = factor.dropna()
     inpos_mask = base.applied_position.reindex(factor.index).abs() > 0
-    factors = {"full": hac_reg(factor), "in_position": hac_reg(factor.loc[inpos_mask]), "n_in_position": int(inpos_mask.sum())}
+    clusters = episode_ids(base.position_ledger).reindex(factor.index)
+    factors = {"full": hac_reg(factor),
+               "in_position": hac_reg(factor.loc[inpos_mask], clusters=clusters.loc[inpos_mask]),
+               "n_in_position": int(inpos_mask.sum()),
+               "standard_error_note": (
+                   "The in-position weeks are non-contiguous: they arise from separate holding "
+                   "episodes spread across the sample. Cluster-robust errors by episode are "
+                   "primary there; Newey-West assumes consecutive observations and is reported "
+                   "for comparison only.")}
 
     cost_rows = []
     for label, pips in [("Zero cost", 0.0), ("Prime brokerage", 0.3), ("Institutional", 0.7), ("Retail tight", 1.3), ("Retail wide", 2.0)]:
@@ -483,7 +552,32 @@ def main() -> int:
     cutoff = -omega / np.sqrt(n_obs) * np.sqrt(2 * np.log(np.log(max(n_obs, 3))))
     recenter = np.where(means >= cutoff, means, 0.0)
     boot_spa = np.maximum((np.sqrt(n_obs) * (boot_means - recenter) / omega).max(axis=1), 0.0)
-    snooping = {"formal_benchmark": "zero weekly return", "random_role": "prespecified candidate strategy, not benchmark",
+    real_only = {k: v for k, v in candidates.items() if k != "random_candidate"}
+    values_r = pd.DataFrame(real_only).fillna(0.0).to_numpy()
+    n_r, k_r = values_r.shape
+    means_r = values_r.mean(axis=0)
+    observed_rc_r = np.sqrt(n_r) * means_r.max()
+    rng_r = np.random.default_rng(SEED)
+    boot_means_r = np.empty((1000, k_r))
+    for b in range(1000):
+        boot_means_r[b] = values_r[stationary_bootstrap_indices(n_r, rng=rng_r)].mean(axis=0)
+    boot_rc_r = np.sqrt(n_r) * (boot_means_r - means_r).max(axis=1)
+    omega_r = np.sqrt(n_r) * boot_means_r.std(axis=0, ddof=1)
+    omega_r[omega_r == 0] = 1e-12
+    observed_spa_r = max(float((np.sqrt(n_r) * means_r / omega_r).max()), 0.0)
+    cutoff_r = -omega_r / np.sqrt(n_r) * np.sqrt(2 * np.log(np.log(max(n_r, 3))))
+    recenter_r = np.where(means_r >= cutoff_r, means_r, 0.0)
+    boot_spa_r = np.maximum((np.sqrt(n_r) * (boot_means_r - recenter_r) / omega_r).max(axis=1), 0.0)
+
+    snooping = {"formal_benchmark": "zero weekly return",
+                "random_role": "reported as a diagnostic outside the formal universe; the formal test uses the 12 real strategies",
+                "primary_universe": "twelve real candidate strategies",
+                "real_only": {"n_strategies": k_r, "white_rc_stat": observed_rc_r,
+                              "white_rc_p": float((boot_rc_r >= observed_rc_r).mean()),
+                              "spa_stat": observed_spa_r,
+                              "spa_p": float((boot_spa_r >= observed_spa_r).mean()),
+                              "best_candidate": pd.DataFrame(real_only).fillna(0.0).mean().idxmax()},
+                "with_random_candidate_note": "retained for comparison; the random sequence is the argmax, so removing it lowers the observed statistic more than the bootstrap distribution and raises the RC p-value",
                  "n_strategies": n_k, "white_rc_stat": observed_rc, "white_rc_p": float((boot_rc >= observed_rc).mean()),
                  "spa_stat": observed_spa, "spa_p": float((boot_spa >= observed_spa).mean()),
                  "best_candidate": universe.mean().idxmax(),
@@ -513,7 +607,26 @@ def main() -> int:
             xi_boot.append(stats.genpareto.fit(rng_evt.choice(excess, len(excess), replace=True), floc=0)[0])
         except Exception:
             pass
-    evt = {"input": "absolute Friday-close-to-Friday-close EURJPY returns", "threshold_pct": threshold_u * 100,
+    declustering = []
+    for sep in (1, 2, 3, 5):
+        cl, cur = [], [exceed_idx[0]]
+        for i in exceed_idx[1:]:
+            if i - cur[-1] <= sep:
+                cur.append(i)
+            else:
+                cl.append(cur); cur = [i]
+        cl.append(cur)
+        exc = np.array([ret.abs().to_numpy()[c].max() for c in cl]) - threshold_u
+        xi_s, _, sc_s = stats.genpareto.fit(exc, floc=0)
+        rng_s = np.random.default_rng(SEED)
+        boot_s = [stats.genpareto.fit(rng_s.choice(exc, len(exc), replace=True), floc=0)[0]
+                  for _ in range(1000)]
+        declustering.append({"separation_weeks": sep, "clusters": len(cl), "xi": float(xi_s),
+                             "xi_ci": list(np.percentile(boot_s, [2.5, 97.5])),
+                             "ks_p": float(stats.kstest(exc, "genpareto", args=(xi_s, 0, sc_s))[1])})
+
+    evt = {"input": "absolute Friday-close-to-Friday-close EURJPY returns",
+           "declustering_sensitivity": declustering, "threshold_pct": threshold_u * 100,
            "raw_exceedances": len(exceed_idx), "clusters": len(clusters),
            "theta": theta, "theta_ci": list(np.percentile(theta_boot, [2.5, 97.5])), "xi": xi,
            "xi_ci": list(np.percentile(xi_boot, [2.5, 97.5])), "scale": scale, "ks_stat": ks_stat, "ks_p": ks_p}
@@ -527,7 +640,19 @@ def main() -> int:
         ann_boot.append((growth ** (52 / len(sample)) - 1) * 100)
         sample_sd = sample.std(ddof=1)
         sharpe_boot.append(sample.mean() / sample_sd * np.sqrt(52) if sample_sd > 0 else 0.0)
-    inference = {"annualized_return": ((1 + base.metrics["return"] / 100) ** (52 / len(xret)) - 1) * 100,
+    block_sensitivity = []
+    for eb in (2.0, 4.0, 8.0, 13.0):
+        rng_b = np.random.default_rng(SEED)
+        sh = []
+        for _ in range(1000):
+            s = xret[stationary_bootstrap_indices(len(xret), expected_block=eb, rng=rng_b)]
+            sd_s = s.std(ddof=1)
+            sh.append(s.mean() / sd_s * np.sqrt(52) if sd_s > 0 else 0.0)
+        block_sensitivity.append({"expected_block_weeks": eb,
+                                  "sharpe_ci": list(np.percentile(sh, [2.5, 97.5]))})
+
+    inference = {"block_length_sensitivity": block_sensitivity,
+                 "annualized_return": ((1 + base.metrics["return"] / 100) ** (52 / len(xret)) - 1) * 100,
                  "annualized_return_ci": list(np.percentile(ann_boot, [2.5, 97.5])),
                  "sharpe": base.metrics["sharpe"], "sharpe_ci": list(np.percentile(sharpe_boot, [2.5, 97.5]))}
 

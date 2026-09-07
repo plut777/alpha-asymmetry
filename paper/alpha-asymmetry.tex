@@ -158,15 +158,16 @@ testing (one episode in eight out-of-sample years), and provides no evidence of
 a positive residual alpha against proxy carry, momentum, and dollar factors
 (intercept $t = -0.84$ on in-position weeks). It does, however, carry a
 significant \emph{negative} loading on time-series momentum
-($\beta = -0.82$, 95\% CI $[-1.26, -0.39]$ on in-position weeks), absent before
+($\beta = -0.82$, 95\% CI $[-1.44, -0.20]$ on in-position weeks), absent before
 correction, indicating a substantial short-momentum exposure alongside whatever
 asymmetry signal the rule captures. Transaction costs make an already negative gross
 result monotonically worse; no break-even cost exists, since the strategy does
 not break even at zero cost.
-Data-snooping corrections complete the null: White's Reality Check ($p = 0.15$)
-and Hansen's SPA ($p = 0.26$) find no strategy in a 13-candidate universe that
-outperforms the zero-return benchmark---the best realized mean return belongs to
-a seeded random candidate. The weekly-return GPD shape parameter is imprecisely estimated ($\xi = -0.25$),
+Data-snooping corrections complete the null: White's Reality Check ($p = 0.30$)
+and Hansen's SPA ($p = 0.25$) find no strategy in a 12-candidate universe that
+outperforms the zero-return benchmark, and neither does a thirteenth candidate
+consisting of a seeded coin flip, which posts the highest realized mean of the
+set. The weekly-return GPD shape parameter is imprecisely estimated ($\xi = -0.25$),
 and tail clustering is weak ($\theta = 0.83$, 95\% CI $[0.60, 1.00]$). We conclude
 that the evidence does not support broad alpha signal asymmetry in this setting
 (with one distributional exception that does not yield a tradable edge) or its exploitability,
@@ -218,7 +219,7 @@ We sample EUR/JPY forex data from November 2015 to August 2025, sourced from Yah
 The dataset includes five pre-computed alpha signals, each capturing distinct aspects of market dynamics:
 
 \begin{itemize}
-    \item \textbf{Tail Alpha ($\alpha_{\text{tail}}$)}: Captures extreme daily price movements without discarding their direction. Formally, $\alpha_{\text{tail},t} = \mathbf{1}_{|r_t| > q_{0.95,t}} \cdot r_t$, where $q_{0.95,t}$ denotes the 95th percentile of absolute daily returns over the trailing 252 trading days (with 60 observations required during warm-up). The Friday observation is retained in the weekly signal panel.
+    \item \textbf{Tail Alpha ($\alpha_{\text{tail}}$)}: Captures extreme daily price movements without discarding their direction. Formally, $\alpha_{\text{tail},t} = \mathbf{1}_{|r_t| > q_{0.95,t}} \cdot r_t$, where $q_{0.95,t}$ denotes the 95th percentile of absolute daily returns over the trailing 252 trading days (with 60 observations required during warm-up). The Friday observation is retained in the weekly signal panel. \textbf{This sampling rule discards most of the exceedances it detects}: 105 of the 504 weeks contain at least one daily exceedance, but only 35 have one \emph{on the Friday}, so roughly two-thirds of exceedance weeks enter the weekly panel as zeros. The resulting weekly series is far sparser than the daily construction implies, and every statistic computed on it---its skewness, its asymmetry index, its position in Tables~\ref{tab:asymmetry} and~\ref{tab:tests}---inherits that sparsity. We retain the published construction so that the corrected results remain comparable to the published ones, and record the aliasing as a limitation rather than repairing it; repairing it means redefining the signal, which is a change of specification rather than a correction. See Section~\ref{sec:limitations}.
 
     \item \textbf{Fast Alpha ($\alpha_{\text{fast}}$)}: Short-term momentum signal computed as the 5-day percentage return normalized by 20-day realized volatility: $\alpha_{\text{fast},t} = (P_t/P_{t-5} - 1) / (\sigma_{20,t} \sqrt{5})$.
 
@@ -258,6 +259,7 @@ This estimator subtracts 3 (the kurtosis of a normal distribution) and applies f
 \textbf{Asymmetry Index (AI)} quantifies the ratio of upside to downside semi-variance, providing a risk-management-oriented asymmetry measure:
 \begin{equation}
     AI = \frac{\text{Var}^+(X)}{\text{Var}^-(X)} = \frac{\sum_{i: x_i > \bar{x}} (x_i - \bar{x})^2 / n^+}{\sum_{i: x_i < \bar{x}} (x_i - \bar{x})^2 / n^-}
+    \label{eq:ai}
 \end{equation}
 where $n^+$ and $n^-$ denote observations above and below the mean. Values above 1 indicate greater dispersion in positive deviations---relevant for assessing ``lottery ticket'' payoff structures \citep{bali2011maxing}.
 The index is undefined when either side is empty or the downside mean-squared deviation is zero; the implementation returns a missing value in those cases. A single observation on one side remains valid because the calculation is a mean square about the overall mean, not a subgroup sample variance.
@@ -313,7 +315,7 @@ We evaluate the asymmetry strategy against three benchmarks, with explicit signa
     \text{Position size} = \min(2.0, 1 + |AI_t - 1.0|)
     \label{eq:possize}
 \end{equation}
-where $AI_t$ is the contemporaneous asymmetry index, evaluated at each Friday close for as long as a direction is held. Because $AI_t \geq 0$, the formula spans 1--2 gross-notional units; the previously stated 0.5-unit lower bound was unreachable. A missing AI uses the neutral one-unit size. Resizing changes the notional only: it does not open or close a holding episode, reverse a direction, or reset the holding clock.
+where $AI_t$ is the contemporaneous asymmetry index, evaluated at each Friday close for as long as a direction is held. \textbf{$AI_t$ is computed by Equation~\ref{eq:ai} on a trailing 20-week window of weekly fast-alpha observations, requiring a minimum of 10 observations; before that minimum is met it is undefined and the neutral one-unit size applies.} The window is the same 20-week window used for the rolling skewness entry conditions. Because $AI_t \geq 0$, the formula spans 1--2 gross-notional units; the previously stated 0.5-unit lower bound was unreachable. A missing AI uses the neutral one-unit size. Resizing changes the notional only: it does not open or close a holding episode, reverse a direction, or reset the holding clock.
 
 We flag one specification choice explicitly, because it is a choice and not a correction. Repairing the exit rule (above) creates weeks in which a direction is held while no entry signal fires---a state the original implementation could not reach, because it closed any position as soon as its entry signal stopped firing, and which the published specification therefore never had to size. Evaluating $AI_t$ weekly, as the equation and the rebalancing convention state, and freezing the notional at entry are both extensions of the published rule to that new state. We adopt weekly evaluation as the smaller extension, since it preserves both the contemporaneous subscript in Equation~\ref{eq:possize} and the stated rebalancing frequency. Section~\ref{sec:tcosts} reports the frozen-notional alternative; no conclusion in this paper depends on which is used.
 
@@ -391,12 +393,36 @@ Hedge & 0.15 & 1.4 & $[-0.25, 0.54]$ & 0.990** & 7.4* & 11.7** & 1716.2*** \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: $t$-stat tests $H_0: \gamma_1 = 0$ with $\text{SE} = \sqrt{6/n} = 0.109$ ($n = 504$) and assumes i.i.d.\ observations; Block CI = 95\% circular block bootstrap confidence interval for $\hat{\gamma}_1$ (block length 13 weeks, $B = 2000$), which is robust to the serial dependence the i.i.d.\ tests ignore; SW = Shapiro-Wilk statistic; JB = Jarque-Bera statistic; $K^2$ = D'Agostino-Pearson omnibus; LB $Q(4)$ = Ljung-Box statistic at four lags, reported per series. * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$ (unadjusted); the qualitative conclusions below apply Bonferroni correction at family size $m = 5$. Because pricing, coverage, and hedge alphas are built from overlapping rolling windows, their Ljung-Box statistics are large by construction and the block-bootstrap intervals are the appropriate basis for skewness inference.}
+\parbox{\linewidth}{\footnotesize Note: $t$-stat tests $H_0: \gamma_1 = 0$ with $\text{SE} = \sqrt{6/n} = 0.109$ ($n = 504$) and assumes i.i.d.\ observations; Block CI = 95\% circular block bootstrap confidence interval for $\hat{\gamma}_1$ (block length 13 weeks, $B = 2000$), which relaxes both the normality and the independence assumptions of the $t$-test; i.i.d.\ CI = 95\% non-overlapping bootstrap interval, which relaxes normality only and is reported so the two effects can be separated (Table~\ref{tab:bootcompare}); SW = Shapiro-Wilk statistic; JB = Jarque-Bera statistic; $K^2$ = D'Agostino-Pearson omnibus; LB $Q(4)$ = Ljung-Box statistic at four lags, reported per series. * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$ (unadjusted); the qualitative conclusions below apply Bonferroni correction at family size $m = 5$. Because pricing, coverage, and hedge alphas are built from overlapping rolling windows, their Ljung-Box statistics are large by construction and the block-bootstrap intervals are the appropriate basis for skewness inference.}
 \end{table}
 
 \textbf{Normality.} Four of five alpha types reject normality. For fast alpha, none of the reported tests rejects the Gaussian null (SW $p = 0.55$, JB $\approx 0$, $K^2$ $p = 0.99$). This is compatibility with the null in this sample, not proof of exact Gaussianity. Tail and coverage depart severely; pricing and hedge reject more mildly.
 
-\textbf{Skewness.} Under the i.i.d.\ $t$-test, tail and coverage alphas show large-magnitude skewness of opposite signs. But the alphas are serially dependent; pricing, coverage, and hedge have Ljung-Box statistics ranging from 72.6 to 1716, so the block-bootstrap intervals are the appropriate inferential yardstick. On that yardstick only \emph{coverage} alpha survives: its interval $[1.18, 2.16]$ excludes zero decisively, while the tail-alpha interval $[-3.10, 0.54]$ widens to include zero once dependence is respected (the point estimate is dominated by a small number of clustered exceedance weeks). Fast, pricing, and hedge alpha intervals include zero.
+\textbf{Skewness.} Under the i.i.d.\ $t$-test, tail and coverage alphas show large-magnitude skewness of opposite signs. That test is not merely dependence-blind; for the sparser signals it is invalid on its own terms, because the normal-theory standard error $\sqrt{6/n} = 0.109$ presumes a Gaussian null that tail alpha violates severely (excess kurtosis 19.20, and only 35 of 504 weekly observations are non-zero). Table~\ref{tab:bootcompare} separates the two failures by reporting an i.i.d.\ bootstrap, which relaxes normality alone, beside the block bootstrap, which relaxes normality and dependence together.
+
+\begin{table}[H]
+\centering
+\caption{Skewness Intervals: Normal Theory, i.i.d.\ Bootstrap, and Block Bootstrap}
+\label{tab:bootcompare}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Signal & $\hat{\gamma}_1$ & Normal-theory SE & i.i.d.\ bootstrap SE & i.i.d.\ 95\% CI & Block 95\% CI \\
+\midrule
+Tail & $-$1.48 & 0.109 & 0.941 & $[-3.14, 0.62]$ & $[-3.10, 0.54]$ \\
+Fast & 0.01 & 0.109 & 0.114 & $[-0.21, 0.23]$ & $[-0.21, 0.21]$ \\
+Pricing & $-$0.17 & 0.109 & 0.078 & $[-0.32, -0.02]$ & $[-0.45, 0.09]$ \\
+Coverage & 1.75 & 0.109 & 0.342 & $[0.98, 2.30]$ & $[1.18, 2.16]$ \\
+Hedge & 0.15 & 0.109 & 0.073 & $[0.00, 0.29]$ & $[-0.25, 0.54]$ \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: The normal-theory SE is the $\sqrt{6/n}$ figure assumed by the $t$-test. The i.i.d.\ bootstrap resamples observations independently ($B = 2000$), relaxing normality but not dependence. The block bootstrap ($13$-week circular blocks, $B = 2000$) relaxes both.}
+\end{table}
+
+The comparison is informative in two directions. For \emph{tail alpha} the i.i.d.\ and block intervals are almost identical ($[-3.14, 0.62]$ against $[-3.10, 0.54]$), and the i.i.d.\ bootstrap standard error of 0.941 is nearly nine times the normal-theory 0.109. The width of the interval is therefore a consequence of sparsity and extreme non-normality, \emph{not} of serial dependence; the $t$-test fails on this signal before dependence is considered at all. For \emph{pricing} and \emph{hedge} alpha the picture reverses: the block interval is substantially wider than the i.i.d.\ one, and in both cases it moves an interval that excludes zero to one that includes it. There the dependence correction is doing the work, as the Ljung-Box statistics of 679 and 1716 would suggest.
+
+On the block-bootstrap yardstick only \emph{coverage} alpha survives: its interval $[1.18, 2.16]$ excludes zero decisively. Tail, fast, pricing and hedge alpha intervals all include zero.
 
 \textbf{What survives.} The asymmetry inventory that motivates the rest of the paper is therefore modest: one robustly right-skewed volatility-expansion signal, one negatively-skewed-but-fragile tail signal, and three signals whose skewness intervals include zero. This is consistent with the broader stylized facts on asset-price distributions \citep{cont2001empirical, mandelbrot1963variation} while falling well short of the pervasive ``alpha asymmetry'' a trading strategy would want.
 
@@ -477,7 +503,7 @@ The empirical findings reveal a pattern more thoroughgoing than ``asymmetry exis
 
 \textbf{Inactivity Under Honest Selection.} When the threshold is chosen on training data alone, the strategy opens only one OOS holding episode in eight test years. That count is too small for performance inference.
 
-\textbf{It Is Partly Trading Momentum.} The corrected factor regression carries a statistically significant \emph{negative} loading on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.26, -0.39]$, $p = 0.00019$ on in-position weeks; $-0.046$, $p = 0.038$ on the full sample), where under the published specification no loading approached significance. A rule that sells strength and buys weakness is taking a documented factor exposure alongside whatever asymmetry signal it captures. Momentum rose over the exposed weeks and the strategy was short it, which accounts for roughly a quarter of the realized loss; it explains 12\% of the variation in in-position returns, leaving most of it unexplained. The negative result is therefore not only that asymmetry failed to pay, but that part of what was being tested was a momentum exposure rather than asymmetry.
+\textbf{It Is Partly Trading Momentum.} The corrected factor regression carries a statistically significant \emph{negative} loading on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.44, -0.20]$, $p = 0.0091$ on in-position weeks; $-0.046$, $p = 0.038$ on the full sample), where under the published specification no loading approached significance. A rule that sells strength and buys weakness is taking a documented factor exposure alongside whatever asymmetry signal it captures. Momentum rose over the exposed weeks and the strategy was short it, which accounts for roughly a quarter of the realized loss; it explains 12\% of the variation in in-position returns, leaving most of it unexplained. The negative result is therefore not only that asymmetry failed to pay, but that part of what was being tested was a momentum exposure rather than asymmetry.
 
 \textbf{Non-Generalizability.} Cross-market transfer yields erratic results: the identical rules lose 13.32\% on GBP/USD, gain 14.20\% on SPY while trailing buy-and-hold by roughly 280 percentage points, and lose 15.44\% on GLD. The tail signal's negative point estimate also reverses sign in every other market tested. Without asset-specific costs or inference, nothing here establishes generalization.
 
@@ -494,8 +520,9 @@ The corrected statistics still reveal genuine features of market structure, just
 \textbf{A Near-Symmetric Baseline}: The tests do not reject normality for fast alpha in this sample. That result is consistent with a near-symmetric normalized-return signal, but it does not prove exact Gaussianity or rule out other predictive structure \citep{moskowitz2012time}.
 
 \subsection{Limitations}
+\label{sec:limitations}
 
-Several limitations warrant acknowledgment. First, 504 weekly observations and only 15 holding episodes provide limited power, especially for tail and trade-level inference. Second, the alpha definitions are fully disclosed here but are ad hoc and may not generalize. Third, the factor exercise uses spot proxies rather than published cross-sectional FX factors; even with 55 in-position weeks, the effective sample is small, and the significant negative momentum loading is descriptive rather than a stable structural estimate. Fourth, costs use stylized spreads and indicative mid-prices, omit financing, charge no fixed or minimum per-order component, and assume end-of-bar execution; Monday-open prices are in fact available in the daily bars, and the Friday-close convention is a choice we make rather than a constraint the data impose. Fifth, cross-market transfer omits pair-specific financing, costs, and dependence-aware inference. Finally, Yahoo history can be revised. The original raw snapshots were not committed, so exact reproduction of the archived figures is impossible without the owner's files; the revised pipeline caches local inputs and records hashes and software versions.
+Several limitations warrant acknowledgment. First, 504 weekly observations and only 15 holding episodes provide limited power, especially for tail and trade-level inference. Second, the alpha definitions are fully disclosed here but are ad hoc and may not generalize. The tail signal in particular is aliased by its sampling rule: it is constructed from daily exceedances but read only on Fridays, so 70 of the 105 weeks containing an exceedance enter the panel as zeros and only 35 of 504 weekly observations are non-zero. Every tail-alpha statistic in this paper is computed on that sparse series, which is the proximate reason its skewness interval is so wide. A weekly indicator that registered an exceedance on any day of the week, or a threshold defined directly on weekly returns, would be a better construction; both redefine the signal rather than correct it, and we have not made that change here. Third, the factor exercise uses spot proxies rather than published cross-sectional FX factors; even with 55 in-position weeks, the effective sample is small, and the significant negative momentum loading is descriptive rather than a stable structural estimate. Fourth, costs use stylized spreads and indicative mid-prices, omit financing, charge no fixed or minimum per-order component, and assume end-of-bar execution; Monday-open prices are in fact available in the daily bars, and the Friday-close convention is a choice we make rather than a constraint the data impose. Fifth, cross-market transfer omits pair-specific financing, costs, and dependence-aware inference. Finally, Yahoo history can be revised. The original raw snapshots were not committed, so exact reproduction of the archived figures is impossible without the owner's files; the revised pipeline caches local inputs and records hashes and software versions.
 
 \section{Robustness Analysis}
 \label{sec:robustness}
@@ -653,34 +680,85 @@ where the factors are single-market proxies constructible from our data rather t
 \cmidrule(lr){2-3} \cmidrule(lr){4-5}
 Variable & Coefficient & $t$-stat & Coefficient & $t$-stat \\
 \midrule
-Intercept ($\alpha$) & $-$0.00012 & $-$0.52 & $-$0.00131 & $-$0.84 \\
-Carry ($\beta_1$) & 0.0180 & 0.60 & 0.348 & 1.52 \\
-Momentum ($\beta_2$) & $-$0.0462 & $-$2.08$^{*}$ & $-$0.823 & $-$3.73$^{***}$ \\
-Dollar ($\beta_3$) & 0.0148 & 0.67 & 0.155 & 1.08 \\
+Intercept ($\alpha$) & $-$0.00012 & $-$0.52 & $-$0.00131 & $-$0.67 \\
+Carry ($\beta_1$) & 0.0180 & 0.60 & 0.348 & 1.49 \\
+Momentum ($\beta_2$) & $-$0.0462 & $-$2.08$^{*}$ & $-$0.823 & $-$2.61$^{**}$ \\
+Dollar ($\beta_3$) & 0.0148 & 0.67 & 0.155 & 0.98 \\
 \midrule
 $R^2$ & \multicolumn{2}{c}{0.011} & \multicolumn{2}{c}{0.203} \\
 $F$-statistic & \multicolumn{2}{c}{2.12} & \multicolumn{2}{c}{7.04} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: Newey-West HAC standard errors with 4 lags. $^{*}$ $p < 0.05$, $^{***}$ $p < 0.001$ (unadjusted). The full sample includes the flat weeks in which the dependent variable is structurally zero; the in-position sample of 55 weeks is the effective exposure sample and the economically interpretable one. The intercept is not significant in either specification. Momentum is the only factor that loads significantly, and it loads \emph{negatively} in both: $p = 0.038$ on the full sample and $p = 0.00019$ on in-position weeks. Under the earlier specification the same coefficient was $-$0.007 ($t = -0.37$, $p = 0.71$) on the full sample and $-$0.247 ($t = -0.51$, $p = 0.61$) in position; the change is a consequence of correcting the holding rule and the execution lag, not of altering the regression. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a marginally significant intercept of 21 bps weekly (10.9\% annualized) with $F = 20.8$, which could not be reproduced and was internally inconsistent with its own $R^2$ and with the 3.60\% cumulative backtest return. Those figures describe the state of the paper at that time; the corresponding values here are an intercept of $-$0.012 bps weekly and $F = 2.12$, against a cumulative backtest return of $-6.64\%$.}
+\parbox{\linewidth}{\footnotesize Note: Full-sample column uses Newey-West HAC standard errors with 4 lags. \textbf{The in-position column uses standard errors clustered by holding episode} (55 weeks in 15 clusters), because those weeks are non-contiguous---they are drawn from separate episodes spread across a decade---and a lag-based correction presumes consecutive observations. Table~\ref{tab:sevariants} reports the momentum coefficient under all three conventions. $^{*}$ $p < 0.05$, $^{**}$ $p < 0.01$ (unadjusted). The full sample includes the flat weeks in which the dependent variable is structurally zero; the in-position sample of 55 weeks is the effective exposure sample and the economically interpretable one. The intercept is not significant in either specification. Momentum is the only factor that loads significantly, and it loads \emph{negatively} in both: $p = 0.038$ on the full sample and $p = 0.00019$ on in-position weeks. Under the earlier specification the same coefficient was $-$0.007 ($t = -0.37$, $p = 0.71$) on the full sample and $-$0.247 ($t = -0.51$, $p = 0.61$) in position; the change is a consequence of correcting the holding rule and the execution lag, not of altering the regression. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a marginally significant intercept of 21 bps weekly (10.9\% annualized) with $F = 20.8$, which could not be reproduced and was internally inconsistent with its own $R^2$ and with the 3.60\% cumulative backtest return. Those figures describe the state of the paper at that time; the corresponding values here are an intercept of $-$1.2 bps weekly ($-$0.00012 in weekly decimal return) and $F = 2.12$, against a cumulative backtest return of $-6.64\%$.}
 \end{table}
 
 \textbf{No Evidence of Positive Residual Alpha.} The intercept is negative and statistically indistinguishable from zero in both specifications ($t = -0.52$ full sample; $t = -0.84$ on in-position weeks). This is evidence against a positive residual-alpha claim, not proof that the population intercept is exactly zero.
 
-\textbf{A Significant Negative Momentum Loading.} The correction changes this exercise qualitatively, and not in the strategy's favour. Under the published specification no factor loading approached significance: momentum entered at $\beta_2 = -0.007$ ($t = -0.37$, $p = 0.71$) on the full sample and $-0.247$ ($t = -0.51$, $p = 0.61$) on in-position weeks, and the paper concluded that the regression had no power to say anything. With the holding rule and the execution lag corrected, momentum becomes the one factor that loads significantly, and it loads negatively: $\beta_2 = -0.046$ ($t = -2.08$, $p = 0.038$) on the full sample and $\beta_2 = -0.823$ ($t = -3.73$, $p = 0.00019$) on the 55 in-position weeks, where $R^2$ is 0.20 against 0.07 on the published 25-week sample. Carry and the dollar factor remain insignificant, and the intercept remains indistinguishable from zero.
+\textbf{A Significant Negative Momentum Loading.} The correction changes this exercise qualitatively, and not in the strategy's favour. Under the published specification no factor loading approached significance: momentum entered at $\beta_2 = -0.007$ ($t = -0.37$, $p = 0.71$) on the full sample and $-0.247$ ($t = -0.51$, $p = 0.61$) on in-position weeks, and the paper concluded that the regression had no power to say anything. With the holding rule and the execution lag corrected, momentum becomes the one factor that loads significantly, and it loads negatively: $\beta_2 = -0.046$ ($t = -2.08$, $p = 0.038$) on the full sample and $\beta_2 = -0.823$ ($t = -2.61$, $p = 0.0091$, clustered by holding episode) on the 55 in-position weeks, where $R^2$ is 0.20 against 0.07 on the published 25-week sample. Carry and the dollar factor remain insignificant, and the intercept remains indistinguishable from zero.
 
-The in-position estimate is the economically meaningful one: the full-sample coefficient is mechanically attenuated because the dependent variable is exactly zero in 449 of 504 weeks, which shrinks any loading toward zero without saying anything about the exposure the strategy actually carries when it is in the market. Read on the exposure sample, $\beta_2 = -0.82$ (95\% CI $[-1.26, -0.39]$) says that while invested the strategy carries a large negative exposure to twelve-week time-series momentum on the pair it trades. The point estimate is close to one-for-one, but the interval spans roughly half to full unit exposure, and the magnitude should not be pressed further than that. This is consistent with a mechanical consequence of the rule, though we do not test the mechanism directly: the short leg fires when pricing alpha is high, which is to say after the price has run above its sixty-day average, so the strategy systematically sells strength and buys weakness. Momentum alone accounts for 12\% of the variance of in-position returns; the three factors together account for 20\%.
+The in-position estimate is the economically meaningful one: the full-sample coefficient is mechanically attenuated because the dependent variable is exactly zero in 449 of 504 weeks, which shrinks any loading toward zero without saying anything about the exposure the strategy actually carries when it is in the market. Read on the exposure sample, $\beta_2 = -0.82$ (95\% CI $[-1.44, -0.20]$) says that while invested the strategy carries a large negative exposure to twelve-week time-series momentum on the pair it trades. The point estimate is close to one-for-one, but the interval spans roughly half to full unit exposure, and the magnitude should not be pressed further than that. This is consistent with a mechanical consequence of the rule, though we do not test the mechanism directly: the short leg fires when pricing alpha is high, which is to say after the price has run above its sixty-day average, so the strategy systematically sells strength and buys weakness. Momentum alone accounts for 12\% of the variance of in-position returns; the three factors together account for 20\%.
 
 This matters for the paper's central question. A strategy carrying a large short-momentum exposure is, to that extent, not harvesting distributional asymmetry but taking a documented factor exposure. Over the 55 exposed weeks the twelve-week momentum factor \emph{gained} 1.93\%, and the strategy was short it: at $\beta_2 = -0.82$ that exposure accounts for roughly $-1.6$ percentage points of the $-6.64\%$ loss, about a quarter of it. (The twenty-week momentum benchmark of Table~\ref{tab:backtest} lost 18.92\% over the full sample, but that is a different series from the twelve-week regressor and is not the relevant comparison here.) This sharpens the null rather than softening it: there is no residual alpha to explain, and a measurable part of the return variation that does exist is explained by an exposure the strategy never set out to take.
 
-\textbf{How Far to Press It.} Three qualifications, none of which overturn the finding but all of which bound it. First, the full-sample $p$-value of 0.038 is marginal and would not survive a multiple-testing correction of the kind this paper applies elsewhere: at family size six (three factors in two specifications) a Bonferroni threshold would be $0.008$. The in-position estimate at $p = 0.00019$ clears that bar comfortably, and the finding should be read as resting on it rather than on the full-sample row. Second, Mom is a twelve-week time-series momentum rule on EUR/JPY itself, not the published cross-sectional currency momentum factor of \citet{menkhoff2012currency}; a strong loading of a single-pair strategy on a single-pair momentum rule is less surprising, and less transferable, than a loading on a genuine cross-sectional factor would be. Third, 55 in-position weeks arising from 15 episodes is a small and serially dependent sample, and HAC standard errors adjust the inference without enlarging the evidence. The loading is a robust description of this sample and a hypothesis about the strategy's character, not a structural estimate. Note also that momentum leaves roughly seven-eighths of the variation in in-position returns unexplained; the exposure is economically material without being the whole story.
+\textbf{How Far to Press It.} The in-position weeks are non-contiguous: 55 weeks drawn from 15 separate holding episodes spread across a decade. A lag-based correction such as Newey-West presumes that adjacent rows are adjacent in time, which here they are not---consecutive rows in the stacked sample can be years apart. We therefore report standard errors clustered by holding episode as the primary specification, with the lag-based and heteroskedasticity-robust alternatives beside them.
+
+\begin{table}[H]
+\centering
+\caption{Momentum Loading Under Three Standard-Error Conventions (In-Position Weeks)}
+\label{tab:sevariants}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Standard errors & $\hat{\beta}_2$ & SE & $t$ & $p$ \\
+\midrule
+Clustered by holding episode (primary) & $-$0.823 & 0.315 & $-$2.61 & 0.0091 \\
+Newey-West HAC, 4 lags & $-$0.823 & 0.221 & $-$3.73 & 0.00019 \\
+HC3 heteroskedasticity-robust & $-$0.823 & 0.380 & $-$2.17 & 0.0304 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: 55 in-position weeks in 15 clusters. The point estimate is identical throughout; only the standard error differs. Clustering is primary because it is the only one of the three that respects the episodic structure of the sample.}
+\end{table}
+
+Under the primary specification the loading is $\hat{\beta}_2 = -0.823$ with $t = -2.61$ and $p = 0.0091$ (95\% CI $[-1.44, -0.20]$). Four qualifications bound the finding.
+
+First, on multiple testing: this paper applies Bonferroni correction elsewhere, and at family size six---three factors in two specifications---the threshold would be $0.0083$. \textbf{At $p = 0.0091$ the momentum loading falls just short of that threshold.} It is significant at the 5\% level under every standard-error convention we tried, and it does not clear the paper's own multiple-testing bar. An earlier draft of this revision reported $p = 0.00019$ from the lag-based errors and described it as clearing that bar comfortably; that claim depended on a correction inappropriate to a non-contiguous sample, and we withdraw it.
+
+Second, Mom is a twelve-week time-series momentum rule on EUR/JPY itself, not the published cross-sectional currency momentum factor of \citet{menkhoff2012currency}. A strong loading of a single-pair strategy on a single-pair momentum rule is less surprising, and less transferable, than a loading on a genuine cross-sectional factor would be.
+
+Third, 15 clusters is a small number for cluster-robust inference, which is asymptotic in the number of clusters rather than the number of observations. The $p$-value should be read as indicative rather than exact.
+
+Fourth, momentum leaves roughly seven-eighths of the variation in in-position returns unexplained. The exposure is economically material without being the whole story. The loading is a robust description of this sample and a hypothesis about the strategy's character, not a structural estimate.
 
 \subsection{Weekly-Return Tail Distribution Analysis}
 
 A concern with any exceedance-based signal is whether extreme observations reflect a stable tail distribution or sparse outliers that may not recur out-of-sample. As a separate diagnostic, we characterize absolute Friday-close-to-Friday-close EUR/JPY returns using Extreme Value Theory \citep{mcneil2000estimation, coles2001introduction}. This is not the same sample as tail alpha, which flags daily exceedances before Friday sampling. The exercise therefore describes weekly return magnitudes and does not establish an upside-asymmetry story.
 
-\textbf{Exceedance Preprocessing.} Financial tail events exhibit temporal clustering (volatility clustering), violating the GPD independence assumption. We apply runs declustering with minimum inter-exceedance separation of 5 weeks, following \citet{coles2001introduction}. Of the 26 raw exceedances above the 95th percentile threshold, declustering yields 20 cluster maxima used for GPD estimation. We estimate the extremal index $\theta = 0.83$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.60, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
+\textbf{Exceedance Preprocessing.} Financial tail events exhibit temporal clustering (volatility clustering), violating the GPD independence assumption. We apply runs declustering with minimum inter-exceedance separation of 5 weeks, following \citet{coles2001introduction}. Of the 26 raw exceedances above the 95th percentile threshold, declustering yields 20 cluster maxima used for GPD estimation.
+
+A five-week separation is aggressive for weekly data, where persistence is far shorter than in the daily series declustering was designed for, and we report its consequences rather than assert its harmlessness. Varying the separation from one to five weeks changes the number of cluster maxima from 22 to 20 and the shape estimate from $-0.209$ to $-0.248$; the three- and five-week settings are identical, and every interval spans roughly $[-1.5, 0.2]$ (Table~\ref{tab:decluster}).
+
+\begin{table}[H]
+\centering
+\caption{Sensitivity of the GPD Fit to the Declustering Separation}
+\label{tab:decluster}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Separation & Cluster maxima & $\hat{\xi}$ & 95\% CI & KS $p$ \\
+\midrule
+1 week & 22 & $-$0.209 & $[-1.53, 0.22]$ & 0.997 \\
+2 weeks & 21 & $-$0.241 & $[-1.51, 0.22]$ & 0.981 \\
+3 weeks & 20 & $-$0.248 & $[-1.51, 0.25]$ & 0.971 \\
+5 weeks (reported) & 20 & $-$0.248 & $[-1.51, 0.25]$ & 0.971 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: GPD fitted by maximum likelihood to cluster maxima above the 95th percentile of weekly absolute returns. $\hat{\xi}$ CI from a nonparametric bootstrap of cluster maxima, $B = 1000$.}
+\end{table}
+
+The choice is therefore immaterial: the loosest setting we tried recovers two additional cluster maxima and moves the shape estimate by 0.04, well inside an interval that spans more than 1.7. The imprecision of the tail estimate is a consequence of having 26 exceedances in ten years, not of how they are declustered. We estimate the extremal index $\theta = 0.83$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.60, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
 
 \textbf{Methodology.} We fit a Generalized Pareto Distribution (GPD) to cluster maxima above the 95th percentile threshold. The GPD is characterized by shape parameter $\xi$ (determining tail heaviness) and scale parameter $\sigma$. Positive $\xi$ indicates Pareto-type heavy tails; $\xi = 0$ corresponds to exponential decay; negative $\xi$ implies bounded tails.
 
@@ -719,11 +797,34 @@ With five alpha types examined across multiple statistical tests, data-snooping 
 
 \textbf{Bonferroni Corrections.} Table \ref{tab:tests} applies plain Bonferroni correction at family size $m = 5$ (one skewness test per alpha type; $\alpha^* = 0.01$ for the 5\% family level). At the corrected threshold, four of five alpha types reject \emph{normality}, but the asymmetry inventory is far thinner: only coverage alpha's skewness survives both the correction and, more demandingly, the block-bootstrap dependence adjustment. The reported tests do not reject normality for fast alpha; this is a useful control result, not proof that its population distribution is Gaussian.
 
-\textbf{Bootstrap Implementation.} White's Reality Check and Hansen's SPA employ the stationary block bootstrap of \citet{politis1994stationary} with expected block length $\ell = 4$ weeks. The 13 candidates comprise five simplified asymmetry rules, the full rule, three momentum rules, two mean-reversion rules, always-long, and one seeded random candidate. Bootstrap replications: 1,000. The formal benchmark is zero weekly return.
+\textbf{Bootstrap Choices.} Two resampling schemes appear in this paper, applied to different objects. Skewness of the alpha signals is resampled with a \emph{circular block} bootstrap at a fixed 13-week block, because those signals are constructed from overlapping rolling windows of 20 weeks and 60 to 100 trading days: their dependence is mechanical, long, and of known length, and a fixed block comparable to the construction window is the natural choice. Strategy returns are resampled with the \emph{stationary} bootstrap of \citet{politis1994stationary} at an expected 4-week block, because they are not overlapping constructions and their dependence is short and of unknown length, which is the case the stationary bootstrap's random block length is designed for. Table~\ref{tab:blocklen} reports the Sharpe interval across expected block lengths from 2 to 13 weeks; the interval is stable, so no conclusion rests on the choice.
 
-\textbf{White's Reality Check.} Following \citet{white2000reality}, we test the candidate universe against a zero-return benchmark. The Reality Check does not reject the null of no superior strategy ($RC = 0.02$, $p = 0.15$). The seeded random position sequence is one prespecified candidate, not the formal benchmark; it happens to have the highest realized sample mean.
+\begin{table}[H]
+\centering
+\caption{Sensitivity of the Sharpe Interval to Expected Block Length}
+\label{tab:blocklen}
+\small
+\begin{tabular}{@{}lc@{}}
+\toprule
+Expected block length & 95\% Sharpe interval \\
+\midrule
+2 weeks & $[-0.776, 0.475]$ \\
+4 weeks (reported) & $[-0.705, 0.396]$ \\
+8 weeks & $[-0.722, 0.409]$ \\
+13 weeks & $[-0.724, 0.420]$ \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: Stationary bootstrap, $B = 1000$, applied to the corrected weekly strategy return series. Every interval contains zero comfortably.}
+\end{table}
 
-\textbf{Hansen's SPA Test.} The Superior Predictive Ability test \citep{hansen2005test} agrees ($SPA = 1.90$, $p = 0.26$): no candidate demonstrates superior predictive ability over the zero-return benchmark at conventional levels.
+\textbf{Bootstrap Implementation.} White's Reality Check and Hansen's SPA employ the stationary block bootstrap with expected block length $\ell = 4$ weeks. The 12 formal candidates comprise five simplified asymmetry rules, the full rule, three momentum rules, two mean-reversion rules and always-long; the seeded random sequence is evaluated alongside as a diagnostic and excluded from the formal universe. Bootstrap replications: 1,000. The formal benchmark is zero weekly return.
+
+\textbf{Candidate Universe.} The formal tests are run on the \textbf{twelve real candidate strategies}. A seeded random position sequence is reported alongside as a diagnostic but is excluded from the formal universe: a data-snooping correction should control the error rate across the space actually searched, and a coin-flip rule was never a strategy under consideration.
+
+\textbf{White's Reality Check.} Following \citet{white2000reality}, we test the twelve-strategy universe against a zero-return benchmark. The Reality Check does not reject the null of no superior strategy ($RC = 0.015$, $p = 0.30$). Including the random sequence as a thirteenth candidate gives $RC = 0.020$, $p = 0.15$. The direction is worth noting because it is the opposite of what candidate-dilution intuition suggests: the random sequence has the highest realized sample mean in the universe, so removing it lowers the observed statistic more than it lowers the bootstrap distribution, and the $p$-value \emph{rises}. Neither universe rejects.
+
+\textbf{Hansen's SPA Test.} The Superior Predictive Ability test \citep{hansen2005test} agrees ($SPA = 1.90$, $p = 0.25$ on the twelve-strategy universe; $p = 0.26$ including the random sequence): no candidate demonstrates superior predictive ability over the zero-return benchmark at conventional levels.
 
 \textbf{Why These Statistics Are Insensitive to the Sizing Specification.} Both test statistics are numerically identical under the weekly and frozen-notional sizing specifications, and the $p$-values differ by 0.001 and 0.000 respectively. This is not a transcription error. Both tests take a maximum across the thirteen-candidate universe, and that maximum is attained by the seeded random candidate, whose returns do not depend on the asymmetry strategy's sizing at all. The asymmetry strategy enters the universe as one candidate among thirteen and is nowhere near the maximum, so a change to it moves the test statistic not at all and reaches the $p$-value only through the bootstrap covariance between candidates. A reader should expect these two rows to be stable across any change confined to the asymmetry rule.
 
@@ -736,16 +837,20 @@ With five alpha types examined across multiple statistical tests, data-snooping 
 \toprule
 Test & Statistic & $p$-value & Interpretation \\
 \midrule
-White's Reality Check & 0.02 & 0.15 & Not significant \\
+White's Reality Check & 0.015 & 0.30 & Not significant \\
+Hansen's SPA & 1.90 & 0.25 & Not significant \\
+\# Candidate Strategies & 12 & --- & --- \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Including the random sequence as a thirteenth candidate:}} \\
+White's Reality Check & 0.020 & 0.15 & Not significant \\
 Hansen's SPA & 1.90 & 0.26 & Not significant \\
-\# Candidate Strategies & 13 & --- & --- \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: Candidates: simplified asymmetry (5), full two-sided asymmetry (1), momentum (3), mean reversion (2), always-long (1), and a seeded random candidate (1). The formal benchmark is zero weekly return. All candidates use one execution lag. Stationary bootstrap: 1,000 replications, expected block length 4 weeks. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported $RC = 2.14$ ($p = 0.042$), which could not be reproduced from any specification of the stated universe. The reproducible values are those shown, $RC = 0.02$ ($p = 0.15$).}
+\parbox{\linewidth}{\footnotesize Note: Formal candidates: simplified asymmetry (5), full two-sided asymmetry (1), momentum (3), mean reversion (2), always-long (1). The seeded random sequence is reported as a diagnostic outside the formal universe. The formal benchmark is zero weekly return. All candidates use one execution lag. Stationary bootstrap: 1,000 replications, expected block length 4 weeks. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported $RC = 2.14$ ($p = 0.042$), which could not be reproduced from any specification of the stated universe. The reproducible values are those shown, $RC = 0.02$ ($p = 0.15$).}
 \end{table}
 
-\textbf{Interpretation.} The tests find no statistically superior candidate in this prespecified universe. This is a failure to reject superiority, not proof that every possible strategy has zero expected return. The random candidate's top sample mean underscores the instability of ranking noisy rules.
+\textbf{Interpretation.} The tests find no statistically superior candidate in either universe. This is a failure to reject superiority, not proof that every possible strategy has zero expected return. That a seeded coin-flip sequence would have posted the highest realized mean of the thirteen is not evidence about the coin flip; it is a reminder of how wide the dispersion of realized means is at this sample size, and therefore of how little a ranking among these rules would mean.
 
 \section{Conclusions}
 
@@ -756,7 +861,7 @@ This paper investigated whether distributional asymmetries in FX alpha signals r
     \item EVT tail-shape inference is too imprecise to establish Pareto-type heavy tails or exponential decay; clustering appears weak but is also estimated from few exceedances
     \item The corrected asymmetry strategy loses 6.64\% gross (15 holding episodes, Sharpe $-0.15$), with bootstrap intervals that include zero; walk-forward selection opens one episode in eight test years
     \item Execution costs monotonically worsen the already negative gross result, and no break-even cost exists: the published 19.2-pip figure presumed a positive gross return, and there is none to consume. Omitted financing, the absence of any per-order cost component, and end-of-bar execution remain limitations
-    \item While invested, the corrected strategy loads significantly and negatively on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.26, -0.39]$), a loading absent before correction. Momentum rose over the exposed weeks and the strategy was short it, accounting for roughly a quarter of the realized loss, so part of that loss reflects a known factor exposure rather than a failure specific to asymmetry
+    \item While invested, the corrected strategy loads significantly and negatively on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.44, -0.20]$), a loading absent before correction. Momentum rose over the exposed weeks and the strategy was short it, accounting for roughly a quarter of the realized loss, so part of that loss reflects a known factor exposure rather than a failure specific to asymmetry
     \item Data-snooping tests find no statistically superior candidate against zero return, and exploratory cross-market outcomes are unstable
 \end{enumerate}
 
