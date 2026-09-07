@@ -686,6 +686,67 @@ correct number restated in wrong units. Both were caught by a human reading for
 meaning. The apparatus reduces the surface a reader has to check; it does not
 remove the need for one.
 
+---
+
+## Referee round two — small-cluster inference, and two audits
+
+**Originator: Tofig.** `pytest`: 17 passed (was 14).
+
+### The HAC framing was wrong and is corrected
+
+Reporting HAC "alongside" cluster-robust errors as one of three specifications
+conceded the reviewer's point and then ignored it: if a lag-based correction is
+inapplicable to a non-contiguous sample, it is not a robustness check. HAC now
+appears only as the withdrawn published figure, labelled as such. CR2 is the
+specification; HC3 is the robustness check.
+
+### Small-cluster correction applied, and it moved the number again
+
+Flagging that 15 clusters is few was not the same as fixing it.
+`analysis/inference.py` implements CR2 with Bell--McCaffrey Satterthwaite
+degrees of freedom and a restricted wild cluster bootstrap-t with Rademacher
+weights.
+
+| Inference | t | p |
+|---|---|---|
+| Newey-West HAC (published, now withdrawn) | −3.73 | 0.00019 |
+| CR1 clustered (previous revision) | −2.61 | 0.0091 |
+| CR2, BM dof = 10.2 | −2.54 | 0.0288 |
+| **Wild cluster bootstrap-t (primary)** | **−2.54** | **0.0379** |
+
+The p-value has moved by more than two orders of magnitude across this
+revision's three attempts at it. It remains below 0.05 and is now an order of
+magnitude from the 0.0083 Bonferroni threshold rather than just short of it.
+Tofig pre-committed to reporting whatever emerged, twice, and the number moved
+against us both times.
+
+### #3 broadened: parameters centralised
+
+`analysis/specification.py` declares every free parameter with its value, unit
+and role, and generates the manuscript's specification table.
+`tests/test_specification.py` fails if the table and the code disagree, so a
+parameter cannot change in one without the other. This addresses the class of
+defect, not the instance: the AI window was unreported because parameters lived
+only as literals, and nothing forced the prose to agree with them.
+
+### #8 broadened: unit audit swept the whole manuscript
+
+Checked bps against percent against decimal returns, weekly against annualised,
+volatility units, regression slopes, turnover units and pip size, each against
+the computed value. **`−0.012 bps` was the only unit error in the paper.** The
+July note's "21 bps weekly (10.9% annualized)" is arithmetically right and is a
+historical quotation left verbatim.
+
+### The 67% discard figure, verified again and stated with both bases
+
+Confirmed from raw outputs: 504 weekly observations; 35 non-zero after Friday
+sampling; 105 weeks contain at least one daily exceedance; 70 of those 105 are
+zero after sampling, giving 66.7%. The reviewer's 14 is exactly the
+positive-observation count, confirming it came from the POR rather than a
+non-zero count. The letter now states both denominators explicitly, because
+correcting a reviewer's arithmetic with an ambiguous statistic of our own would
+be worse than saying nothing.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and

@@ -158,7 +158,7 @@ testing (one episode in eight out-of-sample years), and provides no evidence of
 a positive residual alpha against proxy carry, momentum, and dollar factors
 (intercept $t = -0.84$ on in-position weeks). It does, however, carry a
 significant \emph{negative} loading on time-series momentum
-($\beta = -0.82$, 95\% CI $[-1.44, -0.20]$ on in-position weeks), absent before
+($\beta = -0.82$, 95\% CI $[-1.54, -0.10]$ on in-position weeks), absent before
 correction, indicating a substantial short-momentum exposure alongside whatever
 asymmetry signal the rule captures. Transaction costs make an already negative gross
 result monotonically worse; no break-even cost exists, since the strategy does
@@ -328,6 +328,62 @@ We flag one specification choice explicitly, because it is a choice and not a co
 \end{itemize}
 
 The published version specified entry at the Monday open following Friday signal generation. We do not implement that here, and we are explicit that this is a choice rather than a data limitation: the daily bars carry an opening price, so Monday-open execution is implementable and is left for a separate change rather than being precluded by the data. The Friday-close proxy is an internally consistent bar-to-bar convention, not evidence that the displayed mid-price could have been filled after observing that exact close. All headline, benchmark, walk-forward, factor, cost, and data-snooping returns use the same single-lag convention.
+
+\begin{table}[H]
+\centering
+\caption{Complete Specification: Every Free Parameter}
+\label{tab:spec}
+\scriptsize
+\begin{tabular}{@{}llll@{}}
+\toprule
+Parameter & Value & Unit & Governs \\
+\midrule
+Tail exceedance quantile window & 252 & trading days & Tail alpha \\
+Tail quantile minimum observations & 60 & trading days & Tail alpha warm-up \\
+Tail exceedance quantile & 0.95 & quantile & Tail alpha \\
+Fast alpha return horizon & 5 & trading days & Fast alpha numerator \\
+Fast alpha volatility window & 20 & trading days & Fast alpha denominator \\
+Pricing alpha moving-average window & 60 & trading days & Pricing alpha \\
+Coverage alpha volatility lag & 5 & trading days & Coverage alpha \\
+Hedge alpha correlation window & 100 & trading days & Hedge alpha \\
+Hedge alpha rate constant & -0.02 & annualised decimal & Hedge alpha \\
+Rolling skewness window & 20 & weeks & Entry conditions \\
+Rolling skewness minimum observations & 10 & weeks & Entry conditions \\
+Asymmetry index window & 20 & weeks & Equation 10 sizing \\
+Asymmetry index minimum observations & 10 & weeks & Equation 10 sizing \\
+Asymmetry index input series & fast alpha & series & Equation 10 sizing \\
+Entry skewness threshold & 0.75 & skewness units & Baseline strategy \\
+Threshold grid & 0.50, 0.75, 1.00, 1.25 & skewness units & Sensitivity, walk-forward \\
+Short-entry pricing multiple & 0.5 & standard deviations & Entry Short \\
+Maximum holding period & 4 & realized weekly returns & Exit rule \\
+Position size lower bound & 1 & gross notional units & Equation 10 \\
+Position size upper bound & 2 & gross notional units & Equation 10 \\
+Notional sizing & weekly & rebalance frequency & Equation 10 \\
+Execution lag & 1 & weeks & Timing convention \\
+Execution price convention & Friday close & price & Timing convention \\
+Pip size (JPY pairs) & 0.01 & price increment & Cost model \\
+Round-trip cost tiers & 0.0, 0.3, 0.7, 1.3, 2.0 & pips & Cost table \\
+Skewness bootstrap block length & 13 & weeks & Circular block bootstrap \\
+Skewness bootstrap replications & 2000 & draws & Circular block bootstrap \\
+Return bootstrap expected block & 4 & weeks & Stationary bootstrap \\
+Return bootstrap replications & 2000 & draws & Stationary bootstrap \\
+Data-snooping bootstrap replications & 1000 & draws & Reality Check, SPA \\
+Formal candidate universe & 12 & strategies & Reality Check, SPA \\
+Newey-West lags (full sample) & 4 & weeks & Factor regression \\
+Wild cluster bootstrap replications & 9999 & draws & Factor regression \\
+EVT exceedance threshold & 0.95 & quantile & GPD fit \\
+EVT declustering separation & 5 & weeks & GPD fit \\
+Minimum episodes for reported performance & 2 & holding episodes & Reporting rule \\
+Bonferroni family size (factor coefficients) & 6 & tests & Factor regression \\
+Random seed & 42 & integer & All resampling \\
+Analysis-ready weekly observations & 504 & weeks & Sample \\
+Analysis sample start & 2016-01-08 & date & Sample \\
+Analysis sample end & 2025-08-29 & date & Sample \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: This table is generated from \texttt{analysis/specification.py}, which is the single source of these values for the analysis code. A test in \texttt{tests/test\_specification.py} fails if the table and the code disagree, so a parameter cannot be changed in one without the other. Reviewer comment on the previously unstated asymmetry-index window prompted this table; the window is the ``Asymmetry index window'' row.}
+\end{table}
 
 \textbf{Momentum Benchmark}: Weekly time-series momentum \citep{moskowitz2012time}: long one unit when the trailing 20-week return is positive, short one unit when it is negative, so the position is the sign of the trailing return and the strategy is always in the market once the lookback window fills.
 
@@ -503,7 +559,7 @@ The empirical findings reveal a pattern more thoroughgoing than ``asymmetry exis
 
 \textbf{Inactivity Under Honest Selection.} When the threshold is chosen on training data alone, the strategy opens only one OOS holding episode in eight test years. That count is too small for performance inference.
 
-\textbf{It Is Partly Trading Momentum.} The corrected factor regression carries a statistically significant \emph{negative} loading on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.44, -0.20]$, $p = 0.0091$ on in-position weeks; $-0.046$, $p = 0.038$ on the full sample), where under the published specification no loading approached significance. A rule that sells strength and buys weakness is taking a documented factor exposure alongside whatever asymmetry signal it captures. Momentum rose over the exposed weeks and the strategy was short it, which accounts for roughly a quarter of the realized loss; it explains 12\% of the variation in in-position returns, leaving most of it unexplained. The negative result is therefore not only that asymmetry failed to pay, but that part of what was being tested was a momentum exposure rather than asymmetry.
+\textbf{It Is Partly Trading Momentum.} The corrected factor regression carries a statistically significant \emph{negative} loading on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.54, -0.10]$, $p = 0.038$ on in-position weeks; $-0.046$, $p = 0.038$ on the full sample), where under the published specification no loading approached significance. A rule that sells strength and buys weakness is taking a documented factor exposure alongside whatever asymmetry signal it captures. Momentum rose over the exposed weeks and the strategy was short it, which accounts for roughly a quarter of the realized loss; it explains 12\% of the variation in in-position returns, leaving most of it unexplained. The negative result is therefore not only that asymmetry failed to pay, but that part of what was being tested was a momentum exposure rather than asymmetry.
 
 \textbf{Non-Generalizability.} Cross-market transfer yields erratic results: the identical rules lose 13.32\% on GBP/USD, gain 14.20\% on SPY while trailing buy-and-hold by roughly 280 percentage points, and lose 15.44\% on GLD. The tail signal's negative point estimate also reverses sign in every other market tested. Without asset-specific costs or inference, nothing here establishes generalization.
 
@@ -680,56 +736,54 @@ where the factors are single-market proxies constructible from our data rather t
 \cmidrule(lr){2-3} \cmidrule(lr){4-5}
 Variable & Coefficient & $t$-stat & Coefficient & $t$-stat \\
 \midrule
-Intercept ($\alpha$) & $-$0.00012 & $-$0.52 & $-$0.00131 & $-$0.67 \\
-Carry ($\beta_1$) & 0.0180 & 0.60 & 0.348 & 1.49 \\
-Momentum ($\beta_2$) & $-$0.0462 & $-$2.08$^{*}$ & $-$0.823 & $-$2.61$^{**}$ \\
-Dollar ($\beta_3$) & 0.0148 & 0.67 & 0.155 & 0.98 \\
+Intercept ($\alpha$) & $-$0.00012 & $-$0.52 & $-$0.00131 & $-$0.65 \\
+Carry ($\beta_1$) & 0.0180 & 0.60 & 0.348 & 1.43 \\
+Momentum ($\beta_2$) & $-$0.0462 & $-$2.08$^{*}$ & $-$0.823 & $-$2.54$^{*}$ \\
+Dollar ($\beta_3$) & 0.0148 & 0.67 & 0.155 & 0.97 \\
 \midrule
 $R^2$ & \multicolumn{2}{c}{0.011} & \multicolumn{2}{c}{0.203} \\
-$F$-statistic & \multicolumn{2}{c}{2.12} & \multicolumn{2}{c}{7.04} \\
+$F$-statistic & \multicolumn{2}{c}{2.12} & \multicolumn{2}{c}{4.32} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: Full-sample column uses Newey-West HAC standard errors with 4 lags. \textbf{The in-position column uses standard errors clustered by holding episode} (55 weeks in 15 clusters), because those weeks are non-contiguous---they are drawn from separate episodes spread across a decade---and a lag-based correction presumes consecutive observations. Table~\ref{tab:sevariants} reports the momentum coefficient under all three conventions. $^{*}$ $p < 0.05$, $^{**}$ $p < 0.01$ (unadjusted). The full sample includes the flat weeks in which the dependent variable is structurally zero; the in-position sample of 55 weeks is the effective exposure sample and the economically interpretable one. The intercept is not significant in either specification. Momentum is the only factor that loads significantly, and it loads \emph{negatively} in both: $p = 0.038$ on the full sample and $p = 0.00019$ on in-position weeks. Under the earlier specification the same coefficient was $-$0.007 ($t = -0.37$, $p = 0.71$) on the full sample and $-$0.247 ($t = -0.51$, $p = 0.61$) in position; the change is a consequence of correcting the holding rule and the execution lag, not of altering the regression. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a marginally significant intercept of 21 bps weekly (10.9\% annualized) with $F = 20.8$, which could not be reproduced and was internally inconsistent with its own $R^2$ and with the 3.60\% cumulative backtest return. Those figures describe the state of the paper at that time; the corresponding values here are an intercept of $-$1.2 bps weekly ($-$0.00012 in weekly decimal return) and $F = 2.12$, against a cumulative backtest return of $-6.64\%$.}
+\parbox{\linewidth}{\footnotesize Note: Full-sample column uses Newey-West HAC standard errors with 4 lags. \textbf{The in-position column uses CR2 standard errors clustered by holding episode} (55 weeks in 15 clusters) with Bell--McCaffrey degrees of freedom, because those weeks are non-contiguous---they are drawn from separate episodes spread across a decade---and a lag-based correction presumes consecutive observations. The reported $p$-values for momentum come from a restricted wild cluster bootstrap; see Table~\ref{tab:sevariants}. $^{*}$ $p < 0.05$ (unadjusted). The full sample includes the flat weeks in which the dependent variable is structurally zero; the in-position sample of 55 weeks is the effective exposure sample and the economically interpretable one. The intercept is not significant in either specification. Momentum is the only factor that loads significantly, and it loads \emph{negatively} in both: $p = 0.038$ on the full sample and $p = 0.038$ on in-position weeks. Under the earlier specification the same coefficient was $-$0.007 ($t = -0.37$, $p = 0.71$) on the full sample and $-$0.247 ($t = -0.51$, $p = 0.61$) in position; the change is a consequence of correcting the holding rule and the execution lag, not of altering the regression. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a marginally significant intercept of 21 bps weekly (10.9\% annualized) with $F = 20.8$, which could not be reproduced and was internally inconsistent with its own $R^2$ and with the 3.60\% cumulative backtest return. Those figures describe the state of the paper at that time; the corresponding values here are an intercept of $-$1.2 bps weekly ($-$0.00012 in weekly decimal return) and $F = 2.12$, against a cumulative backtest return of $-6.64\%$.}
 \end{table}
 
 \textbf{No Evidence of Positive Residual Alpha.} The intercept is negative and statistically indistinguishable from zero in both specifications ($t = -0.52$ full sample; $t = -0.84$ on in-position weeks). This is evidence against a positive residual-alpha claim, not proof that the population intercept is exactly zero.
 
-\textbf{A Significant Negative Momentum Loading.} The correction changes this exercise qualitatively, and not in the strategy's favour. Under the published specification no factor loading approached significance: momentum entered at $\beta_2 = -0.007$ ($t = -0.37$, $p = 0.71$) on the full sample and $-0.247$ ($t = -0.51$, $p = 0.61$) on in-position weeks, and the paper concluded that the regression had no power to say anything. With the holding rule and the execution lag corrected, momentum becomes the one factor that loads significantly, and it loads negatively: $\beta_2 = -0.046$ ($t = -2.08$, $p = 0.038$) on the full sample and $\beta_2 = -0.823$ ($t = -2.61$, $p = 0.0091$, clustered by holding episode) on the 55 in-position weeks, where $R^2$ is 0.20 against 0.07 on the published 25-week sample. Carry and the dollar factor remain insignificant, and the intercept remains indistinguishable from zero.
+\textbf{A Significant Negative Momentum Loading.} The correction changes this exercise qualitatively, and not in the strategy's favour. Under the published specification no factor loading approached significance: momentum entered at $\beta_2 = -0.007$ ($t = -0.37$, $p = 0.71$) on the full sample and $-0.247$ ($t = -0.51$, $p = 0.61$) on in-position weeks, and the paper concluded that the regression had no power to say anything. With the holding rule and the execution lag corrected, momentum becomes the one factor that loads significantly, and it loads negatively: $\beta_2 = -0.046$ ($t = -2.08$, $p = 0.038$) on the full sample and $\beta_2 = -0.823$ ($t = -2.54$, $p = 0.038$, clustered by holding episode) on the 55 in-position weeks, where $R^2$ is 0.20 against 0.07 on the published 25-week sample. Carry and the dollar factor remain insignificant, and the intercept remains indistinguishable from zero.
 
-The in-position estimate is the economically meaningful one: the full-sample coefficient is mechanically attenuated because the dependent variable is exactly zero in 449 of 504 weeks, which shrinks any loading toward zero without saying anything about the exposure the strategy actually carries when it is in the market. Read on the exposure sample, $\beta_2 = -0.82$ (95\% CI $[-1.44, -0.20]$) says that while invested the strategy carries a large negative exposure to twelve-week time-series momentum on the pair it trades. The point estimate is close to one-for-one, but the interval spans roughly half to full unit exposure, and the magnitude should not be pressed further than that. This is consistent with a mechanical consequence of the rule, though we do not test the mechanism directly: the short leg fires when pricing alpha is high, which is to say after the price has run above its sixty-day average, so the strategy systematically sells strength and buys weakness. Momentum alone accounts for 12\% of the variance of in-position returns; the three factors together account for 20\%.
+The in-position estimate is the economically meaningful one: the full-sample coefficient is mechanically attenuated because the dependent variable is exactly zero in 449 of 504 weeks, which shrinks any loading toward zero without saying anything about the exposure the strategy actually carries when it is in the market. Read on the exposure sample, $\beta_2 = -0.82$ (95\% CI $[-1.54, -0.10]$) says that while invested the strategy carries a large negative exposure to twelve-week time-series momentum on the pair it trades. The point estimate is close to one-for-one, but the interval spans roughly half to full unit exposure, and the magnitude should not be pressed further than that. This is consistent with a mechanical consequence of the rule, though we do not test the mechanism directly: the short leg fires when pricing alpha is high, which is to say after the price has run above its sixty-day average, so the strategy systematically sells strength and buys weakness. Momentum alone accounts for 12\% of the variance of in-position returns; the three factors together account for 20\%.
 
 This matters for the paper's central question. A strategy carrying a large short-momentum exposure is, to that extent, not harvesting distributional asymmetry but taking a documented factor exposure. Over the 55 exposed weeks the twelve-week momentum factor \emph{gained} 1.93\%, and the strategy was short it: at $\beta_2 = -0.82$ that exposure accounts for roughly $-1.6$ percentage points of the $-6.64\%$ loss, about a quarter of it. (The twenty-week momentum benchmark of Table~\ref{tab:backtest} lost 18.92\% over the full sample, but that is a different series from the twelve-week regressor and is not the relevant comparison here.) This sharpens the null rather than softening it: there is no residual alpha to explain, and a measurable part of the return variation that does exist is explained by an exposure the strategy never set out to take.
 
-\textbf{How Far to Press It.} The in-position weeks are non-contiguous: 55 weeks drawn from 15 separate holding episodes spread across a decade. A lag-based correction such as Newey-West presumes that adjacent rows are adjacent in time, which here they are not---consecutive rows in the stacked sample can be years apart. We therefore report standard errors clustered by holding episode as the primary specification, with the lag-based and heteroskedasticity-robust alternatives beside them.
+\textbf{How Far to Press It.} The in-position weeks are non-contiguous: 55 weeks drawn from 15 separate holding episodes spread across a decade. A lag-based correction such as Newey-West presumes that adjacent rows are adjacent in time, which here they are not---consecutive rows in the stacked sample can be years apart---so we do not use one. Inference is clustered by holding episode.
+
+Fifteen is a small number of clusters, and ordinary cluster-robust errors are asymptotic in the number of clusters rather than the number of observations; they are biased downward and over-reject when clusters are few. We therefore use the bias-reduced CR2 estimator of \citet{bell2002bias} with Satterthwaite degrees of freedom, which here are 10.2 rather than the naive 14, and take the primary $p$-value from a restricted wild cluster bootstrap-$t$ with Rademacher weights \citep{cameron2008bootstrap}. Table~\ref{tab:sevariants} reports all of it.
 
 \begin{table}[H]
 \centering
-\caption{Momentum Loading Under Three Standard-Error Conventions (In-Position Weeks)}
+\caption{Momentum Loading Under Small-Cluster Inference}
 \label{tab:sevariants}
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccccl@{}}
 \toprule
-Standard errors & $\hat{\beta}_2$ & SE & $t$ & $p$ \\
+Inference & $\hat{\beta}_2$ & SE & $t$ & $p$ & Role \\
 \midrule
-Clustered by holding episode (primary) & $-$0.823 & 0.315 & $-$2.61 & 0.0091 \\
-Newey-West HAC, 4 lags & $-$0.823 & 0.221 & $-$3.73 & 0.00019 \\
-HC3 heteroskedasticity-robust & $-$0.823 & 0.380 & $-$2.17 & 0.0304 \\
+Wild cluster bootstrap-$t$ & $-$0.823 & --- & $-$2.54 & \textbf{0.038} & \textbf{Primary} \\
+CR2, Bell--McCaffrey dof $= 10.2$ & $-$0.823 & 0.324 & $-$2.54 & 0.029 & Standard error and interval \\
+HC3 & $-$0.823 & 0.380 & $-$2.17 & 0.030 & Robustness \\
+\midrule
+Newey-West HAC, 4 lags & $-$0.823 & 0.221 & $-$3.73 & 0.0002 & \emph{Withdrawn} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: 55 in-position weeks in 15 clusters. The point estimate is identical throughout; only the standard error differs. Clustering is primary because it is the only one of the three that respects the episodic structure of the sample.}
+\parbox{\linewidth}{\footnotesize Note: 55 in-position weeks in 15 holding episodes. The point estimate is identical throughout; only the inference differs. Ordinary cluster-robust errors are asymptotic in the number of clusters, and fifteen is few, so CR2 supplies the standard error and the 95\% interval $[-1.54, -0.10]$, and a restricted wild cluster bootstrap-$t$ with Rademacher weights ($B = 9{,}999$, null imposed) supplies the primary $p$-value. \textbf{The Newey-West row is not an alternative specification.} It is the figure published in an earlier draft of this revision, shown only so the withdrawn number is identifiable: a lag-based autocorrelation correction presumes consecutive observations, which these are not, and it is inapplicable here.}
 \end{table}
 
-Under the primary specification the loading is $\hat{\beta}_2 = -0.823$ with $t = -2.61$ and $p = 0.0091$ (95\% CI $[-1.44, -0.20]$). Four qualifications bound the finding.
+Under the primary specification the loading is $\hat{\beta}_2 = -0.823$ with $t = -2.54$ and a wild cluster bootstrap $p$-value of $0.038$; the CR2 interval is $[-1.54, -0.10]$. \textbf{The loading is nominally significant at the 5\% level under each reported inference specification, but does not meet the paper's pre-specified Bonferroni-adjusted threshold} of $0.0083$ at family size six. An earlier draft of this revision reported $p = 0.00019$ from Newey-West errors and described it as clearing that threshold comfortably. That figure depended on a correction inapplicable to a non-contiguous sample; it is withdrawn, and the appropriate small-cluster inference places the result an order of magnitude away from the threshold rather than below it.
 
-First, on multiple testing: this paper applies Bonferroni correction elsewhere, and at family size six---three factors in two specifications---the threshold would be $0.0083$. \textbf{At $p = 0.0091$ the momentum loading falls just short of that threshold.} It is significant at the 5\% level under every standard-error convention we tried, and it does not clear the paper's own multiple-testing bar. An earlier draft of this revision reported $p = 0.00019$ from the lag-based errors and described it as clearing that bar comfortably; that claim depended on a correction inappropriate to a non-contiguous sample, and we withdraw it.
-
-Second, Mom is a twelve-week time-series momentum rule on EUR/JPY itself, not the published cross-sectional currency momentum factor of \citet{menkhoff2012currency}. A strong loading of a single-pair strategy on a single-pair momentum rule is less surprising, and less transferable, than a loading on a genuine cross-sectional factor would be.
-
-Third, 15 clusters is a small number for cluster-robust inference, which is asymptotic in the number of clusters rather than the number of observations. The $p$-value should be read as indicative rather than exact.
-
-Fourth, momentum leaves roughly seven-eighths of the variation in in-position returns unexplained. The exposure is economically material without being the whole story. The loading is a robust description of this sample and a hypothesis about the strategy's character, not a structural estimate.
+Three further qualifications bound the finding. First, Mom is a twelve-week time-series momentum rule on EUR/JPY itself, not the published cross-sectional currency momentum factor of \citet{menkhoff2012currency}; a strong loading of a single-pair strategy on a single-pair momentum rule is less surprising, and less transferable, than a loading on a genuine cross-sectional factor would be. Second, even CR2 and the wild bootstrap are approximations at fifteen clusters, and the $p$-value should be read as indicative rather than exact. Third, momentum leaves roughly seven-eighths of the variation in in-position returns unexplained; the exposure is economically material without being the whole story. The loading is a robust description of this sample and a hypothesis about the strategy's character, not a structural estimate.
 
 \subsection{Weekly-Return Tail Distribution Analysis}
 
@@ -737,7 +791,7 @@ A concern with any exceedance-based signal is whether extreme observations refle
 
 \textbf{Exceedance Preprocessing.} Financial tail events exhibit temporal clustering (volatility clustering), violating the GPD independence assumption. We apply runs declustering with minimum inter-exceedance separation of 5 weeks, following \citet{coles2001introduction}. Of the 26 raw exceedances above the 95th percentile threshold, declustering yields 20 cluster maxima used for GPD estimation.
 
-A five-week separation is aggressive for weekly data, where persistence is far shorter than in the daily series declustering was designed for, and we report its consequences rather than assert its harmlessness. Varying the separation from one to five weeks changes the number of cluster maxima from 22 to 20 and the shape estimate from $-0.209$ to $-0.248$; the three- and five-week settings are identical, and every interval spans roughly $[-1.5, 0.2]$ (Table~\ref{tab:decluster}).
+A five-week separation is aggressive for weekly data, where persistence is far shorter than in the daily series runs declustering was developed for. We therefore report what a shorter window does. \textbf{At a one-week separation---the shortest declustering that does anything at all---the fit uses 22 cluster maxima rather than 20 and gives $\hat{\xi} = -0.209$ against $-0.248$, with a confidence interval of $[-1.53, 0.22]$ against $[-1.51, 0.25]$.} Two weeks gives 21 maxima and $-0.241$. The full grid is in Table~\ref{tab:decluster}.
 
 \begin{table}[H]
 \centering
@@ -758,7 +812,7 @@ Separation & Cluster maxima & $\hat{\xi}$ & 95\% CI & KS $p$ \\
 \parbox{\linewidth}{\footnotesize Note: GPD fitted by maximum likelihood to cluster maxima above the 95th percentile of weekly absolute returns. $\hat{\xi}$ CI from a nonparametric bootstrap of cluster maxima, $B = 1000$.}
 \end{table}
 
-The choice is therefore immaterial: the loosest setting we tried recovers two additional cluster maxima and moves the shape estimate by 0.04, well inside an interval that spans more than 1.7. The imprecision of the tail estimate is a consequence of having 26 exceedances in ten years, not of how they are declustered. We estimate the extremal index $\theta = 0.83$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.60, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
+The shortest separation therefore recovers two additional cluster maxima and moves the shape estimate by 0.04, inside an interval spanning more than 1.7. The imprecision of the tail estimate is a consequence of having 26 exceedances in ten years, not of how they are declustered, and no conclusion in this section changes at any separation we tried. We estimate the extremal index $\theta = 0.83$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.60, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
 
 \textbf{Methodology.} We fit a Generalized Pareto Distribution (GPD) to cluster maxima above the 95th percentile threshold. The GPD is characterized by shape parameter $\xi$ (determining tail heaviness) and scale parameter $\sigma$. Positive $\xi$ indicates Pareto-type heavy tails; $\xi = 0$ corresponds to exponential decay; negative $\xi$ implies bounded tails.
 
@@ -861,7 +915,7 @@ This paper investigated whether distributional asymmetries in FX alpha signals r
     \item EVT tail-shape inference is too imprecise to establish Pareto-type heavy tails or exponential decay; clustering appears weak but is also estimated from few exceedances
     \item The corrected asymmetry strategy loses 6.64\% gross (15 holding episodes, Sharpe $-0.15$), with bootstrap intervals that include zero; walk-forward selection opens one episode in eight test years
     \item Execution costs monotonically worsen the already negative gross result, and no break-even cost exists: the published 19.2-pip figure presumed a positive gross return, and there is none to consume. Omitted financing, the absence of any per-order cost component, and end-of-bar execution remain limitations
-    \item While invested, the corrected strategy loads significantly and negatively on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.44, -0.20]$), a loading absent before correction. Momentum rose over the exposed weeks and the strategy was short it, accounting for roughly a quarter of the realized loss, so part of that loss reflects a known factor exposure rather than a failure specific to asymmetry
+    \item While invested, the corrected strategy loads significantly and negatively on time-series momentum ($\beta_2 = -0.82$, 95\% CI $[-1.54, -0.10]$, wild cluster bootstrap $p = 0.038$), a loading absent before correction. Momentum rose over the exposed weeks and the strategy was short it, accounting for roughly a quarter of the realized loss, so part of that loss reflects a known factor exposure rather than a failure specific to asymmetry
     \item Data-snooping tests find no statistically superior candidate against zero return, and exploratory cross-market outcomes are unstable
 \end{enumerate}
 

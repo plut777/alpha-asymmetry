@@ -29,9 +29,11 @@ from scipy import stats
 from statsmodels.stats.diagnostic import acorr_ljungbox
 
 try:
+    from analysis.inference import cr2_inference, wild_cluster_bootstrap
     from analysis.data_access import load_datasets, write_manifest
     from analysis.strategy import compute_ai, run_asymmetry_strategy, simple_strategy, summarize_position_changes
 except ModuleNotFoundError:  # direct execution from analysis/
+    from inference import cr2_inference, wild_cluster_bootstrap
     from data_access import load_datasets, write_manifest
     from strategy import compute_ai, run_asymmetry_strategy, simple_strategy, summarize_position_changes
 
@@ -188,44 +190,75 @@ def performance(rets: pd.Series, position: pd.Series) -> dict:
 
 
 def hac_reg(frame: pd.DataFrame, clusters=None) -> dict | None:
-    """Factor regression reported under three standard-error families.
+    """Factor regression.
 
-    ``cluster`` is primary wherever clusters are supplied.  The in-position
-    sample is 55 weeks drawn from 15 separate holding episodes spread over ten
-    years; stacking them and applying a lag-based HAC correction treats rows as
-    consecutive in time when they may be years apart.  Clustering by episode
-    respects that structure.  HAC and HC3 are reported alongside so the reader
-    can see the coefficient under every convention rather than one chosen for
-    us.
+    Full sample: Newey-West HAC, which is appropriate there because the weekly
+    observations are consecutive.
+
+    In-position sample: the 55 weeks are non-contiguous, drawn from separate
+    holding episodes spread across the sample, so a lag-based correction is not
+    applicable and Newey-West is NOT reported as an alternative -- it appears
+    only as the withdrawn published figure.  Inference is clustered by episode.
+    With fifteen clusters, CR1 is biased downward, so CR2 with Bell-McCaffrey
+    degrees of freedom supplies the standard error and interval, and a
+    restricted wild cluster bootstrap-t supplies the primary p-value.  HC3 is a
+    robustness check.
     """
+
     dat = frame.dropna()
     if len(dat) <= 10:
         return None
     y, X = dat["strat"], sm.add_constant(dat[["carry", "mom", "dollar"]])
-    fits = {"hac": sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": 4}),
-            "hc3": sm.OLS(y, X).fit(cov_type="HC3")}
-    if clusters is not None:
-        g = pd.Series(clusters).reindex(dat.index)
-        fits["cluster"] = sm.OLS(y, X).fit(cov_type="cluster", cov_kwds={"groups": g.to_numpy()})
-    primary = "cluster" if "cluster" in fits else "hac"
-    base_fit = fits[primary]
+    names = list(X.columns)
 
-    def coefs(model):
+    if clusters is None:
+        fit = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": 4})
+        coef = {}
+        for name in names:
+            lo, hi = fit.conf_int().loc[name]
+            coef[name] = {"b": float(fit.params[name]), "t": float(fit.tvalues[name]),
+                          "p": float(fit.pvalues[name]), "se": float(fit.bse[name]),
+                          "ci": [float(lo), float(hi)]}
+        return {"n": int(fit.nobs), "r2": float(fit.rsquared), "adj_r2": float(fit.rsquared_adj),
+                "f": float(fit.fvalue), "inference": "newey_west_hac_4_lags",
+                "inference_note": "Consecutive weekly observations; a lag-based correction applies.",
+                "coef": coef}
+
+    g = pd.Series(clusters).reindex(dat.index).to_numpy()
+    Xa, ya = X.to_numpy(), y.to_numpy()
+    coef = {name: cr2_inference(ya, Xa, g, j) for j, name in enumerate(names)}
+    wcb = {name: wild_cluster_bootstrap(ya, Xa, g, j, reps=9999, seed=SEED)
+           for j, name in enumerate(names) if name == "mom"}
+    hc3 = sm.OLS(y, X).fit(cov_type="HC3")
+    hac = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": 4})
+    ols = sm.OLS(y, X).fit()
+
+    def summarise(fit):
         out = {}
-        for name in ["const", "carry", "mom", "dollar"]:
-            lo, hi = model.conf_int().loc[name]
-            out[name] = {"b": float(model.params[name]), "t": float(model.tvalues[name]),
-                         "p": float(model.pvalues[name]), "se": float(model.bse[name]),
+        for name in names:
+            lo, hi = fit.conf_int().loc[name]
+            out[name] = {"b": float(fit.params[name]), "t": float(fit.tvalues[name]),
+                         "p": float(fit.pvalues[name]), "se": float(fit.bse[name]),
                          "ci": [float(lo), float(hi)]}
         return out
 
     return {
-        "n": int(base_fit.nobs), "r2": float(base_fit.rsquared),
-        "adj_r2": float(base_fit.rsquared_adj), "f": float(base_fit.fvalue),
-        "primary_standard_errors": primary,
-        "n_clusters": int(pd.Series(clusters).reindex(dat.index).nunique()) if clusters is not None else None,
-        "coef": coefs(base_fit),
-        "standard_error_variants": {k: coefs(v) for k, v in fits.items()},
+        "n": int(ols.nobs), "r2": float(ols.rsquared), "adj_r2": float(ols.rsquared_adj),
+        "f": float(ols.fvalue), "n_clusters": int(pd.Series(g).nunique()),
+        "inference": "cr2_clustered_by_episode_with_wild_cluster_bootstrap",
+        "inference_note": (
+            "The in-position weeks are non-contiguous. Standard errors and intervals are CR2 "
+            "clustered by holding episode with Bell-McCaffrey degrees of freedom; the primary "
+            "p-value is a restricted wild cluster bootstrap-t with Rademacher weights."),
+        "coef": coef,
+        "wild_cluster_bootstrap": wcb,
+        "robustness_hc3": summarise(hc3),
+        "withdrawn_hac": {
+            "note": ("Newey-West with 4 lags, as published in an earlier draft of this revision. "
+                     "Reported only to identify the withdrawn figure: a lag-based correction "
+                     "presumes consecutive observations and is inappropriate to this sample. "
+                     "It is NOT an alternative specification."),
+            **summarise(hac)},
     }
 
 

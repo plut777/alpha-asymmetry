@@ -23,9 +23,9 @@ Summary of dispositions:
 | 1 | Inconsistent bootstrap schemes | **Accepted** — justification added, sensitivity table added |
 | 2 | Random candidate dilutes the tests | **Design adopted**, stated mechanism does not hold here |
 | 3 | Omitted window size for $AI_t$ | **Accepted — our error** |
-| 4 | Excessive declustering window | **Accepted in principle**, consequence quantified and shown immaterial |
+| 4 | Excessive declustering window | **Accepted** — 1- and 2-week windows run and reported |
 | 5 | Inapplicable normal-theory standard error | **Accepted — our attribution was wrong** |
-| 6 | Invalid Newey-West on non-contiguous observations | **Accepted — our error; a claim is withdrawn** |
+| 6 | Invalid Newey-West on non-contiguous observations | **Accepted — our error; HAC withdrawn, small-cluster correction applied, a claim withdrawn** |
 | 7 | Temporal aliasing in tail signal sampling | **Accepted as a limitation**, two figures corrected |
 | 8 | Intercept unit mismatch | **Accepted — our error** |
 
@@ -37,38 +37,46 @@ Summary of dispositions:
 and it obliges us to withdraw a claim.**
 
 The reviewer is right that stacking 55 non-contiguous weeks drawn from 15
-holding episodes and applying a lag-based autocorrelation correction is
-invalid. Adjacent rows in that stacked sample can be years apart, and
-Newey-West presumes they are not.
+holding episodes and applying a lag-based autocorrelation correction is invalid.
+Adjacent rows in that stacked sample can be years apart, and Newey-West presumes
+they are not. **We have not retained it as a robustness check.** Presenting a
+correction we agree is inapplicable, alongside one we agree is correct, would
+concede the point and then ignore it. It appears in the revision only as the
+withdrawn figure, labelled as such.
 
-We have re-estimated with standard errors clustered by holding episode, which is
-now the **primary** specification for the in-position regression. Both
-alternatives are reported alongside so the reader can see the coefficient under
-every convention rather than one chosen for them (new Table 10):
+Inference is now clustered by holding episode. We also took the reviewer's
+implicit further point seriously: fifteen clusters is few, and ordinary
+cluster-robust errors are asymptotic in the *number of clusters*, biased
+downward and over-rejecting when that number is small. Flagging this would not
+have been enough, so we corrected for it:
 
-| Standard errors | $\hat{\beta}_2$ | SE | $t$ | $p$ |
-|---|---|---|---|---|
-| **Clustered by holding episode (primary)** | −0.823 | 0.315 | **−2.61** | **0.0091** |
-| Newey-West HAC, 4 lags *(previously reported)* | −0.823 | 0.221 | −3.73 | 0.00019 |
-| HC3 heteroskedasticity-robust | −0.823 | 0.380 | −2.17 | 0.0304 |
+- **CR2** (Bell and McCaffrey, 2002) supplies the standard error and interval,
+  with Satterthwaite degrees of freedom of **10.2** rather than the naive 14.
+- A **restricted wild cluster bootstrap-t** (Cameron, Gelbach and Miller, 2008),
+  Rademacher weights, null imposed, B = 9,999, supplies the primary p-value.
 
-**What we withdraw.** The previous version stated that the in-position estimate
+| Inference | $\hat{\beta}_2$ | SE | $t$ | $p$ | Role |
+|---|---|---|---|---|---|
+| **Wild cluster bootstrap-$t$** | −0.823 | — | −2.54 | **0.038** | **Primary** |
+| CR2, BM dof = 10.2 | −0.823 | 0.324 | −2.54 | 0.029 | SE and interval |
+| HC3 | −0.823 | 0.380 | −2.17 | 0.030 | Robustness |
+| Newey-West HAC, 4 lags | −0.823 | 0.221 | −3.73 | 0.0002 | *Withdrawn* |
+
+**What we withdraw.** The previous version reported $p = 0.00019$ and said it
 "clears that bar comfortably", referring to a Bonferroni threshold of 0.0083 at
-family size six. Under the appropriate standard errors $p = 0.0091$, which
-**falls just short of that threshold**. The revised text says so explicitly and
-records that the earlier claim rested on a correction inappropriate to the
-sample.
+family size six. Under appropriate small-cluster inference the p-value is
+**0.038**. The revised text states that the loading is nominally significant at
+the 5% level under each reported inference specification but does not meet the
+paper's pre-specified Bonferroni-adjusted threshold — and that the appropriate
+inference places it an order of magnitude away from that threshold rather than
+below it.
 
-**What survives.** The loading remains negative, economically large, and
-significant at the 5% level under all three conventions. We have added a fourth
-qualification noting that 15 clusters is a small number for cluster-robust
-inference, which is asymptotic in the number of clusters, and that the $p$-value
-should be read as indicative.
+The CR2 interval is $[-1.54, -0.10]$, wider than the $[-1.26, -0.39]$ previously
+reported. We have propagated it to the abstract, the discussion and the
+conclusion.
 
 We would rather report this than have it found later, and we are grateful the
 reviewer caught it.
-
----
 
 ## Comment 5 — the normal-theory standard error is a strawman
 
@@ -206,36 +214,36 @@ own.
 
 ## Comment 4 — declustering separation on weekly data
 
-**We accept that a five-week separation requires justification on weekly data,
-and we have quantified its effect rather than assert it is harmless. The
-quantification does not support the consequence the report attributes to it.**
+**Accepted. We have run the shorter windows the reviewer asks for and report
+them.**
 
 The reviewer is right that persistence in weekly returns is far shorter than in
-the daily series for which runs declustering was developed, and that a five-week
-window is aggressive. We should have justified it or tested it; we have now
-tested it (new Table 8):
+the daily series runs declustering was developed for, and that a five-week
+window is aggressive on weekly data. We should have justified it or tested it.
+
+Taking the question directly: **at a one-week separation — the shortest
+declustering that does anything at all — the fit uses 22 cluster maxima rather
+than 20, and the shape estimate is −0.209 rather than −0.248**, with a
+confidence interval of [−1.53, 0.22] against [−1.51, 0.25]. Two weeks gives 21
+maxima and −0.241. The full grid:
 
 | Separation | Cluster maxima | $\hat{\xi}$ | 95% CI | KS $p$ |
 |---|---|---|---|---|
-| 1 week | 22 | −0.209 | [−1.53, 0.22] | 0.997 |
+| **1 week** | **22** | **−0.209** | **[−1.53, 0.22]** | 0.997 |
 | 2 weeks | 21 | −0.241 | [−1.51, 0.22] | 0.981 |
 | 3 weeks | 20 | −0.248 | [−1.51, 0.25] | 0.971 |
-| **5 weeks (reported)** | **20** | **−0.248** | **[−1.51, 0.25]** | **0.971** |
+| 5 weeks (reported) | 20 | −0.248 | [−1.51, 0.25] | 0.971 |
 
-The three- and five-week settings are identical. The loosest setting recovers
-**two** additional cluster maxima and moves the shape estimate by 0.04, inside an
-interval spanning more than 1.7.
+The shortest separation recovers two additional cluster maxima and moves the
+shape estimate by 0.04, inside an interval spanning more than 1.7. The report
+describes the five-week window as "unnecessarily reducing the sample size of
+exceedances from 26 to 20" and thereby "further weaken[ing] the power of an
+already underpowered" analysis. The first half is accurate as arithmetic. On the
+second, the sensitivity grid does not show a material loss of precision: the
+imprecision comes from having 26 exceedances in ten years, not from how they are
+grouped, and no conclusion in the section changes at any separation we tried.
 
-The report describes the five-week window as "unnecessarily reducing the sample
-size of exceedances from 26 to 20" and thereby "further weaken[ing] the power of
-an already underpowered" analysis. The first half is accurate as arithmetic; the
-second is not borne out — one week instead of five yields 22 maxima rather than
-20 and changes nothing about the precision of the estimate. The imprecision
-comes from having 26 exceedances in ten years, not from how they are grouped.
-
-We have added the table and a statement that the choice is immaterial.
-
----
+The table is now in the manuscript, and the text leads with the one-week result.
 
 ## Comment 7 — temporal aliasing in the tail signal
 
@@ -247,15 +255,25 @@ The reviewer is right that a signal constructed from daily exceedances but read
 only on Fridays discards most of what it detects, and that every statistic
 computed on the weekly series inherits that sparsity.
 
-Two corrections to the figures. The report gives "only 14 non-zero observations
-out of 504 weeks"; the actual count is **35**. The figure of 14 corresponds to
-2.78% of 504, which is the positive-observation ratio reported in Table 1 — that
-statistic counts observations strictly greater than zero, and the tail signal is
-signed, so it omits the negative exceedances. The report also states that
-Friday-only sampling "discards approximately 80%" of exceedance events. Measured
-across weeks: 105 of 504 weeks contain at least one daily exceedance and 35 have
-one on the Friday, so **roughly two-thirds** are discarded rather than four
-fifths.
+Two corrections to the figures, and because the two statistics rest on
+different denominators we state both bases explicitly rather than leave a reader
+to reconcile them.
+
+**Non-zero weekly observations: 35, not 14.** After Friday sampling, 35 of the
+504 weekly tail-alpha observations are non-zero. The report's figure of 14
+corresponds to 2.78% of 504, which is the *positive*-observation ratio in
+Table 1 — that statistic counts observations strictly greater than zero, and the
+tail signal is signed, so it excludes the negative exceedances. The count of
+strictly positive weeks is indeed 14; the count of non-zero weeks is 35.
+
+**Discard rate: two-thirds, not four-fifths.** This is a different base. Of the
+504 weeks, **105 contain at least one daily exceedance**; of those 105, only 35
+have one falling on the Friday. So 70 of 105 exceedance weeks enter the panel as
+zeros: a discard rate of (105 − 35)/105 = **66.7%**.
+
+The two figures are not comparable and neither is a restatement of the other:
+35 is a count out of 504 weekly observations, 105 is a count of weeks containing
+a daily event. Both are correct on their own base.
 
 Neither correction weakens the point. We have added the figures to §2.2 and to
 the Limitations section, stating that 70 of the 105 exceedance weeks enter the
@@ -278,15 +296,16 @@ revision or a subsequent one.
 
 | Change | Location |
 |---|---|
-| Cluster-robust standard errors primary; three-convention table | §5.5, Tables 9–10 |
-| Bonferroni claim withdrawn; $p = 0.0091$ reported | §5.5 |
+| CR2 clustered by episode; wild cluster bootstrap primary; HAC withdrawn | §5.5, Tables 9–10 |
+| Bonferroni claim withdrawn; $p = 0.038$ reported | §5.5 |
 | i.i.d. versus block bootstrap comparison | §3.2, Table 3 |
 | Tail-alpha interval attributed to sparsity, not dependence | §3.2 |
 | $AI_t$ window stated (20 weeks, minimum 10 observations) | §2.4, Eq. 10 |
 | Intercept units corrected to −1.2 bps | Table 9 note |
 | Bootstrap scheme justification; block-length sensitivity | §5.7, Table 12 |
 | Formal universe reduced to 12; random sequence a diagnostic | §5.7, Table 11 |
-| Declustering sensitivity | §5.6, Table 8 |
+| Declustering sensitivity, 1 to 5 weeks | §5.6, Table 8 |
+| Complete specification table generated from the code | §2.4, Table 6 |
 | Tail-signal aliasing disclosed | §2.2, §4.3 |
 
 All figures in the manuscript are machine-checked against the pipeline output,

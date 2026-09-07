@@ -22,8 +22,8 @@ Full-sample factor intercept,8e-05,-0.00011964440875480527,implementation,"Sign 
 In-position factor sample,25.0,55.0,implementation,"25 to 55 weeks, the same exposure defect."
 "Momentum loading, full sample",-0.00696,-0.046175416000271224,implementation,"Was insignificant, now significant and negative."
 "Momentum t-stat, full sample",-0.37,-2.076034244527142,implementation,"p = 0.710 published, p = 0.038 corrected."
-"Momentum loading, in-position",-0.24705,-0.8227375917010193,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
-"Momentum t-stat, in-position",-0.51,-2.609357840656387,implementation,"p = 0.609 published, p = 0.00019 corrected."
+"Momentum loading, in-position",-0.24705,-0.8227375917010189,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
+"Momentum t-stat, in-position",-0.51,-2.5420662056080805,implementation,"p = 0.609 published, p = 0.00019 corrected."
 Retail-wide net return (%),3.22,-7.02289079953704,implementation,Sign flips. Cost drag is 0.38pp; the gross return was already negative.
 Break-even round-trip cost (pips),19.21,,implementation,"NO LONGER EXISTS. A break-even cost presumes a positive gross return to consume, and there is none."
 White Reality Check p-value,0.15,0.15,implementation,"Unchanged. The maximum is attained by the seeded random candidate, which no change to the asymmetry rule affects."
