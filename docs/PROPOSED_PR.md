@@ -2,7 +2,7 @@
 
 ## Title
 
-Correct the holding rule, execution lag and asymmetry index; regenerate all downstream results
+Correct the strategy specification, regenerate all results, and address Reviewer 3
 
 ---
 
@@ -456,6 +456,7 @@ it is separately reviewable.
 `docs/REVIEW_NOTES.md` is the working audit record from that process. It is not
 part of the argument here.
 
-No branch has been pushed, no pull request opened, and nothing merged.
+This branch is pushed to `plut777/alpha-asymmetry` and opened as a pull request
+against `dissensus-ai/alpha-asymmetry`. Nothing has been merged.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
