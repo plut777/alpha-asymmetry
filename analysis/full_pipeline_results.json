@@ -10,7 +10,7 @@
     "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"
   },
   "data_manifest": {
-    "manifest_generated_at_utc": "2026-09-07T10:33:55.577692+00:00",
+    "manifest_generated_at_utc": "2026-09-09T09:36:26.679921+00:00",
     "requested_start": "2014-06-01",
     "requested_end_exclusive": "2025-09-01",
     "original_snapshot_available": false,
@@ -269,6 +269,62 @@
       "lb_q4": 1716.1963594471176,
       "lb_q4_p": 0.0
     }
+  },
+  "tail_construction_sensitivity": {
+    "primary": "friday_sampled",
+    "primary_note": "The published Friday-sampled construction remains primary. An aggregation rule is not selected on which one yields significance; that would be specification selection on outcomes, which this paper criticises elsewhere.",
+    "weeks_with_any_daily_exceedance": 105,
+    "constructions": {
+      "friday_sampled": {
+        "nonzero_obs": 35,
+        "skew": -1.4760320284981034,
+        "ex_kurt": 19.196847910082862,
+        "ai": 0.026421591032781532,
+        "por": 2.7777777777777777,
+        "skew_ci": [
+          -3.1012321107966403,
+          0.5438337423619615
+        ],
+        "skew_ci_iid": [
+          -3.1371928681524026,
+          0.6160735905450011
+        ],
+        "ci_excludes_zero": false
+      },
+      "all_days_signed_sum": {
+        "nonzero_obs": 105,
+        "skew": 0.2170127856966432,
+        "ex_kurt": 8.844748157095927,
+        "ai": 0.12881069973737713,
+        "por": 9.920634920634921,
+        "skew_ci": [
+          -0.7239609060349811,
+          1.0884601214792573
+        ],
+        "skew_ci_iid": [
+          -1.0084841246427565,
+          1.3151549829253197
+        ],
+        "ci_excludes_zero": false
+      },
+      "all_days_largest_abs": {
+        "nonzero_obs": 105,
+        "skew": -1.1420823899086168,
+        "ex_kurt": 8.285314481969671,
+        "ai": 0.08438433752787185,
+        "por": 10.119047619047619,
+        "skew_ci": [
+          -1.9698375935468115,
+          -0.08860453802393906
+        ],
+        "skew_ci_iid": [
+          -2.0557257771157813,
+          -0.10169054214469239
+        ],
+        "ci_excludes_zero": true
+      }
+    },
+    "conclusion": "Tail inference is aggregation-sensitive: across three defensible weekly aggregations of the same daily exceedance rule the skewness point estimate changes sign and the dependence-robust interval excludes zero under 1 of 3. The signal is not robust until weekly tail exposure is defined."
   },
   "baseline": {
     "return": -6.640684042044798,

@@ -144,10 +144,16 @@ exchange alpha signals represent exploitable market inefficiencies. Using EUR/JP
 data sampled from November 2015--August 2025 (504 analysis-ready weekly observations from January 2016 onward), we find
 that the asymmetry premise itself largely dissolves under dependence-robust
 measurement: of five alpha signal types, only the volatility-expansion (coverage)
-signal exhibits skewness that survives block-bootstrap inference
-($\hat{\gamma}_1 = 1.75$, 95\% CI $[1.18, 2.16]$); the signed tail signal skews
-\emph{negative} rather than positive ($-1.48$, CI $[-3.10, 0.54]$), and momentum,
-mean-reversion, and correlation signals have skewness intervals that include zero.
+signal exhibits skewness that survives block-bootstrap inference under the
+paper's primary construction ($\hat{\gamma}_1 = 1.75$, 95\% CI $[1.18, 2.16]$);
+the signed tail signal skews \emph{negative} rather than positive ($-1.48$,
+CI $[-3.10, 0.54]$), and momentum, mean-reversion, and correlation signals have
+skewness intervals that include zero. Tail inference is not robust to how daily
+exceedances are aggregated to weekly frequency: across three defensible
+aggregations of the identical daily rule the skewness estimate changes sign and
+the interval excludes zero under one of them. We report that sensitivity rather
+than resolve it, since selecting an aggregation on which result it produces is
+the practice this paper criticises.
 An earlier version of this paper reported pronounced positive tail-signal
 skewness; that figure described the unsigned exceedance magnitude, which is
 right-skewed by construction, and we document the correction. The economic null
@@ -216,6 +222,7 @@ We sample EUR/JPY forex data from November 2015 to August 2025, sourced from Yah
 
 \textbf{Data Frequency and Aggregation.} Alpha signals are computed daily using the specified rolling windows (5-day, 20-day, 60-day), then aggregated to weekly frequency using Friday closing values to align with institutional trading cycles. The 504 analysis-ready weekly observations represent end-of-week snapshots of daily-computed signals. Daily returns feed the alpha definitions and volatility estimates; strategy returns are Friday-close-to-Friday-close percentage changes.
 
+\label{sec:signals}
 The dataset includes five pre-computed alpha signals, each capturing distinct aspects of market dynamics:
 
 \begin{itemize}
@@ -478,9 +485,37 @@ Hedge & 0.15 & 0.109 & 0.073 & $[0.00, 0.29]$ & $[-0.25, 0.54]$ \\
 
 The comparison is informative in two directions. For \emph{tail alpha} the i.i.d.\ and block intervals are almost identical ($[-3.14, 0.62]$ against $[-3.10, 0.54]$), and the i.i.d.\ bootstrap standard error of 0.941 is nearly nine times the normal-theory 0.109. The width of the interval is therefore a consequence of sparsity and extreme non-normality, \emph{not} of serial dependence; the $t$-test fails on this signal before dependence is considered at all. For \emph{pricing} and \emph{hedge} alpha the picture reverses: the block interval is substantially wider than the i.i.d.\ one, and in both cases it moves an interval that excludes zero to one that includes it. There the dependence correction is doing the work, as the Ljung-Box statistics of 679 and 1716 would suggest.
 
-On the block-bootstrap yardstick only \emph{coverage} alpha survives: its interval $[1.18, 2.16]$ excludes zero decisively. Tail, fast, pricing and hedge alpha intervals all include zero.
+On the block-bootstrap yardstick, and under the primary tail construction, only \emph{coverage} alpha survives: its interval $[1.18, 2.16]$ excludes zero decisively, while tail, fast, pricing and hedge alpha intervals all include zero. The tail row of that statement is construction-dependent, as the next subsection shows; the coverage row is not.
 
-\textbf{What survives.} The asymmetry inventory that motivates the rest of the paper is therefore modest: one robustly right-skewed volatility-expansion signal, one negatively-skewed-but-fragile tail signal, and three signals whose skewness intervals include zero. This is consistent with the broader stylized facts on asset-price distributions \citep{cont2001empirical, mandelbrot1963variation} while falling well short of the pervasive ``alpha asymmetry'' a trading strategy would want.
+\textbf{Tail Inference Is Aggregation-Sensitive.} The tail signal is constructed by flagging exceedances in \emph{daily} returns and then reading the flagged series at the \emph{weekly} frequency. As Section~\ref{sec:signals} notes, the published rule reads the Friday observation, so 70 of the 105 weeks containing a daily exceedance enter the weekly panel as zeros. That raises a question the published specification does not answer: what is a week's tail exposure, when the exceedances occur on days other than the one sampled?
+
+Table~\ref{tab:tailagg} reports the same statistics under the published rule and under two aggregations that use every trading day.
+
+\begin{table}[H]
+\centering
+\caption{Weekly Tail Signal Under Three Aggregations of the Same Daily Rule}
+\label{tab:tailagg}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Weekly aggregation & Non-zero obs. & $\hat{\gamma}_1$ & Ex.\ kurt. & AI & Block 95\% CI \\
+\midrule
+Friday observation (primary) & 35 & $-$1.48 & 19.20 & 0.03 & $[-3.10, 0.54]$ \\
+All days, signed sum & 105 & $+$0.22 & 8.84 & 0.13 & $[-0.72, 1.09]$ \\
+All days, largest $|$exceedance$|$ & 105 & $-$1.14 & 8.29 & 0.08 & $[-1.97, -0.09]$ \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: All three apply the identical daily rule---a signed return exceeding the trailing 252-day 95th percentile of absolute returns---and differ only in how a week's daily observations are reduced to one weekly value. $n = 504$ weeks throughout. Block bootstrap: 13-week circular blocks, $B = 2000$.}
+\end{table}
+
+The three aggregations do not agree. The point estimate changes sign between the signed-sum and the other two, and the dependence-robust interval excludes zero under one of the three. \textbf{We retain the published Friday-sampled construction as primary and do not select among them.} Choosing an aggregation rule after observing which one yields significance would be specification selection on outcomes, which is the practice this paper criticises elsewhere; it is not made acceptable by the selection being ours.
+
+Nor is either alternative self-evidently correct. The signed sum allows two exceedances of opposite sign within a week to cancel, so a violent week can register as quiet. The largest absolute exceedance allows a single day to define the week and discards every other exceedance in it. Each encodes a different and unargued claim about what weekly tail exposure means, and choosing between them requires an economic argument this paper does not make.
+
+The finding is therefore the sensitivity itself: \textbf{the tail signal's distributional character is not robust to the aggregation rule, and is not established until weekly tail exposure is defined}. That is a statement about the construction rather than about the market, and it applies equally to the published result and to both alternatives.
+
+\textbf{What survives.} Under the primary construction the asymmetry inventory that motivates the rest of the paper is modest: one robustly right-skewed volatility-expansion signal, one negatively-skewed-but-fragile tail signal, and three signals whose skewness intervals include zero. The tail row of that inventory is the one Table~\ref{tab:tailagg} shows to be aggregation-dependent; the coverage result is not, since coverage alpha is constructed from rolling volatility rather than from sampled exceedances. This is consistent with the broader stylized facts on asset-price distributions \citep{cont2001empirical, mandelbrot1963variation} while falling well short of the pervasive ``alpha asymmetry'' a trading strategy would want.
 
 \subsection{Backtest Performance}
 
@@ -553,7 +588,7 @@ The distributional signature does not travel: EUR/JPY's negative tail-skew point
 
 The empirical findings reveal a pattern more thoroughgoing than ``asymmetry exists statistically but fails economically'': under corrected measurement, most of the proposed asymmetry lacks dependence-robust support, and the one robust distributional finding does not establish a tradable edge. We identify five failure modes:
 
-\textbf{Little Asymmetry to Exploit.} The dependence-robust inventory leaves one robustly skewed signal (coverage) and one fragile negative point estimate (tail). The trading rule instead uses fast and pricing skewness, whose full-sample intervals include zero. Its 15 in-sample episodes do not establish profitable predictability.
+\textbf{Little Asymmetry to Exploit.} Under the primary construction the dependence-robust inventory leaves one robustly skewed signal (coverage) and one fragile negative point estimate (tail), whose fragility is itself sensitive to the weekly aggregation rule (Table~\ref{tab:tailagg}). The trading rule instead uses fast and pricing skewness, whose full-sample intervals include zero. Its 15 in-sample episodes do not establish profitable predictability.
 
 \textbf{Tail Evidence Is Inconclusive.} The GPD point estimate is near zero, but its wide confidence interval includes both negative and positive values. The data do not establish Pareto-type heavy tails, nor do they prove exponential decay. With only 20 declustered maxima, tail classification is underpowered.
 
@@ -578,12 +613,12 @@ The corrected statistics still reveal genuine features of market structure, just
 \subsection{Limitations}
 \label{sec:limitations}
 
-Several limitations warrant acknowledgment. First, 504 weekly observations and only 15 holding episodes provide limited power, especially for tail and trade-level inference. Second, the alpha definitions are fully disclosed here but are ad hoc and may not generalize. The tail signal in particular is aliased by its sampling rule: it is constructed from daily exceedances but read only on Fridays, so 70 of the 105 weeks containing an exceedance enter the panel as zeros and only 35 of 504 weekly observations are non-zero. Every tail-alpha statistic in this paper is computed on that sparse series, which is the proximate reason its skewness interval is so wide. A weekly indicator that registered an exceedance on any day of the week, or a threshold defined directly on weekly returns, would be a better construction; both redefine the signal rather than correct it, and we have not made that change here. Third, the factor exercise uses spot proxies rather than published cross-sectional FX factors; even with 55 in-position weeks, the effective sample is small, and the significant negative momentum loading is descriptive rather than a stable structural estimate. Fourth, costs use stylized spreads and indicative mid-prices, omit financing, charge no fixed or minimum per-order component, and assume end-of-bar execution; Monday-open prices are in fact available in the daily bars, and the Friday-close convention is a choice we make rather than a constraint the data impose. Fifth, cross-market transfer omits pair-specific financing, costs, and dependence-aware inference. Finally, Yahoo history can be revised. The original raw snapshots were not committed, so exact reproduction of the archived figures is impossible without the owner's files; the revised pipeline caches local inputs and records hashes and software versions.
+Several limitations warrant acknowledgment. First, 504 weekly observations and only 15 holding episodes provide limited power, especially for tail and trade-level inference. Second, the alpha definitions are fully disclosed here but are ad hoc and may not generalize. The tail signal in particular is aliased by its sampling rule: it is constructed from daily exceedances but read only on Fridays, so 70 of the 105 weeks containing an exceedance enter the panel as zeros and only 35 of 504 weekly observations are non-zero. Every tail-alpha statistic in this paper is computed on that sparse series, which is the proximate reason its skewness interval is so wide. Table~\ref{tab:tailagg} reports what two all-trading-days aggregations do to the tail statistics, and they do not agree with each other or with the published rule. We have not adopted either: both redefine the signal rather than correct it, both require an economic argument about what weekly tail exposure means that this paper does not make, and selecting one after seeing its result would be specification selection on outcomes. The sensitivity is the reportable finding. Third, the factor exercise uses spot proxies rather than published cross-sectional FX factors; even with 55 in-position weeks, the effective sample is small, and the significant negative momentum loading is descriptive rather than a stable structural estimate. Fourth, costs use stylized spreads and indicative mid-prices, omit financing, charge no fixed or minimum per-order component, and assume end-of-bar execution; Monday-open prices are in fact available in the daily bars, and the Friday-close convention is a choice we make rather than a constraint the data impose. Fifth, cross-market transfer omits pair-specific financing, costs, and dependence-aware inference. Finally, Yahoo history can be revised. The original raw snapshots were not committed, so exact reproduction of the archived figures is impossible without the owner's files; the revised pipeline caches local inputs and records hashes and software versions.
 
 \section{Robustness Analysis}
 \label{sec:robustness}
 
-The preceding sections leave a thin asymmetry inventory (one robustly skewed signal among five) and an in-sample backtest that loses money before costs, with a bootstrap interval wide enough to include zero. This section stress-tests what remains, addressing four questions: (1) Do results hold out-of-sample? (2) Are patterns stable across market regimes? (3) What do trading costs do to an already negative return? (4) Is asymmetry alpha distinct from known FX risk factors?
+The preceding sections leave a thin asymmetry inventory (one robustly skewed signal among five under the primary construction, with tail inference aggregation-sensitive) and an in-sample backtest that loses money before costs, with a bootstrap interval wide enough to include zero. This section stress-tests what remains, addressing four questions: (1) Do results hold out-of-sample? (2) Are patterns stable across market regimes? (3) What do trading costs do to an already negative return? (4) Is asymmetry alpha distinct from known FX risk factors?
 
 \subsection{Out-of-Sample Validation}
 
@@ -849,7 +884,7 @@ KS test $p$-value & 0.971 & Fail to reject \\
 
 With five alpha types examined across multiple statistical tests, data-snooping concerns arise: apparent significance may reflect chance discoveries from multiple hypothesis testing. We address this through both formal corrections and bootstrap-based reality checks.
 
-\textbf{Bonferroni Corrections.} Table \ref{tab:tests} applies plain Bonferroni correction at family size $m = 5$ (one skewness test per alpha type; $\alpha^* = 0.01$ for the 5\% family level). At the corrected threshold, four of five alpha types reject \emph{normality}, but the asymmetry inventory is far thinner: only coverage alpha's skewness survives both the correction and, more demandingly, the block-bootstrap dependence adjustment. The reported tests do not reject normality for fast alpha; this is a useful control result, not proof that its population distribution is Gaussian.
+\textbf{Bonferroni Corrections.} Table \ref{tab:tests} applies plain Bonferroni correction at family size $m = 5$ (one skewness test per alpha type; $\alpha^* = 0.01$ for the 5\% family level). At the corrected threshold, four of five alpha types reject \emph{normality}, but the asymmetry inventory is far thinner: under the primary construction only coverage alpha's skewness survives both the correction and, more demandingly, the block-bootstrap dependence adjustment. Coverage is the only signal for which that statement does not depend on a sampling choice. The reported tests do not reject normality for fast alpha; this is a useful control result, not proof that its population distribution is Gaussian.
 
 \textbf{Bootstrap Choices.} Two resampling schemes appear in this paper, applied to different objects. Skewness of the alpha signals is resampled with a \emph{circular block} bootstrap at a fixed 13-week block, because those signals are constructed from overlapping rolling windows of 20 weeks and 60 to 100 trading days: their dependence is mechanical, long, and of known length, and a fixed block comparable to the construction window is the natural choice. Strategy returns are resampled with the \emph{stationary} bootstrap of \citet{politis1994stationary} at an expected 4-week block, because they are not overlapping constructions and their dependence is short and of unknown length, which is the case the stationary bootstrap's random block length is designed for. Table~\ref{tab:blocklen} reports the Sharpe interval across expected block lengths from 2 to 13 weeks; the interval is stable, so no conclusion rests on the choice.
 
@@ -911,7 +946,8 @@ Hansen's SPA & 1.90 & 0.26 & Not significant \\
 This paper investigated whether distributional asymmetries in FX alpha signals represent exploitable inefficiencies. Our findings are negative at every layer:
 
 \begin{enumerate}
-    \item Only coverage alpha has a dependence-robust skewness interval that excludes zero; the other four intervals include zero
+    \item Under the paper's primary construction, only coverage alpha has a dependence-robust skewness interval that excludes zero; the other four intervals include zero
+    \item Tail inference is aggregation-sensitive. Across three defensible weekly aggregations of the identical daily exceedance rule, the skewness estimate changes sign and the dependence-robust interval excludes zero under one of the three. The tail signal's distributional character is not established until weekly tail exposure is defined; we report the sensitivity rather than select among the aggregations
     \item EVT tail-shape inference is too imprecise to establish Pareto-type heavy tails or exponential decay; clustering appears weak but is also estimated from few exceedances
     \item The corrected asymmetry strategy loses 6.64\% gross (15 holding episodes, Sharpe $-0.15$), with bootstrap intervals that include zero; walk-forward selection opens one episode in eight test years
     \item Execution costs monotonically worsen the already negative gross result, and no break-even cost exists: the published 19.2-pip figure presumed a positive gross return, and there is none to consume. Omitted financing, the absence of any per-order cost component, and end-of-bar execution remain limitations

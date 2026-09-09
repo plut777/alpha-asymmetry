@@ -747,6 +747,64 @@ non-zero count. The letter now states both denominators explicitly, because
 correcting a reviewer's arithmetic with an ambiguous statistic of our own would
 be worse than saying nothing.
 
+---
+
+## Tail aggregation sensitivity — ISOLATED COMMIT, REVERTIBLE, AWAITING MURAD
+
+**Originator: Tofig, as a proposal for Murad rather than a decision. Deliberately
+confined to one commit.**
+
+**This entire treatment lives in a single commit. `git revert` on that commit
+removes the code, the manuscript table, every qualification, the letter section
+and the PR block together, and nothing else in the branch depends on it.** That
+isolation is the point: the item touches Murad's abstract and redefines the
+character of one of his five signals, and he has not ruled on it.
+
+### What was found
+
+Three defensible weekly aggregations of the identical daily exceedance rule:
+
+| Aggregation | Non-zero | Skew | Block CI | Excludes zero |
+|---|---|---|---|---|
+| Friday observation (published, kept primary) | 35 | −1.48 | [−3.10, 0.54] | no |
+| All days, signed sum | 105 | +0.22 | [−0.72, 1.09] | no |
+| All days, largest abs. exceedance | 105 | −1.14 | [−1.97, −0.09] | **yes** |
+
+The estimate changes sign and the interval excludes zero under one of three.
+
+### What was implemented, and what deliberately was not
+
+Implemented: the Friday-sampled construction stays primary; all three are
+reported as a sensitivity table; the conclusion is that tail inference is
+aggregation-sensitive; the six locations claiming "only coverage survives" are
+qualified to hold under the primary construction.
+
+Not implemented: switching the primary construction. Two reasons are stated in
+the paper and the letter. First, choosing an aggregation after observing which
+one yields significance is specification selection on outcomes, which is the
+practice this paper criticises — and it is not made acceptable by the selection
+being ours. Second, neither alternative is self-evidently correct: the signed
+sum lets opposing exceedances cancel within a week, the largest-exceedance rule
+lets one day define the week, and both encode unargued claims about what weekly
+tail exposure means.
+
+### A framing instruction, recorded because it changed the writing
+
+Tofig directed that the published construction must **not** be framed as the
+weakest of the three. That framing invites a reading about which choice
+flattered the result, which is an accusation the evidence does not support and
+which is beside the point. The point is that reasonable choices produce
+different signs and significance levels. The paper and the letter say that and
+do not rank the constructions.
+
+### Locations qualified
+
+Abstract; §3.2 block-bootstrap yardstick; §3.2 "What survives"; §4.1 "Little
+Asymmetry to Exploit"; §5 robustness introduction; §5.7 Bonferroni paragraph;
+Conclusions item 1, with the sensitivity added as a new conclusion item. Under
+the primary construction every one of these claims still holds; each now says so
+rather than stating it flat.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and

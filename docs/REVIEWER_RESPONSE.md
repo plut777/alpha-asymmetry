@@ -26,7 +26,7 @@ Summary of dispositions:
 | 4 | Excessive declustering window | **Accepted** — 1- and 2-week windows run and reported |
 | 5 | Inapplicable normal-theory standard error | **Accepted — our attribution was wrong** |
 | 6 | Invalid Newey-West on non-contiguous observations | **Accepted — our error; HAC withdrawn, small-cluster correction applied, a claim withdrawn** |
-| 7 | Temporal aliasing in tail signal sampling | **Accepted as a limitation**, two figures corrected |
+| 7 | Temporal aliasing in tail signal sampling | **Accepted**; all-days aggregations built and reported as a sensitivity, two figures corrected |
 | 8 | Intercept unit mismatch | **Accepted — our error** |
 
 ---
@@ -280,15 +280,56 @@ the Limitations section, stating that 70 of the 105 exceedance weeks enter the
 panel as zeros and that the sparsity is the proximate reason the tail-alpha
 skewness interval is so wide.
 
-**On the remedy.** We agree that a weekly indicator registering an exceedance on
-any trading day, or a threshold defined directly on weekly returns, would be a
-better construction. We have not made that change. The present revision is a
-correction of a published paper against its own specification, and redefining a
-signal is a change of specification rather than a correction of one; making it
-here would also break comparability with the published results this revision
-exists to correct. We have recorded it as a limitation and as the natural next
-change, and we would welcome the editor's view on whether it belongs in this
-revision or a subsequent one.
+**On the remedy: we built it, and it does not resolve cleanly.**
+
+We have constructed the all-trading-days signal the reviewer proposes and run
+the full analysis on it. Because "use every trading day" does not by itself
+specify an aggregation, we built the two obvious ones. All three apply the
+identical daily rule and differ only in how a week's daily observations are
+reduced to one weekly value:
+
+| Weekly aggregation | Non-zero obs. | $\hat{\gamma}_1$ | Ex. kurt. | AI | Block 95% CI |
+|---|---|---|---|---|---|
+| Friday observation (published, retained as primary) | 35 | −1.48 | 19.20 | 0.03 | [−3.10, 0.54] |
+| All days, signed sum | 105 | **+0.22** | 8.84 | 0.13 | [−0.72, 1.09] |
+| All days, largest \|exceedance\| | 105 | −1.14 | 8.29 | 0.08 | **[−1.97, −0.09]** |
+
+**The three do not agree.** The skewness estimate changes sign between the
+signed-sum aggregation and the other two, and the dependence-robust interval
+excludes zero under one of the three. A statement as central to this paper as
+"only coverage alpha's skewness survives dependence-robust inference" is
+therefore true under the primary construction and not invariant to a sampling
+choice the published specification never argued for.
+
+**We have retained the published construction as primary and have not selected
+among them.** Choosing an aggregation rule after observing which one yields
+significance would be specification selection on outcomes — the practice this
+paper criticises in Section 5.7 — and it is not made acceptable by the selection
+being ours rather than someone else's.
+
+Nor is either alternative self-evidently correct, which is the substantive
+reason not to simply adopt one. The signed sum lets two exceedances of opposite
+sign within a week cancel, so a violent week can register as quiet. The largest
+absolute exceedance lets a single day define the week and discards every other
+exceedance in it. Each encodes a different and unargued claim about what weekly
+tail exposure *is*, and choosing between them requires an economic argument this
+paper does not make.
+
+What we can report is the sensitivity itself, and we now do: **the tail signal's
+distributional character is not robust to the aggregation rule, and is not
+established until weekly tail exposure is defined.** That is a statement about
+the construction rather than about the market, and it applies equally to the
+published result and to both alternatives. It is in the manuscript as
+Table 4 with the reasoning above, and the claims that depend on it —
+in the abstract, the results, the discussion, the robustness introduction, the
+multiple-testing section and the conclusions — are now qualified as holding
+under the primary construction rather than stated flat.
+
+We would welcome the editor's and the reviewer's view on whether defining
+weekly tail exposure properly belongs in this revision or in subsequent work.
+Our own view is that it is a specification question rather than a correction,
+and that resolving it inside a paper whose purpose is to correct a published
+result would confuse the two.
 
 ---
 
@@ -307,6 +348,8 @@ revision or a subsequent one.
 | Declustering sensitivity, 1 to 5 weeks | §5.6, Table 8 |
 | Complete specification table generated from the code | §2.4, Table 6 |
 | Tail-signal aliasing disclosed | §2.2, §4.3 |
+| Tail aggregation sensitivity: three constructions reported | §3.2, Table 4 |
+| Claims depending on the tail construction qualified | Abstract, §3.2, §4.1, §5, §5.7, Conclusions |
 
 All figures in the manuscript are machine-checked against the pipeline output,
 and the analysis is covered by deterministic tests. The sample is unchanged:

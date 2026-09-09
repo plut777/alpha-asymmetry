@@ -119,6 +119,44 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
     return w.dropna(subset=["fast_skew_20w", "price_skew_20w", "ai_20w"])
 
 
+def tail_construction_variants(daily_px: pd.DataFrame, weekly_index) -> dict:
+    """The published weekly tail signal beside two all-trading-days alternatives.
+
+    The published construction flags exceedances daily and then reads the signal
+    only on the Friday, so most weeks containing an exceedance enter the weekly
+    panel as zeros.  Two aggregations that use every trading day are computed
+    here for comparison.  Neither is self-evidently the right one:
+
+    - the signed sum lets two exceedances of opposite sign within a week cancel,
+      so a violent week can register as quiet;
+    - the largest absolute exceedance lets a single day define the week and
+      discards every other exceedance in it.
+
+    Both are therefore constructions requiring economic justification about what
+    weekly tail exposure means, not neutral fixes.  This function exists so the
+    sensitivity can be reported; it does not change the primary series, which
+    remains the published Friday-sampled one.
+    """
+
+    d = daily_px[["Close"]].copy()
+    d["returns"] = d["Close"].pct_change(fill_method=None)
+    q95 = d["returns"].abs().rolling(252, min_periods=60).quantile(0.95)
+    signed = pd.Series(np.where(d["returns"].abs() > q95, d["returns"], 0.0), index=d.index)
+
+    def largest_abs(block):
+        arr = block.to_numpy()
+        return float(arr[np.argmax(np.abs(arr))]) if len(arr) else 0.0
+
+    weekly_groups = signed.resample("W-FRI")
+    return {
+        "friday_sampled": weekly_groups.last().reindex(weekly_index),
+        "all_days_signed_sum": weekly_groups.sum().reindex(weekly_index),
+        "all_days_largest_abs": weekly_groups.apply(largest_abs).reindex(weekly_index),
+        "weeks_with_any_exceedance": int(((signed != 0).resample("W-FRI").sum()
+                                          .reindex(weekly_index).fillna(0) > 0).sum()),
+    }
+
+
 def block_bootstrap_skew_ci(x, b=2000, block=13, seed=SEED):
     values = np.asarray(x, dtype=float)
     rng = np.random.default_rng(seed)
@@ -397,6 +435,42 @@ def main() -> int:
             "lb_q4_p": float(lb["lb_pvalue"].iloc[0]),
         }
         log(f"{col:15s} skew={skew:6.2f} CI=[{ci[0]:.2f},{ci[1]:.2f}] AI={table_stats[col]['ai']:.2f}")
+
+    # Tail-signal aggregation sensitivity. The primary series is unchanged; this
+    # reports what the same statistics look like under two all-trading-days
+    # aggregations, because the reviewer is right that Friday sampling discards
+    # most of the exceedances the daily rule detects.
+    tail_variants = tail_construction_variants(datasets["EURJPY"], weekly.index)
+    tail_sensitivity = {
+        "primary": "friday_sampled",
+        "primary_note": (
+            "The published Friday-sampled construction remains primary. An aggregation rule is "
+            "not selected on which one yields significance; that would be specification "
+            "selection on outcomes, which this paper criticises elsewhere."),
+        "weeks_with_any_daily_exceedance": tail_variants["weeks_with_any_exceedance"],
+        "constructions": {},
+    }
+    for label in ("friday_sampled", "all_days_signed_sum", "all_days_largest_abs"):
+        series = pd.Series(tail_variants[label]).dropna()
+        ci_v, se_v = block_bootstrap_skew_ci(series.to_numpy())
+        iid_v, _ = iid_bootstrap_skew_ci(series.to_numpy())
+        tail_sensitivity["constructions"][label] = {
+            "nonzero_obs": int((series != 0).sum()),
+            "skew": float(stats.skew(series, bias=False)),
+            "ex_kurt": float(stats.kurtosis(series, bias=False)),
+            "ai": compute_ai(series),
+            "por": float((series > 0).mean() * 100),
+            "skew_ci": list(ci_v),
+            "skew_ci_iid": list(iid_v),
+            "ci_excludes_zero": bool(ci_v[0] > 0 or ci_v[1] < 0),
+        }
+    excl = [k for k, v in tail_sensitivity["constructions"].items() if v["ci_excludes_zero"]]
+    tail_sensitivity["conclusion"] = (
+        "Tail inference is aggregation-sensitive: across three defensible weekly aggregations "
+        "of the same daily exceedance rule the skewness point estimate changes sign and the "
+        f"dependence-robust interval excludes zero under {len(excl)} of 3. The signal is not "
+        "robust until weekly tail exposure is defined.")
+    log(f"TAIL SENSITIVITY: {tail_sensitivity['conclusion']}")
 
     base = run_asymmetry_strategy(weekly, 0.75)
     log(f"Baseline: return={base.metrics['return']:.2f}% Sharpe={base.metrics['sharpe']:.3f} "
@@ -713,7 +787,8 @@ def main() -> int:
                           "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"},
         "data_manifest": manifest,
         "sample": {"raw_weekly_start": "2015-11-06", "analysis_start": weekly.index[0], "analysis_end": weekly.index[-1], "n": n},
-        "alpha_statistics": table_stats, "baseline": base.metrics, "benchmarks": table3,
+        "alpha_statistics": table_stats, "tail_construction_sensitivity": tail_sensitivity,
+        "baseline": base.metrics, "benchmarks": table3,
         "walk_forward": table5, "regimes": regimes, "sensitivity": sensitivity,
         "factor_attribution": factors, "transaction_costs": costs, "data_snooping": snooping,
         "sizing_variants": sizing_variants,

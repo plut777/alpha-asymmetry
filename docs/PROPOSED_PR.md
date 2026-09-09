@@ -170,6 +170,50 @@ overruled:
 
 ---
 
+## (c2-bis) Tail aggregation sensitivity — RECOMMENDATION, AWAITING YOUR RULING
+
+**This item is a proposal, not a change we are asking to have accepted with the
+rest. It is isolated in a single commit and can be removed with one
+`git revert`; nothing else in this pull request depends on it.**
+
+Reviewer 3 observed that the tail signal is built from daily exceedances but
+read only on Fridays, so most weeks containing an exceedance enter the weekly
+panel as zeros. We accepted that as a limitation. We then built the
+all-trading-days signal to see what it does, because "use every trading day"
+does not by itself specify an aggregation:
+
+| Weekly aggregation | Non-zero obs. | Skew | AI | Block 95% CI |
+|---|---|---|---|---|
+| Friday observation (published, kept primary) | 35 | −1.48 | 0.03 | [−3.10, 0.54] |
+| All days, signed sum | 105 | **+0.22** | 0.13 | [−0.72, 1.09] |
+| All days, largest \|exceedance\| | 105 | −1.14 | 0.08 | **[−1.97, −0.09]** |
+
+**The three do not agree.** The skewness estimate changes sign, and the
+dependence-robust interval excludes zero under one of them. That bears on your
+abstract: "only the volatility-expansion (coverage) signal exhibits skewness
+that survives block-bootstrap inference" is true under the primary construction
+and is not invariant to the aggregation rule.
+
+**What this PR does.** Keeps your Friday-sampled construction as primary,
+reports all three as a sensitivity table, concludes that tail inference is
+aggregation-sensitive, and qualifies the six places that claim depends on so
+they read "under the primary construction" rather than flat.
+
+**What this PR deliberately does not do.** It does not switch the primary
+construction. Selecting an aggregation after seeing which one yields
+significance would be specification selection on outcomes — the practice the
+paper criticises — and neither alternative is self-evidently correct: the signed
+sum lets opposing exceedances within a week cancel, and the largest-exceedance
+rule lets one day define the week. Both need an economic argument about what
+weekly tail exposure means, which is yours to make.
+
+**The decision is yours** because it touches your abstract and redefines one of
+your five signals. Three options: take it as proposed; revert the commit and
+keep the limitation stated in prose only; or direct which aggregation should
+become primary, with the economic reasoning, and we will implement it.
+
+---
+
 ## (d) Prose corrected without a wrong figure
 
 The manuscript sweep changed **38 figures across 21 locations**. But a
