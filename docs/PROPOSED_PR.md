@@ -1,5 +1,8 @@
 # Proposed pull request
 
+<!-- reviewed-at: 795af6fcfb03 -->
+
+
 ## Title
 
 Correct the strategy specification, regenerate all results, and address Reviewer 3
@@ -24,8 +27,8 @@ that is almost never invested cannot demonstrate much in either direction.
 
 The corrected strategy **loses 6.64% gross** over the decade, Sharpe **−0.153**,
 maximum drawdown **−12.56%**, across 15 holding episodes and 55 in-position
-weeks. The paper's conclusion is unchanged in direction and considerably
-stronger in substance.
+weeks. The corrected analysis preserves the paper's qualitative conclusion while
+narrowing and strengthening the empirical basis for it.
 
 **What this revision contributes**, stated as narrowly as the manuscript now
 states it:
@@ -35,9 +38,12 @@ states it:
    to it is appropriate to 15 clusters rather than to 504 independent weeks.
 2. **One surviving asymmetry result.** Of five alpha signal types, only the
    volatility-expansion (coverage) signal has skewness that survives
-   block-bootstrap inference under the paper's primary construction. The signed
-   tail signal skews *negative*, not positive, correcting a published figure that
-   described unsigned exceedance magnitude.
+   block-bootstrap inference under the paper's primary construction
+   (γ̂₁ = 1.75, CI [1.18, 2.16]). The signed tail signal's point estimate is
+   *negative* (−1.48), not the pronounced positive value published — the published
+   figure described unsigned exceedance magnitude, which is right-skewed by
+   construction. Its interval [−3.10, 0.54] includes zero, so this corrects a sign
+   error rather than establishing negative skew.
 3. **Documented specification sensitivity**, at magnitudes this sample cannot
    resolve, reported rather than resolved.
 
@@ -48,9 +54,12 @@ replace published claims:
   break-even presumes a gross profit to be consumed, and there is none. This
   replaces the published 19.2-pip figure and is a cleaner statement of the null.
 - **The economic null is starker, not softer.** Walk-forward selection leaves the
-  rule nearly inert (one episode in eight out-of-sample years), and no candidate
-  in the twelve-strategy formal universe beats a zero-return benchmark
-  (Reality Check *p* = 0.30, SPA *p* = 0.25).
+  rule nearly inert (one episode in eight out-of-sample years), and
+  data-snooping-corrected tests do not reject the null of no superior performance
+  against a zero-return benchmark across the twelve-strategy formal universe
+  (Reality Check *p* = 0.30, SPA *p* = 0.25). This is a failure to reject, not a
+  finding that every candidate's realised return was non-positive — several were
+  positive, buy-and-hold among them.
 
 **One candidate finding was demoted rather than reported.** The corrected factor
 regression shows the rule loading negatively on time-series momentum while
@@ -433,7 +442,7 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 61 deterministic tests, all passing: the AI edge cases, the dated timing
+- 67 deterministic tests, all passing: the AI edge cases, the dated timing
   convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
   periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
   causality suite run against all four entry rules, table- and prose-level
