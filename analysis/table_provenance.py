@@ -27,6 +27,7 @@ not a completed mechanism; the other tables are inventoried in REVIEW_NOTES.md.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -50,6 +51,36 @@ class EXTERNAL:
 
 
 _IP = "factor_attribution.in_position"
+
+_AS = "alpha_statistics"
+_TC = "tail_construction_sensitivity.constructions"
+
+_ALPHA_ROWS = {"Tail": "tail_alpha", "Fast": "fast_alpha", "Pricing": "pricing_alpha",
+               "Coverage": "coverage_alpha", "Hedge": "hedge_alpha"}
+
+
+def _tests_row(key: str) -> dict:
+    """gamma-hat, iid t, block CI (one cell, two values), SW, JB, K2, Ljung-Box Q(4)."""
+    return {"label": [], "cells": [
+        f"{_AS}.{key}.skew", f"{_AS}.{key}.skew_t_iid",
+        [f"{_AS}.{key}.skew_ci[0]", f"{_AS}.{key}.skew_ci[1]"],
+        f"{_AS}.{key}.sw", f"{_AS}.{key}.jb", f"{_AS}.{key}.k2", f"{_AS}.{key}.lb_q4"]}
+
+
+def _boot_row(key: str) -> dict:
+    """gamma-hat, normal-theory SE, iid bootstrap SE, iid CI, block CI."""
+    return {"label": [], "cells": [
+        f"{_AS}.{key}.skew", f"{_AS}.{key}.normal_theory_se", f"{_AS}.{key}.skew_boot_se_iid",
+        [f"{_AS}.{key}.skew_ci_iid[0]", f"{_AS}.{key}.skew_ci_iid[1]"],
+        [f"{_AS}.{key}.skew_ci[0]", f"{_AS}.{key}.skew_ci[1]"]]}
+
+
+def _tailagg_row(key: str) -> dict:
+    return {"label": [], "cells": [
+        f"{_TC}.{key}.nonzero_obs", f"{_TC}.{key}.skew", f"{_TC}.{key}.ex_kurt",
+        f"{_TC}.{key}.ai",
+        [f"{_TC}.{key}.skew_ci[0]", f"{_TC}.{key}.skew_ci[1]"]]}
+
 
 _BM = "benchmarks"
 _BM_COLS = ("ret", "vol", "sharpe", "sortino", "mdd")
@@ -100,6 +131,18 @@ PROVENANCE = {
     # before this mapping was declared.
     # Generated from analysis/entry_symmetry_results.json at insertion time rather
     # than transcribed, so the declaration below records a mapping that already held.
+    # Execution-independent by construction: these read the alpha signal series and
+    # the daily exceedance rule, never weekly_return, and the panel's row count is
+    # set by dropna on the three alpha columns. Adopting a different execution
+    # convention does not touch them. A mapping is field paths rather than values,
+    # so it also survives a rerun that changes the values.
+    "tab:tests": {name: _tests_row(key) for name, key in _ALPHA_ROWS.items()},
+    "tab:bootcompare": {name: _boot_row(key) for name, key in _ALPHA_ROWS.items()},
+    "tab:tailagg": {
+        "Friday observation": _tailagg_row("friday_sampled"),
+        "signed sum": _tailagg_row("all_days_signed_sum"),
+        "largest": _tailagg_row("all_days_largest_abs"),
+    },
     "tab:backtest": {
         "Asymmetry": _bench_row("Asymmetry"),
         "Momentum (20w)": _bench_row("Momentum (20w)"),
@@ -203,8 +246,18 @@ def resolve(path: str, data: dict | None = None):
     while i < len(parts):
         for j in range(len(parts), i, -1):
             candidate = ".".join(parts[i:j])
+            index = None
+            bracket = re.match(r"^(.*)\[(\d+)\]$", candidate)
+            if bracket:
+                candidate, index = bracket.group(1), int(bracket.group(2))
             if isinstance(node, dict) and candidate in node:
-                node, i = node[candidate], j
+                node = node[candidate]
+                if index is not None:
+                    if not isinstance(node, list) or index >= len(node):
+                        raise KeyError(
+                            f"{source}: {candidate!r} is not a list with index {index}")
+                    node = node[index]
+                i = j
                 break
         else:
             raise KeyError(
