@@ -1736,6 +1736,107 @@ discarded the uncommitted Section 4.6 insertion, which had to be re-applied. The
 rule adopted: **commit before mutating**, or mutate a copy. A restore command
 scoped to a file does not distinguish the mutation from the work.
 
+## Transition sweep, and the running count split by failure class
+
+Tofik's correction, adopted: the defects are **two classes, not one**, and are
+tracked separately from here.
+
+- **Class A — stale/superseded methodology.** A value or interpretation that was
+  correct under a method this revision replaced, left behind when the method
+  changed. Not a typing error; the number was once right.
+- **Class B — transcription/rounding.** A value wrong under the *current* method,
+  where the pipeline figure is right and only the rendering is wrong.
+
+### Running count
+
+| # | Location | Class | Surface | Manuscript | Canonical | Status |
+|---|---|---|---|---|---|---|
+| 1 | `tab:sevariants` HC3 $t$ | **B** | table | −2.17 | −2.164926 → −2.16 | **fixed** |
+| 2 | §1 line 165 | **A** | prose | $t$ = −0.84 (HAC) | −0.646605 → −0.65 | **fixed** |
+| 3 | §4.9 line 864 | **A** | prose | $t$ = −0.84 (HAC) | −0.646605 → −0.65 | **fixed** |
+| 4 | §3.3 line 547 | ? | prose | mean entry notional **1.62** | 1.6382 → 1.64 | **open** |
+| 5 | §3.3 line 547 | ? | prose | resizings add **5.8%** to turnover | no definition reproduces it | **open** |
+| 6 | §5.6 line 994 | **A** | prose | snooping explained via the **thirteen**-candidate universe, maximum "attained by the seeded random candidate" | formal test is twelve candidates; `real_only.best_candidate` = `always_long` | **open** |
+
+**Totals: 6 findings — Class A 4, Class B 1, unclassified 2.
+By surface: table 1, prose 5.** Prose is running at five to one against tables,
+which is the expected direction: tables are regenerated wholesale, prose is
+edited by hand.
+
+### On findings 4 and 5
+
+Finding 4 is small but real: 1.6382 rounds to 1.64, not 1.62.
+
+Finding 5 could not be traced at all. The candidate definitions and what each
+yields: resize share of total turnover 11.36%; resizings as a percentage added to
+non-resize turnover 12.82%; resize turnover against summed entry notionals
+24.04%; mean resize against mean entry 11.63%. None is 5.8%.
+
+One hypothesis, offered as a hypothesis and not acted on: 11.63 / 2 = 5.82. The
+same paragraph criticises an earlier error of *"dividing position-change events
+by two"*. If the 5.8% figure was produced by that same halving, the sentence
+contains an instance of the defect it describes. **Not reconstructed, not fixed.**
+The figure needs either a derivation or removal, and that is a decision to put to
+Murad rather than a transcription to repair.
+
+### Finding 6 is an interpretation, not a value
+
+This is the one worth generalising. §5.6 explains why the snooping statistics are
+insensitive to the sizing specification, and the explanation is built on the
+thirteen-candidate universe in which the seeded random sequence is the argmax.
+The reported formal test is now the **twelve** real candidates, where the maximum
+is `always_long`. The mechanism the paragraph describes — a maximum attained by a
+candidate whose returns do not depend on the asymmetry rule's sizing — does not
+hold for the test the paper actually reports.
+
+A transition sweep that only compared numbers would have passed this paragraph:
+its figures are fine. The stranded thing is the reasoning. Any future sweep has
+to read what the prose *claims about the method*, not just the digits in it.
+
+### Transitions checked clean
+
+| Transition | Result |
+|---|---|
+| 13-candidate universe → 12 formal + random diagnostic | **values clean** (RC $p$ = 0.30, SPA $p$ = 0.25 and $SPA$ = 1.90 all match `real_only`); **one stranded interpretation**, finding 6 |
+| Old trade-count → legs/resizing accounting | counts clean: 15 episodes, 61 legs, 1 reversal, 31 resizings, turnover 52.00 all match; two derived figures open, findings 4 and 5 |
+| Monday-open → Friday-close + robustness grid | clean; all 20 `tab:exectiming` cells verified against the pipeline |
+| Newey-West/HAC → CR2 / wild cluster | findings 2 and 3, both fixed; `tab:factors` and `tab:sevariants` now mapped and clean |
+| Frozen sizing → weekly resizing | specification rows and Table 12 note consistent; the frozen-notional return of −7.57% is in canonical output but is not quoted in the manuscript, so nothing to strand |
+| Tail-signal construction / aggregation | `tab:tailagg` not yet mapped; deferred to the table order |
+
+---
+
+## The eighth non-discriminating check, in full
+
+The provenance coverage test decided whether a table row was an empirical claim
+by testing the **row label** for digits:
+
+```python
+if not _numbers(row_label) and not any(key in row_label for key in declared):
+    continue        # "a pure text row carrying no numbers is not an empirical claim"
+```
+
+The intent was to skip rules and section headers. The effect was to skip any
+fabricated row whose *label* contains no digit, however many invented numbers its
+cells carried. A fabricated `Wednesday open` row inserted into `tab:exectiming`
+passed untouched.
+
+**The earlier success was not evidence the check worked.** The fabricated CR1 row
+was caught because the string `CR1` happens to contain the character `1`, which
+made `_numbers(row_label)` non-empty. Had the row been labelled `Cluster-robust,
+by episode`, it would have passed exactly as `Wednesday open` did. The check
+appeared to identify empirical cells correctly and was in fact keying on the
+spelling of a row name.
+
+Coverage is now decided by whether the row's **cells** carry numbers. All three
+mutations — `CR1`, `Wednesday open`, `Pure-coverage` — now fail correctly.
+
+This is the eighth verification attempt in this review that was initially
+incapable of detecting what it claimed to test, and the first where a *passing
+mutation test* was itself the misleading evidence. The others failed by never
+being exercised on a defect; this one was exercised, passed, and the pass meant
+something other than what it appeared to mean.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
