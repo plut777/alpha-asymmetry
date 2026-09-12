@@ -51,6 +51,18 @@ class EXTERNAL:
 
 _IP = "factor_attribution.in_position"
 
+_FA = "factor_attribution"
+
+_FACTOR_VARS = {"Intercept": "const", "Carry": "carry", "Momentum": "mom", "Dollar": "dollar"}
+
+
+def _factor_row(var: str) -> dict:
+    return {"label": [], "cells": [
+        f"{_FA}.full.coef.{var}.b", f"{_FA}.full.coef.{var}.t",
+        f"{_FA}.in_position.coef.{var}.b", f"{_FA}.in_position.coef.{var}.t",
+    ]}
+
+
 _SYM = "entry_symmetry:variants"
 
 _SYM_COLUMNS = ("return", "net_return", "sharpe", "mdd", "holding_episodes",
@@ -78,6 +90,11 @@ PROVENANCE = {
     # before this mapping was declared.
     # Generated from analysis/entry_symmetry_results.json at insertion time rather
     # than transcribed, so the declaration below records a mapping that already held.
+    "tab:factors": {
+        **{name: _factor_row(var) for name, var in _FACTOR_VARS.items()},
+        "R^2": {"label": [], "cells": [f"{_FA}.full.r2", f"{_FA}.in_position.r2"]},
+        "F-statistic": {"label": [], "cells": [f"{_FA}.full.f", f"{_FA}.in_position.f"]},
+    },
     "tab:entrysymmetry": {
         "Published hybrid": _sym_row("published"),
         "Pure-fast": _sym_row("pure_fast"),

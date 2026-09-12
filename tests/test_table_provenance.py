@@ -40,10 +40,18 @@ def _table_rows(label: str):
 
 
 def _numbers(cell: str):
-    clean = re.sub(r"\\(textbf|emph|text)\{([^}]*)\}", r"\2", cell)
+    # \multicolumn{2}{c}{0.011} must read as 0.011, not as the span count 2.
+    clean = re.sub(r"\\multicolumn\{[^}]*\}\{[^}]*\}\{([^}]*)\}", r"\1", cell)
+    clean = re.sub(r"\\(textbf|emph|text)\{([^}]*)\}", r"\2", clean)
     clean = clean.replace("$-$", "-").replace("---", " ").replace("--", " ")
     clean = clean.replace(r"\%", " ").replace("$", " ")
     return NUMBER.findall(clean)
+
+
+def _norm(text: str) -> str:
+    """Row labels carry math delimiters; '$F$-statistic' must match the key 'F-statistic'."""
+
+    return text.replace("$", "").replace("\\", "").lower()
 
 
 def _decimals(shown: str) -> int:
@@ -63,7 +71,7 @@ def test_every_row_has_declared_provenance(label):
         # 1. Coverage must not depend on the spelling of a row name.
         if not any(_numbers(c) for c in cells):
             continue
-        assert any(key.lower() in row_label.lower() for key in declared), (
+        assert any(_norm(key) in _norm(row_label) for key in declared), (
             f"{label}: row {row_label!r} has no declared provenance. Every empirical "
             f"row must name the canonical field its numbers come from; a row with no "
             f"declaration has no evidence that it was computed at all."
@@ -93,7 +101,7 @@ _VALUE_CASES = [
 def test_declared_cells_match_their_canonical_fields(label):
     data = canonical()
     for key, spec in PROVENANCE[label].items():
-        rows = [r for r in _table_rows(label) if key.lower() in r[0].lower()]
+        rows = [r for r in _table_rows(label) if _norm(key) in _norm(r[0])]
         assert len(rows) == 1, f"{label}: expected exactly one {key!r} row, found {len(rows)}"
         row_label, cells = rows[0]
 

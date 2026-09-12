@@ -1630,9 +1630,24 @@ Reported as found rather than batched, per Tofik's instruction, so that any
 clustering by table or by type of result is visible while the work is in
 progress.
 
-| # | Table | Manuscript | Canonical | Correct rendering | Likely source |
+| # | Location | Manuscript | Canonical | Correct rendering | Likely source |
 |---|---|---|---|---|---|
 | 1 | `tab:sevariants` | HC3 $t$ = **−2.17** | −2.164926 | **−2.16** | hand transcription; b/se reproduces −2.164926 exactly, so the estimator is right and the printed digit is not |
+| 2 | **prose**, §1 line 165 | in-position intercept $t$ = **−0.84** | −0.646605 (CR2, reported) | **−0.65** | stale value from the **withdrawn** Newey-West HAC estimator, whose intercept $t$ is −0.840292 |
+| 3 | **prose**, §4.9 line 864 | in-position intercept $t$ = **−0.84** | −0.646605 (CR2, reported) | **−0.65** | same stale HAC value, second location |
+
+**Findings 2 and 3 are not rounding.** The manuscript quotes, in two places, a
+statistic produced by an estimator the same manuscript withdraws as inapplicable
+to these non-contiguous weeks. `tab:factors` prints the correct CR2 value of
+−0.65 four lines above the second instance, so the paper contradicts its own
+table. The mechanism is the one to watch for in the remaining tables: when the
+inference was tightened from HAC to CR2, the table was regenerated and the
+surrounding prose was not.
+
+This also marks the first finding **outside** a table. The mapping test covers
+table cells only; these two were found because mapping `tab:factors` put the
+correct value in front of me. Prose figures have no provenance mechanism at all,
+and that gap is now the larger one.
 
 **Tables mapped so far and their discrepancy counts**
 
@@ -1641,11 +1656,19 @@ progress.
 | `tab:sevariants` | 15 | **1** |
 | `tab:exectiming` | 21 | 0 — all twenty checked cells reproduce exactly |
 | `tab:entrysymmetry` (new) | 28 | 0 — generated from JSON, never transcribed |
+| `tab:factors` | 22 | 0 in cells; **2 in adjacent prose** |
 
-No clustering is yet visible in one table or one result type; one finding in 64
-mapped cells is too little to characterise. The single finding is a rounding
-digit in a regression-inference table, which is the same table and the same class
-of value as the invented CR1 row.
+Three findings in 86 mapped cells plus two prose locations. A pattern is starting
+to show and it is not random transcription noise: **all three defects sit in the
+factor-regression inference, and all three are values that were correct under a
+superseded estimator.** The tables were regenerated when inference moved from
+Newey-West HAC to CR2; the hand-written numbers around them were not. The
+fabricated CR1 row belongs to the same family — a superseded estimator's row,
+invented rather than stale, in the same table.
+
+Provisional conclusion for the remaining work: prioritise anything the inference
+change touched, and treat prose figures as higher-risk than table cells, since
+tables are at least regenerated wholesale while prose is edited by hand.
 
 ---
 
