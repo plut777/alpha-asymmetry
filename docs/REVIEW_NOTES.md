@@ -1490,6 +1490,117 @@ Both were plausible, both were wrong, and in both cases the test suite and the
 LaTeX build were structurally incapable of noticing, because neither checks
 prose numbers against their source.
 
+## The provenance audit that did not work, and the one that does
+
+**Type:** verification apparatus. **Originated by:** Tofik, after the fabricated
+CR1 row. Kept in the record because the failure is the instructive part.
+
+### The rejected instrument
+
+The first audit asked, for each numeric cell in a manuscript table, whether a
+number equal to it appears anywhere in canonical pipeline output at any rounding
+or rescaling. It reported 384 traced, 12 declared, 7 untraced, and the 7 were
+parser artefacts. That looked like a clean manuscript.
+
+It was measured before being believed, and it is worthless. The lookup universe
+built that way holds 6,240 keys, which is dense enough that:
+
+| random numbers of this shape | called "traced" |
+|---|---|
+| 3dp coefficients in [−1, 1] | 100.0% |
+| 3dp p-values / SEs in [0, 1] | 100.0% |
+| 2dp percentages / t-statistics in [−30, 30] | 91.7% |
+| integers 1–200 | 56.1% |
+
+It was answering "is this number numerically unremarkable?" rather than "where
+did this number come from". **Mutation test:** the fabricated CR1 row was
+re-inserted into `tab:sevariants`; the audit marked all four fabricated cells as
+traced and its untraced count did not move.
+
+Retained as `analysis/rejected_provenance_audit.py`, which refuses to run without
+`--demonstrate-failure` and cannot be mistaken for an active check. This is the
+sixth verification attempt in this review that was initially incapable of
+detecting what it was built for.
+
+### The mechanism that replaces it
+
+`analysis/table_provenance.py` inverts the question. Every empirical cell must
+declare a **named canonical field path**, and a cell with no declaration fails.
+The detected failure mode is **absence of a source**, not disagreement between
+two numbers that look alike. Three provenance kinds are distinguished: a field
+path into pipeline output; `EXTERNAL`, for values that are genuinely not pipeline
+output and must not be forced into it (historical figures from earlier drafts,
+externally sourced values, fixed declared parameters), carrying a reason string;
+and `NOT_NUMERIC` for cells such as em-dashes.
+
+**Mutation test, run before crediting it:** with the fabricated CR1 row
+re-inserted, the check fails immediately —
+
+> `tab:sevariants: row 'CR1, clustered by episode' has no declared provenance.`
+
+On the correct table it passes. Prototype covers `tab:sevariants` only.
+
+### It found a real defect on its first table
+
+`tab:sevariants` prints the HC3 t-statistic as **−2.17**. Canonical output is
+**−2.164926**, which rounds to **−2.16**. The ratio b/se reproduces −2.164926
+exactly, so the published cell is a transcription error, not a different
+estimator. Reported, deliberately **not repaired** pending a decision, and held
+in the suite as a `strict=True` xfail so that correcting it forces the marker's
+removal rather than passing silently.
+
+That is three hand-introduced numeric defects now: the invented t-statistics, the
+invented CR1 row, and this.
+
+---
+
+## Attribution correction: two errors recorded to the wrong author
+
+Tofik instructed that the sentence *"the entry-asymmetry choice moves the result
+by more than the result itself"* be recorded as having come from his instruction
+and been wrong, and described it as the second instruction-level correction after
+the earlier cluster-imbalance claim. **Both attributions are wrong, and recording
+them as given would misstate the audit record in the direction that flatters me.**
+
+The transcript was checked rather than recalled:
+
+1. **"Moves the result by more than the result itself"** was written by me, in my
+   report of the variant results. Tofik's only use of the phrase was the
+   instruction forbidding it. The substance of his correction stands and is
+   recorded below; the authorship does not.
+2. **The cluster-imbalance claim** (`[2,3,…,14]`, "one cluster holds a quarter of
+   the sample") also originated with me. What followed was a real and different
+   phenomenon worth recording: his later instruction asked for the influence
+   estimate "specifically after removing the 14-week episode", taking my false
+   premise as given. The instruction was **contaminated by** my error, not the
+   source of it. That is an argument for catching these early — an uncorrected
+   error of mine propagates into the instructions I am then given.
+
+Both remain implementation and reporting errors by me. No instruction-level error
+has yet been identified in this review.
+
+### The substance of the correction, which does stand
+
+The claim was wrong on the arithmetic. The spread across the four rules is
+**6.21 percentage points** (−1.65% to −7.86%), against a published cumulative
+loss of **6.64%**. The range is therefore **nearly as large as, not larger
+than**, the published loss. The error overstated the result in the direction that
+made the methodological point look stronger, which is the direction that should
+attract the most suspicion. Caught on review by Tofik.
+
+The two incorrect structural predictions in the symmetrization pre-registration
+are left on the record unchanged, as instructed.
+
+### A third pre-registration defect, flagged not fixed
+
+Section 6 of `docs/PREREGISTRATION_ENTRY_SYMMETRY.md` asserts that the variants
+"cannot be distinguished from each other statistically". **No paired inferential
+comparison among P/A/B/C was pre-specified or run**, so that sentence is an
+unsupported assertion sitting inside a pre-registration document. It is flagged
+here rather than edited, since the point of a pre-registration is that it is not
+rewritten after the fact. No reported conclusion rests on it, and the claim must
+not be repeated in the manuscript.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
