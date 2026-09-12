@@ -207,6 +207,65 @@ def _build_trade_ledger(position_ledger: pd.DataFrame) -> pd.DataFrame:
 SIZING_MODES = ("weekly", "entry")
 
 
+ENTRY_RULES = ("published", "pure_fast", "pure_pricing", "equal_threshold")
+
+
+def entry_signals(
+    d: pd.DataFrame,
+    thresholds: pd.Series,
+    entry_rule: str = "published",
+) -> tuple[pd.Series, pd.Series]:
+    """Long and short entry conditions, published rule or a symmetry variant.
+
+    The published rule's two legs differ in four ways at once: skewness gate,
+    confirmation series, confirmation threshold, and direction of response.  A
+    positive fast alpha makes the rule go long; a positive pricing alpha makes
+    it go short.  The manuscript argues for none of this, which is Reviewer 3's
+    fourth round-two comment.
+
+    The three variants each collapse that asymmetry a different way, and they
+    are sensitivity exhibits rather than candidate replacements: every reported
+    result uses ``"published"``.  Their exact definitions and the economic
+    question each answers were fixed in advance in
+    ``docs/PREREGISTRATION_ENTRY_SYMMETRY.md``, committed before any of them was
+    computed.
+
+    Comparisons against NaN are already False in pandas, so no missing-value
+    handling is applied here; the published path is left exactly as it was.
+    """
+
+    if entry_rule not in ENTRY_RULES:
+        raise ValueError(f"unknown entry_rule {entry_rule!r}; expected one of {ENTRY_RULES}")
+
+    if entry_rule == "published":
+        long_signal = (d["fast_skew_20w"] > thresholds) & (d["fast_alpha"] > 0)
+        short_signal = (d["price_skew_20w"] > thresholds) & (
+            d["pricing_alpha"] > 0.5 * d["pricing_std_20w"]
+        )
+    elif entry_rule == "pure_fast":
+        # Published long leg preserved verbatim, short leg reflected about zero.
+        gate = d["fast_skew_20w"] > thresholds
+        long_signal = gate & (d["fast_alpha"] > 0)
+        short_signal = gate & (d["fast_alpha"] < 0)
+    elif entry_rule == "pure_pricing":
+        # Published short leg preserved verbatim, long leg reflected about zero.
+        gate = d["price_skew_20w"] > thresholds
+        band = 0.5 * d["pricing_std_20w"]
+        long_signal = gate & (d["pricing_alpha"] < -band)
+        short_signal = gate & (d["pricing_alpha"] > band)
+    else:  # equal_threshold
+        if "fast_std_20w" not in d.columns:
+            raise ValueError('entry_rule="equal_threshold" requires a fast_std_20w column')
+        long_signal = (d["fast_skew_20w"] > thresholds) & (
+            d["fast_alpha"] > 0.5 * d["fast_std_20w"]
+        )
+        short_signal = (d["price_skew_20w"] > thresholds) & (
+            d["pricing_alpha"] > 0.5 * d["pricing_std_20w"]
+        )
+
+    return long_signal, short_signal
+
+
 def run_asymmetry_strategy(
     data: pd.DataFrame,
     threshold: float | pd.Series = 0.75,
@@ -214,6 +273,7 @@ def run_asymmetry_strategy(
     max_holding_weeks: int = 4,
     round_trip_cost_pips: float = 0.0,
     pip_size: float = 0.01,
+    entry_rule: str = "published",
     sizing: str = "weekly",
 ) -> StrategyResult:
     """Run the two-sided strategy with one execution lag.
@@ -265,10 +325,7 @@ def run_asymmetry_strategy(
     else:
         thresholds = pd.Series(float(threshold), index=d.index)
 
-    long_signal = (d["fast_skew_20w"] > thresholds) & (d["fast_alpha"] > 0)
-    short_signal = (d["price_skew_20w"] > thresholds) & (
-        d["pricing_alpha"] > 0.5 * d["pricing_std_20w"]
-    )
+    long_signal, short_signal = entry_signals(d, thresholds, entry_rule)
 
     positions: list[float] = []
     holding: list[int] = []

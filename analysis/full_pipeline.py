@@ -115,6 +115,7 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
         lambda x: stats.skew(x, nan_policy="omit", bias=False), raw=False
     )
     w["pricing_std_20w"] = w["pricing_alpha"].rolling(20, min_periods=10).std()
+    w["fast_std_20w"] = w["fast_alpha"].rolling(20, min_periods=10).std()
     w["ai_20w"] = w["fast_alpha"].rolling(20, min_periods=10).apply(compute_ai, raw=False)
     return w.dropna(subset=["fast_skew_20w", "price_skew_20w", "ai_20w"])
 
