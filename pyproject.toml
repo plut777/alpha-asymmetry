@@ -6,3 +6,10 @@ requires-python = ">=3.12"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+# The network marker is deselected by default so the offline suite stays
+# deterministic and runnable without credentials. Run the divergence check
+# explicitly with:  pytest -m network
+addopts = "-m 'not network'"
+markers = [
+    "network: requires network access and an authenticated gh CLI; not run by default",
+]

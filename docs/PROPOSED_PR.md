@@ -442,11 +442,14 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 67 deterministic tests, all passing: the AI edge cases, the dated timing
+- 67 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
   convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
   periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
   causality suite run against all four entry rules, table- and prose-level
   provenance, and a guard resolving every commit hash cited in the audit record.
+  A further check, marked `network` and deselected by default, verifies that this
+  document and the published pull-request description have not diverged; run it
+  with `pytest -m network`.
 - The complete pipeline runs online and reruns identically with `--offline`.
 - Seven of the eight input files reproduce byte-for-byte on an independent
   download (see **Data** below).

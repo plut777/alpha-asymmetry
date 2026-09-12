@@ -105,9 +105,13 @@ def test_declared_test_count_matches_collection():
     out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q",
                           "-p", "no:cacheprovider"],
                          cwd=ROOT, capture_output=True, text=True, env=env).stdout
-    found = re.search(r"(\d+)\s+tests? collected", out) or re.search(r"^(\d+) tests", out, re.M)
-    assert found, f"could not read a collected-test count from pytest output:\n{out[-500:]}"
-    collected = int(found.group(1))
+    # "67/68 tests collected (1 deselected)" -> the claim is about the default
+    # offline suite, so the selected count is the one that matters; the network
+    # divergence check is stated separately in the document.
+    split = re.search(r"(\d+)/(\d+) tests? collected", out)
+    plain = re.search(r"(\d+)\s+tests? collected", out)
+    assert split or plain, f"could not read a collected-test count from pytest output:\n{out[-500:]}"
+    collected = int(split.group(1)) if split else int(plain.group(1))
     for shown in claimed:
         assert int(shown) == collected, (
             f"docs/PROPOSED_PR.md claims {shown} tests; collection reports "
