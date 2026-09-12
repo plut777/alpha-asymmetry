@@ -1837,6 +1837,110 @@ mutation test* was itself the misleading evidence. The others failed by never
 being exercised on a defect; this one was exercised, passed, and the pass meant
 something other than what it appeared to mean.
 
+## Corrected audit arithmetic, and a withdrawn finding
+
+**Two corrections to my own summary, both caught by Tofik.**
+
+### 1. The class totals did not add up
+
+I reported "six findings — Class A 4, Class B 1, unclassified 2", which sums to
+seven against six findings. The correct split at that moment was **Class A 3
+(#2, #3, #6), Class B 1 (#1), unclassified 2 (#4, #5)**. The error is also in the
+message of commit `1f76352`, which cannot be edited without rewriting history and
+is corrected here instead.
+
+Worth noting what kind of error this was. Every individual finding was recorded
+correctly; only the summary was wrong, and it was wrong in the direction that
+made the stale-methodology class look larger, which was the pattern I was arguing
+for at the time. That is the same directional bias as the "moves the result by
+more than the result itself" overstatement.
+
+### 2. Finding 5 is withdrawn: the 5.8% is correct and traceable
+
+I reported the claim that weekly resizings "add only 5.8\% to turnover" as
+untraceable, having tested four definitions that yield 11.36%, 12.82%, 24.04% and
+11.63%. **All four were the wrong question.** I looked for the resize share
+*within* the weekly run. The figure is the comparison *between sizing modes*:
+
+```
+sizing_variants.weekly.turnover / sizing_variants.entry.turnover - 1
+        51.996835 / 49.146741 - 1 = 5.7992%  ->  5.8%
+```
+
+Both are canonical fields. The companion claim in the same sentence is equally
+traceable: 61 weekly execution legs against 30 frozen legs, so the resizings do
+"more than double the leg count" (61 > 60).
+
+The divide-by-two hypothesis I floated is **false**, and tracing rather than
+reasoning is what settled it. `git log -S` shows the sentence was authored in
+`4da3ad1`, my own numbers sweep, replacing a frozen-sizing version that read
+"30 execution legs, no resizing, turnover 49.15". The 5.8% was computed against
+that superseded figure, which is exactly why it did not reconcile against
+anything inside the weekly run.
+
+**I was one instruction away from deleting a correct and meaningful result as an
+unsupported claim.** An "untraceable" verdict is a statement about the search
+performed, not about the number, and mine had tested four definitions of the
+wrong quantity. The rule adopted: before classifying a figure unsupported, trace
+its authorship through `git log -S` and read what the surrounding text said at
+the time it was written.
+
+Only the mean entry notional in that sentence was wrong: 1.62 against a ledger
+value of 1.6382, which is 1.64 at the two-decimal convention the sentence already
+uses throughout (52.00, 0.19). Corrected as a Class B transcription defect.
+
+### Running count, corrected
+
+| # | Location | Class | Surface | Status |
+|---|---|---|---|---|
+| 1 | `tab:sevariants` HC3 $t$, −2.17 | **B** | table | fixed |
+| 2 | §1 line 165, $t$ = −0.84 | **A** | prose | fixed |
+| 3 | §4.9 line 864, $t$ = −0.84 | **A** | prose | fixed |
+| 4 | §3.3 line 547, 1.62 | **B** | prose | fixed |
+| 5 | §3.3 line 547, 5.8\% | — | — | **withdrawn, not a defect** |
+| 6 | §5.6 line 994, 13-candidate reasoning | **A** | prose | fixed |
+
+**Five confirmed findings: Class A 3, Class B 2. By surface: table 1, prose 4.**
+All five are now repaired. Three minus one is the arithmetic that matters: a
+sweep produces false positives as well as true ones, and the false positive here
+was mine.
+
+---
+
+## Finding 6 resolved by testing the replacement, not by substituting a story
+
+The stale paragraph explained the snooping tests' insensitivity to sizing through
+the thirteen-candidate universe, where the seeded random sequence is the argmax.
+The obvious repair was to swap in `always_long`, the argmax of the twelve-strategy
+formal universe. Tofik's constraint was to verify that mechanism first rather than
+replace one plausible narrative with another, which was the right call: the new
+explanation happens to hold, but nothing about the old paragraph's failure implied
+it would.
+
+The check now lives in the pipeline as `data_snooping.sizing_invariance` rather
+than in a scratch script, so the manuscript's claim has a canonical source:
+
+| | weekly | frozen |
+|---|---|---|
+| candidates that change with sizing | \multicolumn — `['asym_full']`, one of twelve | |
+| argmax | `always_long` | `always_long` |
+| White RC statistic | 0.014476682 | 0.014476682 (identical) |
+| SPA statistic | 1.9023938 | 1.9023938 (identical) |
+| RC $p$ | 0.300 | 0.300 (difference 0.000) |
+| SPA $p$ | 0.248 | 0.249 (difference 0.001) |
+
+The mechanism holds and is now stated as a verified property: exactly one of the
+twelve candidates depends on the sizing convention, the maximum is attained by a
+candidate that does not depend on the asymmetry rule at all, so the statistic
+cannot move, and the $p$-value shifts only through the bootstrap distribution,
+which does include the changed candidate.
+
+The old paragraph also had the two $p$-value differences the wrong way round,
+reporting 0.001 and 0.000 where the twelve-strategy figures are 0.000 and 0.001.
+That was invisible while the numbers were being read against the thirteen-candidate
+diagnostic. The thirteen-candidate universe remains reported, separately and
+explicitly as a diagnostic.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.

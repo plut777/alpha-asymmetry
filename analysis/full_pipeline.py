@@ -775,9 +775,56 @@ def main() -> int:
     recenter_r = np.where(means_r >= cutoff_r, means_r, 0.0)
     boot_spa_r = np.maximum((np.sqrt(n_r) * (boot_means_r - recenter_r) / omega_r).max(axis=1), 0.0)
 
+    # Sizing invariance of the formal test, computed rather than asserted.
+    # Only asym_full depends on the sizing convention; every other candidate is
+    # built with fixed unit sizing or is buy-and-hold. The reported statistic is
+    # set by the universe maximum, so if that maximum is attained by a candidate
+    # independent of the asymmetry rule the statistic cannot move, and the
+    # p-value shifts only through the bootstrap distribution, which does include
+    # the changed candidate. That is a claim about this universe, so it is tested.
+    frozen_full = run_asymmetry_strategy(weekly, 0.75, sizing="entry").returns
+    real_frozen = dict(real_only, asym_full=frozen_full)
+    values_f = pd.DataFrame(real_frozen).fillna(0.0).to_numpy()
+    means_f = values_f.mean(axis=0)
+    observed_rc_f = np.sqrt(n_r) * means_f.max()
+    rng_f = np.random.default_rng(SEED)
+    boot_means_f = np.empty((1000, k_r))
+    for b in range(1000):
+        boot_means_f[b] = values_f[stationary_bootstrap_indices(n_r, rng=rng_f)].mean(axis=0)
+    boot_rc_f = np.sqrt(n_r) * (boot_means_f - means_f).max(axis=1)
+    omega_f = np.sqrt(n_r) * boot_means_f.std(axis=0, ddof=1)
+    omega_f[omega_f == 0] = 1e-12
+    observed_spa_f = max(float((np.sqrt(n_r) * means_f / omega_f).max()), 0.0)
+    cutoff_f = -omega_f / np.sqrt(n_r) * np.sqrt(2 * np.log(np.log(max(n_r, 3))))
+    boot_spa_f = np.maximum(
+        (np.sqrt(n_r) * (boot_means_f - np.where(means_f >= cutoff_f, means_f, 0.0)) / omega_f).max(axis=1), 0.0)
+    white_rc_p_f = float((boot_rc_f >= observed_rc_f).mean())
+    spa_p_f = float((boot_spa_f >= observed_spa_f).mean())
+    sizing_invariance = {
+        "candidates_that_change_with_sizing": [
+            k for k in real_only if not np.allclose(
+                pd.Series(real_only[k]).fillna(0.0).to_numpy(),
+                pd.Series(real_frozen[k]).fillna(0.0).to_numpy())],
+        "argmax_weekly": pd.DataFrame(real_only).fillna(0.0).mean().idxmax(),
+        "argmax_frozen": pd.DataFrame(real_frozen).fillna(0.0).mean().idxmax(),
+        "white_rc_stat_weekly": observed_rc_r, "white_rc_stat_frozen": observed_rc_f,
+        "spa_stat_weekly": observed_spa_r, "spa_stat_frozen": observed_spa_f,
+        "white_rc_stat_identical": bool(observed_rc_r == observed_rc_f),
+        "spa_stat_identical": bool(observed_spa_r == observed_spa_f),
+        "white_rc_p_weekly": float((boot_rc_r >= observed_rc_r).mean()),
+        "white_rc_p_frozen": white_rc_p_f,
+        "spa_p_weekly": float((boot_spa_r >= observed_spa_r).mean()),
+        "spa_p_frozen": spa_p_f,
+    }
+    sizing_invariance["white_rc_p_abs_diff"] = abs(
+        sizing_invariance["white_rc_p_weekly"] - white_rc_p_f)
+    sizing_invariance["spa_p_abs_diff"] = abs(
+        sizing_invariance["spa_p_weekly"] - spa_p_f)
+
     snooping = {"formal_benchmark": "zero weekly return",
                 "random_role": "reported as a diagnostic outside the formal universe; the formal test uses the 12 real strategies",
                 "primary_universe": "twelve real candidate strategies",
+                "sizing_invariance": sizing_invariance,
                 "real_only": {"n_strategies": k_r, "white_rc_stat": observed_rc_r,
                               "white_rc_p": float((boot_rc_r >= observed_rc_r).mean()),
                               "spa_stat": observed_spa_r,

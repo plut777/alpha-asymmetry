@@ -10,7 +10,7 @@
     "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"
   },
   "data_manifest": {
-    "manifest_generated_at_utc": "2026-09-12T13:57:37.100712+00:00",
+    "manifest_generated_at_utc": "2026-09-12T14:32:08.831781+00:00",
     "requested_start": "2014-06-01",
     "requested_end_exclusive": "2025-09-01",
     "original_snapshot_available": false,
@@ -825,6 +825,25 @@
     "formal_benchmark": "zero weekly return",
     "random_role": "reported as a diagnostic outside the formal universe; the formal test uses the 12 real strategies",
     "primary_universe": "twelve real candidate strategies",
+    "sizing_invariance": {
+      "candidates_that_change_with_sizing": [
+        "asym_full"
+      ],
+      "argmax_weekly": "always_long",
+      "argmax_frozen": "always_long",
+      "white_rc_stat_weekly": 0.014476682282849198,
+      "white_rc_stat_frozen": 0.014476682282849198,
+      "spa_stat_weekly": 1.9023938404696377,
+      "spa_stat_frozen": 1.9023938404696377,
+      "white_rc_stat_identical": true,
+      "spa_stat_identical": true,
+      "white_rc_p_weekly": 0.3,
+      "white_rc_p_frozen": 0.3,
+      "spa_p_weekly": 0.248,
+      "spa_p_frozen": 0.249,
+      "white_rc_p_abs_diff": 0.0,
+      "spa_p_abs_diff": 0.0010000000000000009
+    },
     "real_only": {
       "n_strategies": 12,
       "white_rc_stat": 0.014476682282849198,
