@@ -334,7 +334,7 @@ We flag one specification choice explicitly, because it is a choice and not a co
     \item Exposure: positions are bounded to $[1.0, 2.0]$ gross-notional units; values above one imply leverage relative to one unit of capital
 \end{itemize}
 
-The published version specified entry at the Monday open following Friday signal generation. We do not implement that here, and we are explicit that this is a choice rather than a data limitation: the daily bars carry an opening price, so Monday-open execution is implementable and is left for a separate change rather than being precluded by the data. The Friday-close proxy is an internally consistent bar-to-bar convention, not evidence that the displayed mid-price could have been filled after observing that exact close. All headline, benchmark, walk-forward, factor, cost, and data-snooping returns use the same single-lag convention.
+The published version specified entry at the Monday open following Friday signal generation. We do not implement that here, and we are explicit that this is a choice rather than a data limitation: the daily bars carry an opening price, so Monday-open execution is implementable and is left for a separate change rather than being precluded by the data. Section~\ref{sec:exectiming} reports what the choice costs, across four execution timings applied to the identical signal. The Friday-close proxy is an internally consistent bar-to-bar convention, not evidence that the displayed mid-price could have been filled after observing that exact close. All headline, benchmark, walk-forward, factor, cost, and data-snooping returns use the same single-lag convention.
 
 \begin{table}[H]
 \centering
@@ -615,6 +615,12 @@ The corrected statistics still reveal genuine features of market structure, just
 
 Several limitations warrant acknowledgment. First, 504 weekly observations and only 15 holding episodes provide limited power, especially for tail and trade-level inference. Second, the alpha definitions are fully disclosed here but are ad hoc and may not generalize. The tail signal in particular is aliased by its sampling rule: it is constructed from daily exceedances but read only on Fridays, so 70 of the 105 weeks containing an exceedance enter the panel as zeros and only 35 of 504 weekly observations are non-zero. Every tail-alpha statistic in this paper is computed on that sparse series, which is the proximate reason its skewness interval is so wide. Table~\ref{tab:tailagg} reports what two all-trading-days aggregations do to the tail statistics, and they do not agree with each other or with the published rule. We have not adopted either: both redefine the signal rather than correct it, both require an economic argument about what weekly tail exposure means that this paper does not make, and selecting one after seeing its result would be specification selection on outcomes. The sensitivity is the reportable finding. Third, the factor exercise uses spot proxies rather than published cross-sectional FX factors; even with 55 in-position weeks, the effective sample is small, and the significant negative momentum loading is descriptive rather than a stable structural estimate. Fourth, costs use stylized spreads and indicative mid-prices, omit financing, charge no fixed or minimum per-order component, and assume end-of-bar execution; Monday-open prices are in fact available in the daily bars, and the Friday-close convention is a choice we make rather than a constraint the data impose. Fifth, cross-market transfer omits pair-specific financing, costs, and dependence-aware inference. Finally, Yahoo history can be revised. The original raw snapshots were not committed, so exact reproduction of the archived figures is impossible without the owner's files; the revised pipeline caches local inputs and records hashes and software versions.
 
+\textbf{The Limits of the Verification Used Here.} This revision leans on machine checking: every reported figure is verified against the pipeline that produced it, every free parameter is declared in one module from which the specification table is generated, restored historical footnotes are verified verbatim, and two arithmetic identities are confirmed after every rerun. Three of the errors corrected here were found by computing a quantity twice by different routes and requiring agreement; none was found by re-reading the code that contained it.
+
+That apparatus has a limitation worth stating rather than leaving implicit. \textbf{A test that cannot fail is indistinguishable, in its output, from a test that passes.} Five checks written during this revision passed while being structurally incapable of detecting the defect they were written for, in each case because they ran on data where the quantity they examined could not move; two of those five arose during the exercise of deliberately testing whether the existing checks could fail, which is to say while the investigator was actively looking for exactly that flaw. The remedy adopted is to require each check to fail on a deliberately defective input before its passes are credited.
+
+One check is reported with a measured blind spot rather than repaired. The identity tying the factor-regression intercept to the strategy's own mean weekly return verifies that the regression was run on the series the paper reports; it detects a substitution between distant specifications, but one nearby alternative specification remained within the pre-specified tolerance and went undetected. The identity can therefore confirm internal consistency while remaining blind to a consistently wrong underlying return series. \textbf{We have not tightened the tolerance}, because doing so after observing which substitution it missed would be a threshold chosen on outcomes---the practice this paper objects to elsewhere. The full audit record, including the mutations attempted and their magnitudes, is in the replication repository.
+
 \section{Robustness Analysis}
 \label{sec:robustness}
 
@@ -712,6 +718,40 @@ Threshold & Episodes & Exposed Weeks & Return & Sharpe & Hit Rate \\
 \end{table}
 
 \textbf{Threshold Selection.} What the grid shows unambiguously is that activity falls as the threshold rises: 25 episodes and 89 exposed weeks at 0.50, down to a single episode and four exposed weeks at 1.25. Return does not behave monotonically, and every threshold with enough episodes to evaluate loses money. The 1.25 threshold is the same lone 2020 episode that the walk-forward selects, and it is reported here as an activity count rather than as a return for the reason given in Section~\ref{sec:robustness}: a single episode cannot distinguish an edge from a coin flip. Selecting it after seeing the full sample would in any case be data snooping rather than robustness. The prespecified 0.75 baseline remains the confirmatory result.
+
+\subsection{Execution-Timing Sensitivity}
+\label{sec:exectiming}
+
+The execution convention is a free choice that the published specification made one way and this revision makes another. Table~\ref{tab:exectiming} reports four timings, each applied to the \emph{identical} Friday-close signal and differing only in when the resulting position is established and therefore which one-week return it earns.
+
+\begin{table}[H]
+\centering
+\caption{Execution-Timing Grid: Identical Signals, Four Entry Points}
+\label{tab:exectiming}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Entry timing & Cum.\ return & Mean weekly & Sharpe & MDD & Net at 2.0 pips \\
+\midrule
+Friday close (reported baseline) & $-$6.64\% & $-$1.21 bps & $-$0.154 & $-$12.56\% & $-$7.02\% \\
+Monday open (published spec.) & $-$0.73\% & $+$0.04 bps & $+$0.005 & $-$10.64\% & $-$1.14\% \\
+Monday close & $-$0.92\% & 0.00 bps & 0.000 & $-$10.72\% & $-$1.32\% \\
+Tuesday open & $-$8.03\% & $-$1.50 bps & $-$0.185 & $-$17.19\% & $-$8.40\% \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: Common sample of 502 weeks, being every week for which all four entry points and their one-week-forward counterparts exist; two weeks are dropped, the same two for every timing, so no differential attrition can be mistaken for an execution effect. Signals, entry and exit rules, the holding clock and position sizing are identical throughout. Costs at the tiers of Table~\ref{tab:tcosts}.}
+\end{table}
+
+The four span 7.3 percentage points of cumulative gross return, and the ordering is \textbf{not monotone in execution delay}: the latest timing tested is worse than the earliest, while two timings hours apart differ by less than a fifth of a point.
+
+A paired moving-block bootstrap---fixed four-week blocks, $B = 2000$, with the same resampled block indices applied to every timing so that the comparison is paired---finds \textbf{no pairwise difference distinguishable from zero}. The annualized difference between the published Monday-open convention and the Friday close is $0.64$ percentage points, 95\% CI $[-0.67, 2.03]$; between Monday open and Monday close, $-0.02$ points, CI $[-0.08, 0.04]$; between Monday close and Tuesday open, $-0.76$ points, CI $[-2.36, 0.45]$. These conclusions are unchanged at eight- and thirteen-week blocks and under a stationary bootstrap.
+
+\textbf{What was specified in advance, and what was not.} The Friday-close and Monday-open results were already in hand when this exercise began, and we do not present them as prospectively specified. \emph{Before} computing the Monday-close and Tuesday-open variants, we specified the three primary contrasts above, the interpretation rule attached to them, the bootstrap procedure and block lengths, and the common-sample requirement, and committed that plan to the replication repository. All other pairwise comparisons among the four timings are secondary and are handled under the pre-declared family-wise procedure.
+
+The interpretation rule was that the difference would be treated as weekend-specific only if the contrasts crossing no weekend failed to move comparably. One of them---Monday close to Tuesday open---moves as much as the weekend-crossing contrast does. \textbf{We therefore abandon the weekend-gap explanation, as the rule required.} We offer no replacement mechanism: proposing a second explanation after inspecting the same data is the specification search this paper criticises elsewhere. We also tested directly whether the entry rule has predictive power over the weekend gap a position is about to bear, and found none detectable in this sample, on a test able to resolve only an effect several times larger than the point estimate.
+
+What the grid establishes is narrow and worth stating plainly: the headline result is sensitive to a design choice the original specification did not argue for, at a magnitude this sample cannot resolve.
 
 \subsection{Transaction Cost Sensitivity}
 \label{sec:tcosts}
