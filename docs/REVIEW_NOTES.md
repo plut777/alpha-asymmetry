@@ -2090,6 +2090,109 @@ On its first run it failed — on the citation of 24f6e6a inside the paragraph
 backtick form is this record's citation convention, and the explanation is
 retained.
 
+## Findings 8 and 9, and a class the apparatus cannot see
+
+### Finding 8 — the RC statistic, third location
+
+`tab:snooping` printed the Reality Check statistic as 0.015 where canonical
+output is 0.0144767. Corrected in the table. The **prose** in §5.6 carried the
+same 0.015 and was not corrected at the same time, so the fix had to be made
+twice. Class B, once in a table and once in prose.
+
+### Finding 9 — an inferential result stated as a realised fact
+
+The manuscript said data-snooping tests *"find no strategy in a 12-candidate
+universe that outperforms the zero-return benchmark"*, and the contribution
+statement said *"no candidate in a twelve-strategy universe beats a zero-return
+benchmark."*
+
+As a statement about realised returns this is **false**. `always_long` is the
+argmax of the formal universe and returned **+33.53%** cumulative; four
+candidates have positive annualised means. What the tests establish is failure to
+reject the null of no superior performance once data snooping across the universe
+is accounted for. Both sentences rephrased; the PR body carried the same error and
+was rephrased with it.
+
+This is a defect in a paper whose central methodological argument is that people
+confuse inferential and realised claims. Class A by mechanism — the wording was
+correct under no method, it was simply never correct.
+
+### What neither mechanism could have caught
+
+**Every figure in that sentence was right.** RC *p* = 0.30 and SPA *p* = 0.25 both
+match canonical output exactly. The cell-level provenance mapping compares
+numbers to fields and would pass it. The prose mechanism checks declared
+statistics against canonical values and would pass it. No mutation test detects
+it, because there is nothing numerically to mutate.
+
+This is the **second** instance of that class. The first was finding 6, the
+data-snooping paragraph explaining its result through the thirteen-candidate
+universe after the formal test had moved to twelve — again, every figure correct,
+the reasoning stranded.
+
+**The class: a claim whose numbers are all correct and whose relationship to
+those numbers is wrong.** The provenance apparatus is structurally blind to it,
+and saying so is more useful than adding another check that would also miss it.
+What caught both was reading the sentence and asking what the numbers would have
+to mean for it to be true. Finding 9 was caught by Tofik asking that question
+directly.
+
+---
+
+## Instruction-level errors: the third instance, and the pattern
+
+Tofik asked that this be recorded, and it belongs here.
+
+**He approved the tail-skew sentence in my PR draft.** That sentence said the
+signed tail signal *"skews negative, not positive"*. The point estimate is −1.476
+and the block-bootstrap interval is **[−3.101, +0.544]**, which includes zero.
+Asserting negative skew on that interval is the same error as finding 9, in the
+same review, and it passed his read.
+
+With that, three instruction-level errors of his are on record, and they are one
+kind:
+
+| # | Error | Direction |
+|---|---|---|
+| 1 | An instruction premised on the 14-week episode that my misalignment artefact had invented | accepted my wrong claim as a premise |
+| 2 | Endorsing "moves the result by more than the result itself" — 6.21 points against a 6.64% loss | accepted an overstatement in the direction of the argument |
+| 3 | Approving "skews negative" where the interval includes zero | accepted an effect claim the interval does not support |
+
+All three are the same failure: **a claim that runs in the direction of the
+argument being made passes review more easily than one that cuts against it.**
+That is the bias this paper exists to criticise, operating on the people writing
+the criticism. Two of the three were my errors first, which is the propagation
+mechanism recorded above — an uncorrected error of mine becomes a premise he
+then reasons from.
+
+Worth stating plainly: I generated all three of the claims. His errors were
+failures to catch mine. Both matter, and the record should not flatten one into
+the other.
+
+---
+
+## The ninth non-discriminating check
+
+The test-count guard — written specifically to stop documents asserting wrong
+status numbers — **reported 30 tests when there were 67.**
+
+Cause: its subprocess invoked bare `python` rather than `sys.executable`. That
+resolved to a different interpreter without the project's dependencies, several
+test modules failed to import, and pytest reported the smaller count without
+erroring. The guard would then have failed a *correct* document claim of 67 and
+passed a *wrong* claim of 30.
+
+It was caught because 30 looked implausible against a suite known to be around
+sixty. **No mechanism caught it.** The guard had no check on its own collection
+step, and a silently-reduced collection is indistinguishable in its output from a
+genuinely smaller suite.
+
+This is the ninth check in this review initially incapable of what it claimed,
+and the first where the incapable check was itself a guard built to prevent
+exactly the class of error it produced. The specific lesson, kept with the cause:
+**a check that shells out must pin the interpreter it shells out to**, because a
+subprocess that silently does less work returns success.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
