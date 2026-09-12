@@ -753,6 +753,42 @@ The interpretation rule was that the difference would be treated as weekend-spec
 
 What the grid establishes is narrow and worth stating plainly: the headline result is sensitive to a design choice the original specification did not argue for, at a magnitude this sample cannot resolve.
 
+Three choices the original specification did not argue for---the weekly aggregation of the tail signal, the execution timing, and the symmetry of the entry rule---each demonstrate material sensitivity of the reported results to under-justified analytical or design decisions. Their statistical behaviour is not the same, and they should not be read as one phenomenon. Under tail aggregation, the sign and the inferential conclusion change across reasonable constructions. Under execution timing, point estimates move materially and non-monotonically, while the pre-specified paired contrasts are not distinguishable from zero. Under entry symmetrization, realised loss magnitudes move materially, while every pre-specified version remains gross-negative in this sample. Section~\ref{sec:entrysymmetry} reports the last of these.
+
+\subsection{Entry-Rule Symmetry}
+\label{sec:entrysymmetry}
+
+The long and short legs of the entry rule differ in four respects: the skewness series that gates them, the confirmation series, the confirmation threshold, and the direction of response. A positive fast alpha opens a long position; a positive pricing alpha opens a short one. The rule therefore follows strength in one signal and fades it in the other, and the original specification argues for none of this.
+
+Collapsing the asymmetry is underdetermined, because it requires choosing which of the two economics to keep. Three symmetrizations were specified in advance, together with the metrics, the cost tier, an exposure guard, and a reporting rule fixing that all three would be disclosed whatever they returned; that specification was committed before any of them was computed.\footnote{\texttt{docs/PREREGISTRATION\_ENTRY\_SYMMETRY.md}. Two structural predictions recorded in that document were wrong and are left standing there: pure-fast was predicted to hold positions in more weeks than the published rule and holds fewer, and pure-pricing was predicted to be less exposed than pure-fast and is more so. Both errors share a cause, namely that the published rule draws entries from the union of two skewness gates while each collapsed variant has only one. Section 6 of that document also asserts that the variants cannot be distinguished statistically. No paired inferential comparison among the four rules was pre-specified or run, so that statement is untested rather than established or rejected; no conclusion reported here relies on it, and it is not repeated.}
+
+\begin{table}[H]
+\centering
+\caption{Entry-Rule Symmetry: The Published Hybrid and Three Pre-Specified Symmetrizations}
+\label{tab:entrysymmetry}
+\footnotesize
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+Entry rule & Gross & Net 2.0p & Sharpe & MDD & Eps. & Weeks & bps/week \\
+\midrule
+Published hybrid (reported baseline) & $-$6.64\% & $-$7.02\% & $-$0.153 & $-$12.56\% & 15 & 55 & $-$11.0 \\
+Pure-fast (both legs, fast alpha) & $-$1.65\% & $-$2.16\% & $-$0.020 & $-$8.59\% & 16 & 44 & $-$1.8 \\
+Pure-pricing (both legs, pricing alpha) & $-$4.13\% & $-$4.46\% & $-$0.106 & $-$16.01\% & 14 & 51 & $-$7.1 \\
+Equal-threshold hybrid & $-$7.86\% & $-$8.15\% & $-$0.221 & $-$13.70\% & 12 & 43 & $-$17.6 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.3em}
+\parbox{\linewidth}{\footnotesize Note: All four rules use the identical sample of 504 weeks, the identical sizing, exit and execution conventions, and differ only in the entry condition. ``Weeks'' counts in-position weeks and ``bps/week'' is the mean gross weekly return over those weeks, reported for every rule under the pre-registered exposure guard so that a rule which is out of the market more often cannot be read as safer. Net returns are quoted at 2.0 pips round-trip, the widest tier in the paper's cost table. Generated from \texttt{analysis/entry\_symmetry\_results.json}.}
+\end{table}
+
+The published hybrid and all three pre-specified symmetrizations produce negative realised gross returns in this sample; the magnitude varies materially across specifications. The realised gross returns span 6.21 percentage points, from $-$1.65\% to $-$7.86\%, a range nearly as large as the published hybrid's own cumulative loss of 6.64\%.
+
+Pure-fast and pure-pricing hold positions in fewer weeks than the published rule---44 and 51 against 55---but both also remain negative per exposed week, at $-$1.8 and $-$7.1 basis points against $-$11.0. Their less negative cumulative performance is therefore not solely an artefact of lower exposure. Pure-pricing records the deepest drawdown of the four at $-$16.01\%.
+
+Equalising the confirmation threshold worsens realised performance in this sample. This is one comparison and is not evidence that the published threshold was tuned; its direction is merely consistent with what a specification-search concern would predict.
+
+These are sensitivity exhibits. No variant is offered as a replacement rule, and realised performance was pre-specified not to determine which symmetrization is treated as defensible.
+
 \subsection{Transaction Cost Sensitivity}
 \label{sec:tcosts}
 

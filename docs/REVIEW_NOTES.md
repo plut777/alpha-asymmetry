@@ -1601,6 +1601,118 @@ here rather than edited, since the point of a pre-registration is that it is not
 rewritten after the fact. No reported conclusion rests on it, and the claim must
 not be repeated in the manuscript.
 
+## Error propagation into instructions: a named mechanism
+
+**Recorded at Tofik's direction after he checked and accepted the attribution
+correction above.** Both phrases originated with me; his instruction repeated one
+back to me as though it had been his.
+
+The mechanism worth naming is the second case. I reported an episode-size
+distribution of `[2,3,…,14]` that was a misalignment artefact. Several turns
+later his instruction asked for the influence estimate *"specifically after
+removing the 14-week episode"* — an episode that does not exist. My uncorrected
+error had become a **premise in an instruction I was then given**, and executing
+that instruction faithfully would have produced a second wrong result with an
+independent-looking provenance.
+
+This is an argument for treating a discrepancy as urgent rather than isolated.
+An analytical error that survives one turn does not stay contained in the claim
+that carried it: it is absorbed into the shared picture of the problem and comes
+back as an assumption neither party is still examining. The defence is the one
+already adopted here — when two computations disagree, stop and reconcile them
+before building anything on either.
+
+---
+
+## Running count of provenance discrepancies
+
+Reported as found rather than batched, per Tofik's instruction, so that any
+clustering by table or by type of result is visible while the work is in
+progress.
+
+| # | Table | Manuscript | Canonical | Correct rendering | Likely source |
+|---|---|---|---|---|---|
+| 1 | `tab:sevariants` | HC3 $t$ = **−2.17** | −2.164926 | **−2.16** | hand transcription; b/se reproduces −2.164926 exactly, so the estimator is right and the printed digit is not |
+
+**Tables mapped so far and their discrepancy counts**
+
+| Table | Cells | Discrepancies |
+|---|---|---|
+| `tab:sevariants` | 15 | **1** |
+| `tab:exectiming` | 21 | 0 — all twenty checked cells reproduce exactly |
+| `tab:entrysymmetry` (new) | 28 | 0 — generated from JSON, never transcribed |
+
+No clustering is yet visible in one table or one result type; one finding in 64
+mapped cells is too little to characterise. The single finding is a rounding
+digit in a regression-inference table, which is the same table and the same class
+of value as the invented CR1 row.
+
+---
+
+## Group classification, updated as tables are actually mapped
+
+The initial split was assessed at **section level** and is explicitly
+provisional. It is revised here as tables are verified cell by cell, not held
+until the end.
+
+| | At inventory | Now | Change |
+|---|---|---|---|
+| Group 1 — generatable from canonical output | 16 tables / 338 cells | 17 tables / 387 cells, of which **3 mapped (64 cells)** | `tab:exectiming` promoted from Group 2 once its computation reached the pipeline; `tab:entrysymmetry` added |
+| Group 2 — hand-authored, no canonical source | 1 table / 21 cells | **0 tables** | `tab:exectiming` was the only member and is no longer one |
+| Group 3 — external / historical / fixed specification | 1 table / 44 cells, plus ~8 scattered cells | unchanged; `tab:spec` already generated and asserted | — |
+
+Remaining to map: **14 tables, 323 cells.** The provisional judgement that these
+are Group 1 rests on a section-level match only, and the first table verified
+cell by cell immediately produced a defect, so the count above should be expected
+to move.
+
+---
+
+## The execution-timing grid now has a source
+
+**Type:** provenance repair, first in the agreed order. **Originated by:** Tofik.
+
+`tab:exectiming` was the only table in the manuscript with no canonical source of
+any kind. Twenty-one numbers on a headline robustness exhibit, produced by a
+standalone script that was never committed, in the same table where a look-ahead
+bug had occurred. The computation now lives in
+`full_pipeline.execution_timing_grid()` and is written to the results JSON.
+
+The alignment that caused that bug is documented in the function and enforced.
+Friday close is the decision instant and takes a close-to-close return; the three
+delayed timings enter one boundary later and take a forward return from their own
+entry point. A uniform shift across all four makes the delayed timings earn the
+week *preceding* their own signal, which read Monday open as −15.10% rather than
+−0.73%. The pipeline now raises unless `friday_close` reproduces its own
+`weekly_return` to 1e-12.
+
+**All twenty committed cells reproduce exactly**, so no manuscript figure
+changed: n = 502 on a common sample with the same two weeks dropped. The numbers
+were right; they had no traceable source. Rerun diff: 63 fields added, all under
+`execution_timing`, none removed, and the only changed field is the manifest
+timestamp. Both standing identities hold — intercept against mean weekly return
+to 6.4e-07, and low- plus high-VIX compounding to −6.640684% to 1.1e-14 with
+342 + 162 = 504.
+
+### An eighth non-discriminating check, found by mutation
+
+The provenance coverage test decided whether a row was an empirical claim by
+looking for digits in the **row label**. A fabricated `Wednesday open` row was
+therefore skipped entirely, and passed. The earlier fabricated `CR1` row was
+caught only because the string `CR1` happens to contain a `1` — the catch that
+seemed to validate the mechanism was partly luck.
+
+Coverage is now keyed on whether the row's **cells** carry numbers, and all three
+mutations (`CR1`, `Wednesday open`, `Pure-coverage`) now fail correctly. A check
+must not depend on the spelling of a row name.
+
+### A procedural note
+
+Restoring the manuscript after a mutation test with `git checkout --` also
+discarded the uncommitted Section 4.6 insertion, which had to be re-applied. The
+rule adopted: **commit before mutating**, or mutate a copy. A restore command
+scoped to a file does not distinguish the mutation from the work.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.

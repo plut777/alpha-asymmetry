@@ -30,7 +30,14 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-CANONICAL = ROOT / "full_pipeline_results.json"
+
+# Canonical outputs a field path may name, as "source:dotted.path". A bare path
+# means the pipeline results, which is the default source.
+SOURCES = {
+    "pipeline": ROOT / "full_pipeline_results.json",
+    "entry_symmetry": ROOT / "entry_symmetry_results.json",
+}
+CANONICAL = SOURCES["pipeline"]
 
 NOT_NUMERIC = object()
 
@@ -43,6 +50,16 @@ class EXTERNAL:
 
 
 _IP = "factor_attribution.in_position"
+
+_SYM = "entry_symmetry:variants"
+
+_SYM_COLUMNS = ("return", "net_return", "sharpe", "mdd", "holding_episodes",
+                "in_position_weeks", "mean_gross_return_per_in_position_week_bps")
+
+
+def _sym_row(key: str) -> dict:
+    return {"label": [], "cells": [f"{_SYM}.{key}.{col}" for col in _SYM_COLUMNS]}
+
 
 _ET = "execution_timing.timings"
 
@@ -59,6 +76,14 @@ PROVENANCE = {
     # committed.  The computation now lives in full_pipeline.execution_timing_grid
     # and all twenty cells were verified to reproduce the committed figures exactly
     # before this mapping was declared.
+    # Generated from analysis/entry_symmetry_results.json at insertion time rather
+    # than transcribed, so the declaration below records a mapping that already held.
+    "tab:entrysymmetry": {
+        "Published hybrid": _sym_row("published"),
+        "Pure-fast": _sym_row("pure_fast"),
+        "Pure-pricing": _sym_row("pure_pricing"),
+        "Equal-threshold": _sym_row("equal_threshold"),
+    },
     "tab:exectiming": {
         "Friday close": _exec_row("friday_close"),
         "Monday open": _exec_row("monday_open"),
@@ -108,15 +133,27 @@ PROVENANCE = {
 
 
 def canonical() -> dict:
-    return json.loads(CANONICAL.read_text())
+    """Every canonical source, keyed by name."""
+
+    return {name: json.loads(path.read_text()) for name, path in SOURCES.items()}
 
 
 def resolve(path: str, data: dict | None = None):
-    """Look up a dotted field path. Raises KeyError when the field is absent."""
+    """Look up ``source:dotted.path``. Raises KeyError when the field is absent.
 
-    node = data if data is not None else canonical()
-    for part in path.split("."):
+    A bare dotted path resolves against the pipeline results. The KeyError is the
+    point of the whole mechanism: a cell naming a field that does not exist fails
+    here rather than being silently matched against some equal-looking number.
+    """
+
+    all_sources = data if data is not None else canonical()
+    source, _, dotted = path.rpartition(":")
+    source = source or "pipeline"
+    if source not in all_sources:
+        raise KeyError(f"unknown canonical source {source!r} in field path {path!r}")
+    node = all_sources[source]
+    for part in dotted.split("."):
         if not isinstance(node, dict) or part not in node:
-            raise KeyError(f"canonical output has no field {path!r} (missing at {part!r})")
+            raise KeyError(f"{source} output has no field {dotted!r} (missing at {part!r})")
         node = node[part]
     return node

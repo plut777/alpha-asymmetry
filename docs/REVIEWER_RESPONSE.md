@@ -354,3 +354,60 @@ result would confuse the two.
 All figures in the manuscript are machine-checked against the pipeline output,
 and the analysis is covered by deterministic tests. The sample is unchanged:
 $n = 504$, 8 January 2016 to 29 August 2025.
+
+---
+
+# Round two
+
+## Comment 4 — the long and short entry rules are not symmetric
+
+The reviewer is right, and the asymmetry is wider than a threshold difference.
+The two legs differ in four respects: the skewness series gating them, the
+confirmation series, the confirmation threshold, and the direction of response.
+A positive fast alpha opens a long; a positive pricing alpha opens a short. The
+rule follows strength in one signal and fades it in the other, and the original
+specification argues for none of it.
+
+Collapsing the asymmetry is underdetermined, because it requires choosing which
+of the two economics to keep. We therefore specified three symmetrizations in
+advance — pure-fast, which preserves the published long leg and reflects it;
+pure-pricing, which preserves the published short leg and reflects it; and an
+equal-threshold hybrid, which keeps both sources and moves only the long leg's
+gate onto the same volatility-scaled footing the short leg already uses, at 0.5
+times the rolling 20-week standard deviation of its own confirmation series.
+The metrics, the cost tier, an exposure guard and a reporting rule fixing that
+all three would be disclosed whatever they returned were committed before any of
+them was computed.
+
+The published hybrid and all three pre-specified symmetrizations produce negative
+realised gross returns in this sample; the magnitude varies materially across
+specifications. Realised gross returns are −6.64% for the published hybrid,
+−1.65% pure-fast, −4.13% pure-pricing and −7.86% for the equal-threshold hybrid:
+a range of 6.21 percentage points, nearly as large as the published hybrid's own
+6.64% cumulative loss.
+
+Pure-fast and pure-pricing hold positions in fewer weeks than the published rule,
+44 and 51 against 55, but both also remain negative per exposed week, at −1.8 and
+−7.1 basis points against −11.0. Their less negative cumulative performance is
+therefore not solely an artefact of lower exposure. Pure-pricing records the
+deepest drawdown of the four, −16.01%.
+
+Equalising the confirmation threshold worsens realised performance in this
+sample. This is one comparison and is not evidence that the published threshold
+was tuned; its direction is merely consistent with what a specification-search
+concern would predict.
+
+These are sensitivity exhibits. No variant is offered as a replacement rule, and
+realised performance was pre-specified not to determine which symmetrization is
+treated as defensible. New Section 4.6 and Table 12 report the grid; the
+pre-registration is `docs/PREREGISTRATION_ENTRY_SYMMETRY.md`.
+
+Two structural predictions in that pre-registration were wrong and are left
+standing in it: pure-fast was predicted to be more exposed than the published
+rule and is less so, and pure-pricing was predicted to be less exposed than
+pure-fast and is more so. Both share a cause — the published rule draws entries
+from the union of two skewness gates while each collapsed variant has only one.
+Section 6 of the same document asserts that the variants cannot be distinguished
+statistically; no paired inferential comparison among the four was pre-specified
+or run, so that statement is untested rather than established or rejected, no
+conclusion reported here relies on it, and it is not repeated in the manuscript.
