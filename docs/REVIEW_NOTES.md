@@ -1106,6 +1106,71 @@ selection on outcomes.
 The result is reported either way. If the long episode materially drives the
 coefficient, that is stated. If it does not, that is stated too.
 
+---
+
+# Targeted audit of two bug classes — invariants declared before testing
+
+**Recorded before the checks were run.** Each invariant is a falsifiable claim
+about a specific mapping, stated so a reviewer can rerun it. "Clean" below means
+the stated test was executed and did not falsify the claim — not that the code
+was read.
+
+## Invariant A — signal/return alignment
+
+> **A.1** For every strategy and candidate in the pipeline, the realized return
+> series satisfies `realized = position.shift(1) * weekly_return` **exactly**,
+> where `position[t]` is the position chosen from information available at the
+> close of Friday of week `t`.
+>
+> **A.2** `weekly_return[t] = Close[t]/Close[t-1] - 1` exactly, so the return
+> earned at index `t` spans the interval from the previous decision point to
+> this one.
+>
+> **A.3 (causality)** `position[0..t]` depends on **no** data dated after the
+> close of Friday `t`. Tested by perturbation: altering the input frame strictly
+> after row `t` must leave every decision up to and including `t` bit-identical.
+>
+> **A.4 (non-degeneracy)** The converse must fail: altering the input at row `t`
+> itself must change some decision at or after `t`. A rule that ignored its
+> inputs would satisfy A.3 vacuously.
+
+Consumers to test: the headline strategy, the three benchmarks, the twelve
+formal data-snooping candidates plus the random diagnostic, the momentum factor
+used in the factor regression, the walk-forward out-of-sample path, and the
+three cross-market runs.
+
+**Why this class matters:** the look-ahead bug arose from applying one shift to
+series whose entry points differ. A.1–A.2 pin the join; A.3–A.4 test causality
+directly rather than by inspection.
+
+## Invariant B — episode labelling
+
+> **B.1** `episode_ids(ledger)[t]` equals the episode of the position **applied**
+> during week `t`, which is the episode of the decision made at `t-1`.
+>
+> **B.2** Therefore any join of episode labels onto a sample indexed by
+> **decision** weeks must shift the labels by −1; any join onto a sample indexed
+> by **applied** or **realized** weeks must not shift them.
+>
+> **B.3** Episode boundaries partition the in-position weeks exactly: every week
+> with a non-zero applied position carries exactly one non-zero label, every week
+> with a zero applied position carries label 0, and the labels are contiguous
+> within an episode.
+
+Consumers to test: the trade ledger, the cost accounting, the factor regression's
+clustering, the leave-one-episode-out influence check, the walk-forward episode
+counts, and the subsample/regime splits.
+
+**Why this class matters:** error 2 arose from pairing decision-week indices with
+applied-week labels. B.2 is the rule that was violated; B.3 checks the labelling
+is well-formed independently of who consumes it.
+
+## Reporting rule
+
+Any disagreement is reported however small, including disagreements that do not
+change a published figure. If an invariant is itself found to be wrong, that is
+reported rather than the invariant being revised to fit.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and
