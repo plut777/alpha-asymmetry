@@ -1228,11 +1228,63 @@ given false assurance.
 That last fact is why the bug was confined: the only mis-paired use was in the
 ad-hoc weekend-gap script, which is not part of the pipeline.
 
+### Count, corrected
+
+An earlier draft of this section said "nineteen series". **That was arithmetic,
+not an omission.** The exact enumeration is **21 series tested, 18 distinct** --
+three benchmarks are identical by construction to three candidates, which the
+manuscript itself states. Plus 4 `weekly_return` series under A.2, plus one
+identity check (`applied_position == position.shift(1)`) which is a property
+rather than a series. Nothing listed as a consumer went untested.
+
+The 21: headline strategy; three benchmarks (momentum 20w, mean reversion
+2.0 sigma, buy and hold); five simplified asymmetry candidates; three momentum
+candidates; two mean-reversion candidates; always-long; the random diagnostic;
+the factor-regression momentum series; three cross-market runs; the walk-forward
+out-of-sample path.
+
+### A.3 as a rerunnable procedure
+
+> Take the analysis-ready weekly frame. Choose a row `t` at which a position is
+> applied, i.e. `position[t-1] != 0`. Multiply every signal and price column by
+> independent noise at every row strictly after `t`. Re-run the strategy.
+> **Every decision and every realized return through row `t` must be
+> bit-identical.** Then verify the converse: a look-ahead variant of the same
+> strategy must fail this check at the same `t`.
+
+Now permanent, deterministic, in `tests/test_no_lookahead.py`: fixed synthetic
+panel, fixed points, fixed seed.
+
+### Writing that test surfaced the same defect twice more
+
+The first version of the permanent test **passed on a deliberately look-ahead
+variant of the strategy**. The second still did at two of three points. Both
+times the cause was coverage: on a panel where the strategy is flat at the
+perturbation point, `realized[t]` is zero under correct and defective code
+alike, and the check cannot discriminate.
+
+The two invariants turn out to need *opposite* coverage, which is why one point
+set could not serve both:
+
+- **A.3 and the mutation test** need a position applied at `t` (`position[t-1] != 0`).
+- **A.4'** needs the strategy flat at `t` *and* not in an expiry week, because the
+  four-return expiry rule takes precedence over a fresh entry signal and would
+  absorb the forced perturbation.
+
+The file now asserts both coverage conditions explicitly, so a future change to
+the synthetic panel that silently destroys discriminating power fails loudly
+instead.
+
+**The mutation test is the load-bearing part.** Without it, three successive
+versions of this check would have reported a pass while being incapable of
+detecting the bug they were written for.
+
 ### Summary
 
-Both bug classes fired once, in code written during this review, and neither
-appears anywhere else. One declared invariant was itself defective and is
-recorded as such rather than revised to fit.
+Both bug classes fired once in pipeline-adjacent code written during this
+review, and neither appears anywhere in the pipeline itself. One declared
+invariant was defective and is recorded as such. Two further defective versions
+of the permanent test were caught by requiring it to fail on a known-bad input.
 
 
 ## Directives still to apply (Tofig, carried forward)
