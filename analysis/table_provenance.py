@@ -44,7 +44,27 @@ class EXTERNAL:
 
 _IP = "factor_attribution.in_position"
 
+_ET = "execution_timing.timings"
+
+_EXEC_COLUMNS = ("cumulative_return", "mean_weekly_bps", "sharpe", "mdd", "net_return_2p0_pips")
+
+
+def _exec_row(key: str) -> dict:
+    return {"label": [], "cells": [f"{_ET}.{key}.{col}" for col in _EXEC_COLUMNS]}
+
+
 PROVENANCE = {
+    # Formerly the only table in the manuscript with no canonical source at all:
+    # the execution-timing grid was computed by a standalone script that was never
+    # committed.  The computation now lives in full_pipeline.execution_timing_grid
+    # and all twenty cells were verified to reproduce the committed figures exactly
+    # before this mapping was declared.
+    "tab:exectiming": {
+        "Friday close": _exec_row("friday_close"),
+        "Monday open": _exec_row("monday_open"),
+        "Monday close": _exec_row("monday_close"),
+        "Tuesday open": _exec_row("tuesday_open"),
+    },
     "tab:sevariants": {
         # row-matching substring -> (label values, cell provenance in column order)
         "Wild cluster bootstrap": {

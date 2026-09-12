@@ -55,11 +55,13 @@ def test_every_row_has_declared_provenance(label):
     """Coverage first: a row nobody declared is a row nobody computed."""
 
     declared = PROVENANCE[label]
-    for row_label, _ in _table_rows(label):
-        if not _numbers(row_label) and not any(
-            key.lower() in row_label.lower() for key in declared
-        ):
-            # a pure text row carrying no numbers is not an empirical claim
+    for row_label, cells in _table_rows(label):
+        # A row is an empirical claim when its CELLS carry numbers. Testing the
+        # label instead was a real defect here: a fabricated "Wednesday open" row
+        # was skipped entirely because its label has no digits, while the earlier
+        # fabricated "CR1" row was caught only because "CR1" happens to contain a
+        # 1. Coverage must not depend on the spelling of a row name.
+        if not any(_numbers(c) for c in cells):
             continue
         assert any(key.lower() in row_label.lower() for key in declared), (
             f"{label}: row {row_label!r} has no declared provenance. Every empirical "
@@ -68,15 +70,26 @@ def test_every_row_has_declared_provenance(label):
         )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Known unrepaired defect: tab:sevariants prints the HC3 t-statistic as "
-    "-2.17 where canonical output is -2.164926, which rounds to -2.16. Found by "
-    "this test on its first run. Reported and awaiting a repair decision; the "
-    "manuscript is deliberately not being edited yet. strict=True so that this "
-    "xfail fails once the value is corrected, forcing the marker's removal.",
-)
-@pytest.mark.parametrize("label", sorted(PROVENANCE))
+# Known unrepaired defects, marked per-table so that a clean table still fails
+# loudly.  strict=True: correcting the value makes the xfail itself fail, which
+# forces the marker to be removed rather than quietly masking the next defect.
+KNOWN_DEFECTS = {
+    "tab:sevariants": (
+        "tab:sevariants prints the HC3 t-statistic as -2.17 where canonical output "
+        "is -2.164926, which rounds to -2.16. Found by this test on its first run. "
+        "Reported; the manuscript is deliberately not edited pending a decision."
+    ),
+}
+
+_VALUE_CASES = [
+    pytest.param(label, marks=pytest.mark.xfail(strict=True, reason=KNOWN_DEFECTS[label]))
+    if label in KNOWN_DEFECTS
+    else pytest.param(label)
+    for label in sorted(PROVENANCE)
+]
+
+
+@pytest.mark.parametrize("label", _VALUE_CASES)
 def test_declared_cells_match_their_canonical_fields(label):
     data = canonical()
     for key, spec in PROVENANCE[label].items():

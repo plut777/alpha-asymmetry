@@ -10,7 +10,7 @@
     "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"
   },
   "data_manifest": {
-    "manifest_generated_at_utc": "2026-09-12T09:21:40.639532+00:00",
+    "manifest_generated_at_utc": "2026-09-12T13:57:37.100712+00:00",
     "requested_start": "2014-06-01",
     "requested_end_exclusive": "2025-09-01",
     "original_snapshot_available": false,
@@ -886,6 +886,85 @@
       "resizes": 0,
       "turnover": 49.14674134797333,
       "net_return": -7.573378314630464
+    }
+  },
+  "execution_timing": {
+    "common_sample_n": 502,
+    "dropped_weeks": [
+      "2016-01-08",
+      "2025-08-29"
+    ],
+    "dropped_reason": "no following entry point exists for the delayed timings",
+    "friday_close_reproduces_weekly_return": true,
+    "alignment_note": "Friday close is the decision instant and uses a close-to-close return; the three delayed timings enter one boundary later and use a forward return from their own entry point. A uniform shift across all four is look-ahead.",
+    "cost_tiers_pips": [
+      0.0,
+      0.3,
+      0.7,
+      1.3,
+      2.0
+    ],
+    "timings": {
+      "friday_close": {
+        "label": "Friday close (reported baseline)",
+        "cumulative_return": -6.640684042044798,
+        "mean_weekly_bps": -1.2076659715106146,
+        "annualized_return": -0.7092567417501083,
+        "sharpe": -0.15361015846804366,
+        "mdd": -12.560470113825662,
+        "in_position_weeks": 55,
+        "holding_episodes": 15,
+        "net_return_0p0_pips": -6.640684042044798,
+        "net_return_0p3_pips": -6.69811190639753,
+        "net_return_0p7_pips": -6.774629174941271,
+        "net_return_1p3_pips": -6.8892911357538384,
+        "net_return_2p0_pips": -7.02289079953704
+      },
+      "monday_open": {
+        "label": "Monday open (published spec.)",
+        "cumulative_return": -0.7300549497777253,
+        "mean_weekly_bps": 0.04101617042402722,
+        "annualized_return": -0.07587182111581381,
+        "sharpe": 0.004820394185383347,
+        "mdd": -10.641203020044077,
+        "in_position_weeks": 55,
+        "holding_episodes": 15,
+        "net_return_0p0_pips": -0.7300549497777253,
+        "net_return_0p3_pips": -0.7910166400665664,
+        "net_return_0p7_pips": -0.8722425004009215,
+        "net_return_1p3_pips": -0.9939605484058922,
+        "net_return_2p0_pips": -1.1357820107034011
+      },
+      "monday_close": {
+        "label": "Monday close",
+        "cumulative_return": -0.9188647165475516,
+        "mean_weekly_bps": 0.0022001670304941942,
+        "annualized_return": -0.09557549381145058,
+        "sharpe": 0.00025917597987912565,
+        "mdd": -10.717988789837019,
+        "in_position_weeks": 55,
+        "holding_episodes": 15,
+        "net_return_0p0_pips": -0.9188647165475516,
+        "net_return_0p3_pips": -0.9797175661872548,
+        "net_return_0p7_pips": -1.060798399860241,
+        "net_return_1p3_pips": -1.1822991095819857,
+        "net_return_2p0_pips": -1.3238673161640402
+      },
+      "tuesday_open": {
+        "label": "Tuesday open",
+        "cumulative_return": -8.028170144671343,
+        "mean_weekly_bps": -1.4958208863339792,
+        "annualized_return": -0.8631395035773592,
+        "sharpe": -0.18510271484594923,
+        "mdd": -17.187813801588312,
+        "in_position_weeks": 55,
+        "holding_episodes": 15,
+        "net_return_0p0_pips": -8.028170144671343,
+        "net_return_0p3_pips": -8.084729520037238,
+        "net_return_0p7_pips": -8.160089634033241,
+        "net_return_1p3_pips": -8.273017641693004,
+        "net_return_2p0_pips": -8.404597054711793
+      }
     }
   },
   "evt": {

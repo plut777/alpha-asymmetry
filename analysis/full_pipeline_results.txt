@@ -1,6 +1,6 @@
 ================================================================================
 ALPHA-ASYMMETRY CORRECTED REPLICATION PIPELINE
-Generated UTC: 2026-09-12T09:21:40.639174+00:00
+Generated UTC: 2026-09-12T13:57:37.100692+00:00
 Timing: Friday-close signal, one shift, next Friday-close return
 ================================================================================
 EURJPY : 2930 rows, 2014-06-02 to 2025-08-29, sha256=c62f3aaf089b...
@@ -22,6 +22,7 @@ TAIL SENSITIVITY: Tail inference is aggregation-sensitive: across three defensib
 Baseline: return=-6.64% Sharpe=-0.153 episodes=15 legs=61 reversals=1 turnover=52.00
 WALK-FORWARD: 1 out-of-sample episode(s) in 8 test years; below the 2-episode minimum, so pooled Sharpe/hit/annualized return are not reportable as performance.
 SENSITIVITY: threshold 1.25 opens 1 episode(s); below the 2-episode minimum, so its Sharpe ratio and hit rate are not reportable as performance.
+Execution-timing grid: common sample n=502, dropped ['2016-01-08', '2025-08-29']
 Regime rows: low VIX=342, high VIX=162 (classified after one full run)
 White RC p=0.150; SPA p=0.261; best candidate=random_candidate
 Outputs: analysis

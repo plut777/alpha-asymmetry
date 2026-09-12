@@ -120,6 +120,104 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
     return w.dropna(subset=["fast_skew_20w", "price_skew_20w", "ai_20w"])
 
 
+EXECUTION_TIMINGS = {
+    "friday_close": "Friday close (reported baseline)",
+    "monday_open": "Monday open (published spec.)",
+    "monday_close": "Monday close",
+    "tuesday_open": "Tuesday open",
+}
+
+EXECUTION_COST_TIERS = (0.0, 0.3, 0.7, 1.3, 2.0)
+
+
+def execution_timing_grid(daily_px: pd.DataFrame, weekly: pd.DataFrame) -> dict:
+    """Four entry timings applied to the identical Friday-close signal.
+
+    The execution convention is a free choice: the published specification
+    entered at the Monday open following Friday signal generation, and this
+    revision enters at the Friday close.  Daily bars carry an Open column, so
+    all four timings are implementable and the choice is not a data limitation.
+
+    Alignment is the whole difficulty here and an earlier version of this grid
+    got it wrong.  The Friday close is the decision instant itself, so its
+    one-week return runs close-to-close and is simply ``P / P.shift(1) - 1``.
+    The other three are entered *after* the decision, one boundary later, so
+    their one-week return runs forward from that entry point and is
+    ``P.shift(-1) / P - 1``.  Applying a uniform shift to all four makes the
+    delayed timings earn the week *preceding* their own signal, which is
+    look-ahead; it read Monday open as -15.10% rather than -0.73%.
+
+    Two guards are permanent rather than incidental.  ``friday_close`` must
+    reproduce the pipeline's own ``weekly_return`` to floating-point tolerance,
+    which pins the construction to the series every other result uses; and the
+    four timings are evaluated on a common sample, so that no differential
+    dropping of weeks can be mistaken for an execution effect.
+    """
+
+    grouped = daily_px.groupby(pd.Grouper(freq="W-FRI"))
+    entry_price = {
+        "friday_close": weekly["Close"],
+        "monday_open": grouped["Open"].first().reindex(weekly.index),
+        "monday_close": grouped["Close"].first().reindex(weekly.index),
+        "tuesday_open": grouped["Open"]
+        .apply(lambda s: s.iloc[1] if len(s) > 1 else np.nan)
+        .reindex(weekly.index),
+    }
+
+    returns = {"friday_close": entry_price["friday_close"].pct_change(fill_method=None)}
+    for key in ("monday_open", "monday_close", "tuesday_open"):
+        returns[key] = entry_price[key].shift(-1) / entry_price[key] - 1.0
+    returns = pd.DataFrame(returns)
+
+    drift = (returns["friday_close"] - weekly["weekly_return"]).abs().max()
+    if not drift < 1e-12:
+        raise AssertionError(
+            f"friday_close must reproduce the pipeline's weekly_return; max deviation {drift}")
+
+    common = returns.notna().all(axis=1)
+    dropped = [str(d.date()) for d in weekly.index[~common]]
+
+    rows = {}
+    for key, label in EXECUTION_TIMINGS.items():
+        frame = weekly.copy()
+        frame["weekly_return"] = returns[key]
+        frame = frame.loc[common]
+        result = run_asymmetry_strategy(frame, 0.75)
+        n_weeks = len(result.returns)
+        cumulative = result.metrics["return"] / 100.0
+        row = {
+            "label": label,
+            "cumulative_return": result.metrics["return"],
+            "mean_weekly_bps": float(result.returns.mean() * 1e4),
+            "annualized_return": ((1 + cumulative) ** (52 / n_weeks) - 1) * 100,
+            "sharpe": result.metrics["sharpe"],
+            "mdd": result.metrics["mdd"],
+            "in_position_weeks": int(result.metrics["in_position_weeks"]),
+            "holding_episodes": int(result.metrics["holding_episodes"]),
+        }
+        for pips in EXECUTION_COST_TIERS:
+            # dot-free key: field paths in analysis/table_provenance.py are dotted
+            tier = str(pips).replace(".", "p")
+            row[f"net_return_{tier}_pips"] = run_asymmetry_strategy(
+                frame, 0.75, round_trip_cost_pips=pips
+            ).metrics["net_return"]
+        rows[key] = row
+
+    return {
+        "common_sample_n": int(common.sum()),
+        "dropped_weeks": dropped,
+        "dropped_reason": "no following entry point exists for the delayed timings",
+        "friday_close_reproduces_weekly_return": True,
+        "alignment_note": (
+            "Friday close is the decision instant and uses a close-to-close return; the "
+            "three delayed timings enter one boundary later and use a forward return from "
+            "their own entry point. A uniform shift across all four is look-ahead."
+        ),
+        "cost_tiers_pips": list(EXECUTION_COST_TIERS),
+        "timings": rows,
+    }
+
+
 def tail_construction_variants(daily_px: pd.DataFrame, weekly_index) -> dict:
     """The published weekly tail signal beside two all-trading-days alternatives.
 
@@ -779,6 +877,10 @@ def main() -> int:
 
     make_figures(weekly, table_stats, base.returns, benchmark_returns, args.paper_dir)
 
+    execution_grid = execution_timing_grid(datasets["EURJPY"], weekly)
+    log(f"Execution-timing grid: common sample n={execution_grid['common_sample_n']}, "
+        f"dropped {execution_grid['dropped_weeks']}")
+
     results = {
         "specification": {"execution": "Friday-close signal and execution proxy; position earns next Friday-close return (one shift)",
                           "execution_proxy_is_a_choice": "Daily bars carry an Open column, so Monday-open execution is implementable; the Friday-close proxy is a deliberate choice, not a data limitation",
@@ -793,6 +895,7 @@ def main() -> int:
         "walk_forward": table5, "regimes": regimes, "sensitivity": sensitivity,
         "factor_attribution": factors, "transaction_costs": costs, "data_snooping": snooping,
         "sizing_variants": sizing_variants,
+        "execution_timing": execution_grid,
         "evt": evt, "return_inference": inference, "cross_market": cross_market,
     }
 
