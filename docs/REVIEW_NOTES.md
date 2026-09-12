@@ -1030,19 +1030,63 @@ anything. It did the opposite, and that is the reportable outcome.
 
 ---
 
-# Episode-size concentration, and a PRE-REGISTERED influence check
+# Episode structure — A CLAIM I MADE AND THEN RETRACTED
 
-## The observation
+## The retraction, first
 
-The 55 in-position weeks are distributed across 15 holding episodes as
-`[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 14]`. **One episode holds 14 of the
-55 weeks — a quarter of the sample.**
+**In the commit immediately preceding this one I recorded that the 55
+in-position weeks sit in episodes of sizes `[2, 3, 3, ..., 3, 14]`, that one
+episode holds a quarter of the sample, and that both the CR2 interval and the
+wild cluster bootstrap on the momentum loading inherit a lowered effective
+cluster count as a result. That was wrong. All three statements are withdrawn.**
 
-Cluster-robust inference is asymptotic in the number of clusters, and 15 is
-already few. With one cluster carrying a quarter of the observations the
-effective number is lower still, and both the CR2 interval and the wild cluster
-bootstrap on the momentum loading inherit that. This bears on the momentum
-result, not only on the execution grid.
+The true distribution is `[1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]`:
+thirteen episodes of four weeks, one of two, one of one. **No cluster holds a
+disproportionate share, and there is no 14-week episode.**
+
+## What produced the false claim
+
+`episode_ids()` returns, for each week, the episode of the position *applied*
+during that week — that is, the position decided one row earlier. The momentum
+regression uses it correctly, because its sample is the applied-position weeks.
+
+The weekend-gap test uses a different sample: the weeks in which a position is
+*decided*. Pairing those weeks with the unshifted `episode_ids()` labels each
+decision week with the *previous* decision's episode, which merges the tail of
+one episode with the head of the next and manufactures a long run out of
+consecutive short ones. The `14` was that artefact.
+
+## How it was caught
+
+**By disagreement between two printouts of the same quantity.** The
+leave-one-episode-out table reported the weeks in each deleted episode as
+`4, 4, 2, 4, ...`, which could not be reconciled with `[2, 3, ..., 14]`. Neither
+number was verified against the other until they were placed side by side.
+
+Not by reading. **This is the fifth error in this project that reading would not
+have caught, and the third caught by redundancy against an independently
+computed figure.**
+
+## What it invalidated, and what it did not
+
+**Invalidated and redone with correct clusters:**
+
+| | with the wrong clusters | corrected |
+|---|---|---|
+| gap ~ signed position, wild-$p$ | 0.6532 | **0.5765** |
+| gap ~ direction only, wild-$p$ | 0.6433 | **0.5138** |
+| detectable effect at 80% power | 11.8 bps | **8.8 bps** |
+| detectable / observed | ~9× | **~6×** |
+
+The qualitative conclusion is unchanged in both cases: no detectable
+relationship, and a test able to see only a much larger effect.
+
+**Not affected:** the momentum regression itself, which used the applied-position
+sample with the matching labels throughout. Its CR2 and wild cluster bootstrap
+figures stand as reported.
+
+**Also withdrawn:** the inference that the momentum result carries a
+concentration warning. It does not. The clusters are near-uniform.
 
 ## Pre-registration of the leave-one-episode-out check
 
