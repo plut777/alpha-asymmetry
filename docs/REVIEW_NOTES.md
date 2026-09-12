@@ -1960,8 +1960,14 @@ also had to stop treating an escaped `\&` as a column break, which was reading
 
 ### The count, and my second failure to add it up
 
-**The summary line in commit `24f6e6a` is wrong in the same way as the one in
-`1f76352`.** It says "seven findings, Class A 3, Class B 4; table 3, prose 4".
+**The summary line in commit `ccb2e2f` is wrong in the same way as the one in
+`1f76352`.** (I first wrote `24f6e6a` here, a hash that does not exist in this
+repository. The commit had not been made when I wrote the line, so there was no
+hash to know and I supplied a plausible-looking one instead. Same reflex as the
+fabricated CR1 row, in the audit record itself, one paragraph after describing
+the reflex. Corrected on verification against `git log`; the erroneous hash also
+stands in that commit's own message, which cannot be edited without rewriting
+history.) It says "seven findings, Class A 3, Class B 4; table 3, prose 4".
 The correct figures, enumerated rather than estimated:
 
 | | |
