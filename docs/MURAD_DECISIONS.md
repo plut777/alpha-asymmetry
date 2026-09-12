@@ -12,37 +12,123 @@ Nothing below blocks the rest of the correction work.
 ## 1. Tail-signal aggregation — which construction is primary
 
 **Asked:** The published tail signal flags exceedances daily but reads them only
-on Fridays, so 70 of the 105 weeks containing an exceedance enter the panel as
-zeros. Two all-trading-days alternatives give different answers, and across the
-three the skewness estimate **changes sign**.
+on Fridays. Two all-trading-days alternatives give different answers, and across
+the three the skewness point estimate **changes sign**.
 
-**Options:** (a) keep the Friday-sampled construction as primary and report the
-sensitivity; (b) adopt one alternative as primary; (c) present all three with no
-primary.
+**Two facts you should have before endorsing the framing.**
 
-**Recommendation: (a), which is what the branch does.** Both alternatives
-redefine the signal rather than correct it, and choosing one after seeing its
-result is the specification search this paper criticises. Your call is whether to
-endorse that framing.
+*Reviewer 3 raised this directly* (round-two comment 7, temporal aliasing). He is
+right that a signal built from daily exceedances but read only on Fridays
+discards most of what it detects, and that every statistic on the weekly series
+inherits that sparsity. This is not an objection we went looking for.
+
+*The published construction is the sparsest of the three.* Precisely:
+
+| Construction | Skew | Dependence-robust CI | Excludes zero | Non-zero weeks |
+|---|---|---|---|---|
+| **Friday-sampled (published)** | −1.48 | [−3.10, +0.54] | no | **35** of 504 |
+| All-days signed sum | +0.22 | [−0.72, +1.09] | no | 105 |
+| All-days largest absolute | −1.14 | [−1.97, −0.09] | **yes** | 105 |
+
+It uses a third of the observations the alternatives use, and it is one of the two
+that fail to exclude zero. It is *not* the weakest by point estimate — it has the
+largest magnitude of the three. The honest summary is that the published
+construction is the sparsest and the only one of the three whose large point
+estimate rests on 35 non-zero observations.
+
+**Options:** (a) keep Friday-sampled as primary and report the sensitivity;
+(b) adopt an alternative as primary; (c) present all three with no primary.
+
+**Recommendation: (a), which is what the branch does.** Both alternatives redefine
+the signal rather than correct it, and choosing one after seeing its result is the
+specification search this paper criticises. The recommendation is unchanged by the
+two facts above, but you should endorse it knowing them.
 
 ---
 
 ## 2. Execution timing — Friday close or Monday open
 
-**Asked:** The published specification entered at the Monday open after Friday
-signal generation; this revision enters at the Friday close. Daily bars carry an
-Open column, so both are implementable and the choice is not a data limitation.
-Across four timings the cumulative gross return ranges from −0.73% to −8.03%.
+**This recommendation reverses the position Tofik gave earlier in the review, and
+reverses what an earlier draft of this list said. The reasons are set out below.**
 
-**Options:** (a) keep Friday close as the reported baseline with the grid as
-robustness; (b) restore Monday open as the specification, making the grid's
-Monday-open column the headline.
+**Asked:** The published specification entered at the **Monday open** following
+Friday signal generation. This revision entered at the **Friday close** — the
+same close at which the signal is observed.
 
-**Consequence if (b):** the analysis sample moves from 504 weeks to the grid's
-common sample, and every headline figure in the paper changes. **Recommendation:
-(a)**, but this is the single decision with the largest downstream effect and it
-is properly yours. The pre-specified paired contrasts all include zero, so the
-sample does not tell us which is right.
+**Reviewer 3 objects to the current convention** (round-two comment 5,
+"Look-ahead bias from Friday close execution"):
+
+> Executing at the same Friday close as the signal observation introduces a
+> simultaneous execution assumption (or look-ahead bias) because in practice, one
+> cannot observe the closing price, compute the rolling 20-week skewness and other
+> indicators, and execute a trade at that exact same closing price.
+
+He is describing a real mechanism, not a presentational preference. The rolling
+statistics are computed *from* the Friday close, and the trade is then assumed to
+happen *at* that same close.
+
+**Recommendation: restore Monday open as the primary specification**, unless
+Friday-close execution can be defended as genuinely executable using only
+information available before that close. Two reasons, neither of which is about
+which return estimate looks better:
+
+1. **Specification fidelity.** Monday open is what the published paper specified.
+   Departing from it is a change requiring justification, and the justification
+   offered so far has been that it is convenient.
+2. **Information timing.** Monday open cannot be executed on information that does
+   not yet exist. Friday close, as implemented, can only be executed on
+   information available at the instant of execution.
+
+Keep Friday close, Monday close and Tuesday open as robustness timings. The grid
+does **not** statistically identify a uniquely correct convention — the
+pre-specified paired contrasts all include zero — so the primary choice should
+rest on specification fidelity and information timing, not on which return
+estimate is preferable.
+
+### What it costs, computed rather than estimated
+
+| | Friday close | Monday open |
+|---|---|---|
+| Cumulative gross return | **−6.64%** | **−0.73%** |
+| Sharpe | −0.153 | **+0.005** |
+| Maximum drawdown | −12.56% | −10.64% |
+| Net at 2.0 pips | −7.02% | −1.14% |
+| In-position weeks | 55 | 55 |
+| Holding episodes | 15 | 15 |
+| Execution legs | 61 | 61 |
+| Turnover | 52.00 | 52.00 |
+
+**The strategy's decisions do not change at all.** Same signal, same entries,
+exits, sizing and exposure. Only which weekly return each position earns changes.
+
+**You should weigh this before agreeing.** The paper's economic null currently
+rests on a 6.64% gross loss. Under Monday open it is a 0.73% loss with a Sharpe
+of essentially zero. The qualitative conclusion — no exploitable edge — survives
+under both, and there is still no break-even cost because the gross return remains
+negative. But "loses money before frictions" becomes a much weaker statement than
+it is today, and the paper would need to say so plainly rather than lean on the
+larger figure.
+
+**Sample.** A Monday-open headline needs **n = 503**, dropping one week
+(2025-08-29) because the last week has no following open. This is *not* the same
+as the grid's common sample of 502, which drops two weeks only because every
+timing needs a counterpart. The headline sample and the paired-comparison sample
+should be determined separately; they do not have to match.
+
+**Work.** 416 numeric fields in the replication output are strategy-derived and
+recompute. 219 are signal- or market-derived and move only through the one-week
+sample change. Mechanically this is one pipeline change and a full rerun, plus a
+manuscript pass over every claim about realised performance. It is days, not
+weeks — the machinery to switch conventions already exists and is tested.
+
+**Manuscript claims needing recheck under it:** the abstract's performance
+figures; the contribution statement's "loses money before frictions" and
+walk-forward dormancy; the threshold-sensitivity grid; the cross-market strategy
+returns; the data-snooping universe, which includes the strategy as a candidate;
+the factor regression and therefore the momentum coefficient, though the
+sample-selection argument that demotes it is structural and survives; the
+transaction-cost table and the no-break-even claim; and every conclusion about
+realised strategy performance.
 
 ---
 

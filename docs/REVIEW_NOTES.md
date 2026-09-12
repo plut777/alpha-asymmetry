@@ -2306,6 +2306,107 @@ seven end-to-end to verify it. Having already miscounted two summaries, assertin
 "tenth" would be a third. The methodological point is recorded independently of
 its position in a sequence I have not checked.
 
+## Fourth instruction-level error: a recommendation resting on convenience
+
+**Recorded at Tofik's direction, and it is a different kind from the first three.**
+
+Earlier in the review he directed that Monday-open execution be held outside this
+PR and Friday close kept as the baseline, on the ground that switching changes
+every number. I carried that into the decision list for Murad, where item 2 gave
+the options, stated the consequence, recommended Friday close, and then conceded
+that the sample cannot decide between them.
+
+Read back, that item contained **no methodological argument at all**. The only
+reason it offered for the recommended option was that the alternative is
+expensive. A cost of implementation is a project-management consideration, and it
+was presented as a methodological recommendation to the author of the paper.
+
+Worse, the item **did not mention that Reviewer 3 had objected to the convention
+it recommended keeping.** His round-two comment 5 is titled "Look-ahead bias from
+Friday close execution" and describes the same-close simultaneity mechanism
+directly. Murad would have discovered from the referee report that a referee
+objected to a convention his own co-author's decision list had recommended he
+keep, without mentioning the objection. That is the most serious defect in
+anything I have drafted in this review, and it is a defect of omission, which is
+the kind no numerical check can find.
+
+### How it differs from the first three
+
+| # | Error | Kind |
+|---|---|---|
+| 1 | Instruction premised on the 14-week episode my artefact invented | accepted a wrong claim of mine as a premise |
+| 2 | Endorsing "moves the result by more than the result itself" | accepted an overstatement running with the argument |
+| 3 | Approving "skews negative" where the interval includes zero | accepted an effect claim the interval does not support |
+| 4 | Directing that Friday close be kept because switching is expensive | **a recommendation resting on convenience rather than method** |
+
+The first three are claims stated more strongly than the evidence carried. The
+fourth is different in kind: no claim was overstated, a decision criterion was
+simply substituted. Cost of implementation is a real constraint and a legitimate
+thing to weigh — it is not a reason to recommend a specification to an author as
+though it were the methodologically preferable one, and it is certainly not a
+reason to omit a referee's objection to it.
+
+He identified and reversed this himself.
+
+### The reversal
+
+Item 2 now recommends **restoring Monday open as primary** unless Friday-close
+execution can be defended as executable on information available before that
+close. The reasons given are specification fidelity — Monday open is what the
+published paper specified — and information timing. Explicitly *not* which return
+estimate is preferable: the pre-specified paired contrasts all include zero, so
+the grid does not identify a uniquely correct convention.
+
+### What it costs, and one fact worth isolating
+
+Computed, not estimated. Cumulative gross moves from **−6.64% to −0.73%**, Sharpe
+from −0.153 to **+0.005**, drawdown from −12.56% to −10.64%. **The position path
+is identical** — 55 in-position weeks, 15 episodes, 61 legs, turnover 52.00 —
+because the signal is unchanged and only the return each position earns differs.
+
+416 strategy-derived numeric fields recompute; 219 signal-derived fields move only
+through the sample change.
+
+**The sample distinction matters and I had it wrong by assumption.** A Monday-open
+headline needs **n = 503**, dropping one week because the final week has no
+following open. The grid's 502 drops two weeks only because *every* timing needs a
+counterpart. I had been treating the grid's common sample as though it were the
+headline consequence of the convention. It is not, and Tofik caught the conflation
+before it reached Murad.
+
+The honest consequence for the paper: the economic null currently rests on a 6.64%
+gross loss and would rest on 0.73% with a Sharpe of essentially zero. The
+qualitative conclusion survives and there is still no break-even cost, but "loses
+money before frictions" becomes much weaker, and the paper would have to say so
+rather than lean on the larger figure. That is a reason to disclose the trade
+clearly to Murad, not a reason to prefer the convention that produces the bigger
+number.
+
+---
+
+## A correction to Tofik's characterisation of the tail construction
+
+He asked that item 1 record the published construction as "the one of the three
+yielding the weakest tail signal". The data does not support that wording, and he
+had himself instructed earlier in this review that the published construction not
+be called "weakest of the three".
+
+| Construction | Skew | CI | Excludes zero | Non-zero weeks |
+|---|---|---|---|---|
+| Friday-sampled (published) | **−1.48** | [−3.10, +0.54] | no | **35** of 504 |
+| All-days signed sum | +0.22 | [−0.72, +1.09] | no | 105 |
+| All-days largest absolute | −1.14 | [−1.97, −0.09] | **yes** | 105 |
+
+The published construction has the **largest** point estimate in magnitude. What
+is true, and what item 1 now says, is that it is the **sparsest** — 35 non-zero
+observations against 105 — and one of the two that fail to exclude zero. "Weakest"
+is not accurate without specifying the metric, and under the most natural reading
+it is wrong.
+
+The substantive point he wanted conveyed survives intact and is arguably sharper
+when stated precisely: the published construction rests its large estimate on a
+third of the data the alternatives use.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
