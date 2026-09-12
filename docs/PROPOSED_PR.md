@@ -24,20 +24,24 @@ that is almost never invested cannot demonstrate much in either direction.
 
 The corrected strategy **loses 6.64% gross** over the decade, Sharpe **−0.153**,
 across 15 holding episodes. The paper's conclusion is unchanged in direction and
-considerably stronger in substance. Two findings are new, and both sharpen the
-null rather than softening it:
+considerably stronger in substance. One new result and one documented
+sensitivity come out of the revision:
 
 - **There is no break-even transaction cost.** Not a larger one — none. A
-  break-even presumes a gross profit to be consumed, and there is none.
-- **The strategy carries a substantial short-momentum exposure.** It loads
-  negatively and significantly on time-series momentum (β = −0.82, 95% CI
-  [−1.26, −0.39], p = 0.00019 on in-position weeks), a loading that was
-  insignificant before correction. Momentum rose over the exposed weeks and the
-  strategy was short it, which accounts for roughly a quarter of the realized
-  loss — so part of that loss reflects a known factor exposure rather than a
-  failure specific to asymmetry. Momentum alone explains 12% of the variation in
-  in-position returns, so this is a material exposure rather than the whole
-  story.
+  break-even presumes a gross profit to be consumed, and there is none. This is
+  a cleaner statement of the paper's null than the cost table it replaces.
+- **The results are sensitive to two design choices the original specification
+  did not argue for** — the weekly aggregation of the tail signal, and the
+  execution timing — at magnitudes the sample cannot resolve. Both are reported
+  as sensitivity exhibits, neither as a discovery.
+
+A third candidate was **demoted rather than reported**. The corrected factor
+regression shows the rule loading negatively on time-series momentum while
+invested. Reviewer 3 identified that the in-position sample is selected by the
+strategy's own entry rules, which are functions of the same prices the momentum
+factor is built from, so the loading is a mechanical property of the design
+rather than a factor exposure. It is retained as a description of what the rule
+is and is explicitly not counted among the revision's empirical findings.
 
 The sample is unchanged: n = 504, 8 January 2016 to 29 August 2025.
 

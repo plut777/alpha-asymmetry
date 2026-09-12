@@ -1423,6 +1423,73 @@ suite and external replication.
    original null result had no content, and it is the single most important fact
    in this correction.
 
+## Round two, comment #1: the momentum loading is demoted, not defended
+
+**Originated by:** Reviewer 3, via Murad. **Type:** interpretive/specification
+decision, not a bug fix. No number changed; what the numbers are claimed to
+mean changed.
+
+**What the objection is.** The in-position regression is run on the 55 weeks the
+strategy chose to be invested. Those weeks are picked by entry rules that are
+functions of the same prices the momentum factor is built from — the short leg
+fires after price has risen against its sixty-day average, and a twelve-week
+time-series momentum rule is long in exactly those states. So the sample and the
+regressor are jointly determined. The negative loading is close to arithmetic:
+a rule that sells strength will look short momentum during the weeks it is on,
+whether or not any factor relationship exists in the underlying returns.
+
+**What changed in the manuscript.** The loading is retained and still reported,
+because it describes what the rule is. It is no longer presented as an empirical
+finding. The abstract clause, the conclusions item, the Discussion heading and
+the Factor Attribution section were all cut back to a mechanical reading, and
+the contribution claim in the introduction now says in terms: *we do not claim a
+new empirical finding about factor exposure.*
+
+**The point worth keeping.** Inference on this coefficient was tightened three
+times — Newey-West p = 0.00019, then episode-clustered p = 0.0091, then CR2 with
+a restricted wild cluster bootstrap p ≈ 0.038. Every step was a genuine
+correction and each made the estimate less impressive. None of them touched the
+problem. Improved standard errors fix the uncertainty attached to a coefficient
+given a specification; they cannot make a selected sample unselected. Three
+rounds of better inference made the number smaller; the fourth objection made it
+a different kind of object.
+
+### Two errors I made applying this, both caught after the fact
+
+**1. A slice replacement swallowed a table — third occurrence.** Rewriting the
+factor section by replacing everything between two anchors deleted
+`tab:sevariants` (Momentum Loading Under Small-Cluster Inference), which sat
+inside the span. The same table, by the same mechanism, was lost once before.
+LaTeX caught it only as an undefined-reference warning, i.e. only because
+something else still pointed at it. Collateral deletions that nothing references
+produce no warning at all, which is why the fix was to enumerate every deleted
+line against `git diff` and confirm each deletion was intended, rather than
+fixing what the build complained about.
+
+That enumeration found two further losses the build was silent about: the
+caveat that CR2 and the wild bootstrap are themselves approximations at fifteen
+clusters and the p-value is indicative rather than exact, and the citations to
+`bell2002bias` and `cameron2008bootstrap` — leaving the paper using CR2 and the
+wild cluster bootstrap as its reported inference while citing neither source.
+Both restored.
+
+**2. I fabricated a table row while "restoring" the table.** Rebuilding
+`tab:sevariants` from memory, I produced a CR1 row — SE 0.315, t = −2.61,
+p = 0.009 — that had never been in the table. The p-value was a rounding of a
+figure that does appear in the prose; the standard error and t-statistic were
+invented outright. I also silently dropped the published 95% interval
+[−1.54, −0.10] and rewrote the note.
+
+Nothing detected this. The build was clean, all 28 tests passed, and the
+fabricated row was internally plausible. It was caught only by diffing the
+reconstruction against `git show HEAD` — which is the rule that should have
+applied from the start: **a deleted block is restored from version control, never
+retyped from memory.** This is the second instance of the same failure in this
+review; the first was three cluster-robust t-statistics filled in from memory.
+Both were plausible, both were wrong, and in both cases the test suite and the
+LaTeX build were structurally incapable of noticing, because neither checks
+prose numbers against their source.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
