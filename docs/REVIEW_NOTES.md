@@ -2407,6 +2407,84 @@ The substantive point he wanted conveyed survives intact and is arguably sharper
 when stated precisely: the published construction rests its large estimate on a
 third of the data the alternatives use.
 
+## Tier 1, execution-independent part: three tables mapped, no new defects
+
+### The execution-dependence caveat, traced instead of repeated
+
+I had said these three would be "re-derived on a slightly different sample" if
+Monday open becomes primary. Traced properly, that was imprecise in a way worth
+correcting:
+
+- The panel's row count comes from `dropna(subset=["fast_skew_20w",
+  "price_skew_20w", "ai_20w"])`. **`weekly_return` is not involved.**
+- `table_stats` reads `weekly[col]` for `col in ALPHA_COLS` only.
+- `tail_construction_variants(daily_px, weekly.index)` takes daily prices and the
+  index.
+
+So under the pipeline **as written**, adopting Monday open changes none of them.
+A 503-row panel arises only from a *separate* decision to truncate the analysis
+panel to the strategy's usable sample — a choice nobody has made. Measured, that
+truncation would move the displayed skew at two decimals for **four of five**
+alpha columns (tail −1.476→−1.474, fast 0.006→0.002, pricing −0.166→−0.165,
+coverage 1.755→1.769; hedge unchanged), so the coupling is material if the choice
+is ever made.
+
+**Classification: invariant to the execution convention; conditionally coupled to
+an undecided sampling choice.** Mapped anyway, because a semantic mapping is
+field *paths*, not values. If the pipeline is rerun the JSON updates and the test
+compares against the new canonical values; the mapping cannot go stale from a
+sample change, and the manuscript's printed values going stale is exactly what
+the test then catches.
+
+`tab:oos` and `tab:tcosts` are untouched: both call `run_asymmetry_strategy`.
+
+### Results
+
+| Table | Cells verified | Defects |
+|---|---|---|
+| `tab:tests` | 40 | **0** |
+| `tab:bootcompare` | 35 | **0** |
+| `tab:tailagg` | 18 | **0** |
+
+All 93 reproduce canonical output at the manuscript's own displayed precision.
+No new numeric defects, and no interpretation around them changed.
+
+### Mutation tests, and one that was initially meaningless
+
+Field-path resolution gained list indexing, since confidence-interval cells carry
+two values. Mutations run before crediting any of it:
+
+| Mutation | Result |
+|---|---|
+| Fabricated `Momentum` row in `tab:tests` | caught |
+| Fabricated `Momentum` row in `tab:bootcompare` | caught |
+| Fabricated `All days, median exceedance` row in `tab:tailagg` | caught |
+| `skew_ci[5]`, index out of range | KeyError |
+| `skew_typo`, nonexistent field | KeyError |
+| Coverage block CI upper altered 2.16 → 2.19 | caught, naming the field |
+
+**The first attempt at the `tab:tests` mutation proved nothing.** Its anchor
+string, `Hedge & 0.15 &`, occurs first in `tab:asymmetry` — an unmapped table —
+so the fabricated row landed there and the suite passed, correctly, because
+nothing declares that table. I read the pass as the guard failing and checked
+where the row had actually gone.
+
+The lesson is about mutation tests rather than about this guard: **a mutation
+that does not land where it is aimed tests nothing, and its passing result is
+indistinguishable from a guard that does not work.** The anchor is now resolved
+strictly inside the named table's `tabular` body.
+
+### Coverage
+
+**10 of 19 tables** — `tab:spec` generated, and `tab:backtest`, `tab:factors`,
+`tab:sevariants`, `tab:snooping`, `tab:exectiming`, `tab:entrysymmetry`,
+`tab:tests`, `tab:bootcompare`, `tab:tailagg` mapped. Nine remain, of which
+`tab:oos` and `tab:tcosts` are held pending the execution ruling.
+
+Residual transcription risk remains in the unmapped tables. Numeric provenance
+over the mapped ones certifies their arithmetic and says nothing about the prose
+around them.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
