@@ -129,3 +129,53 @@ def test_declared_cells_match_their_canonical_fields(label):
             dp = _decimals(shown)
             assert round(float(actual), dp) == round(float(shown), dp), (
                 f"{label}/{key}: cell shows {shown} but {provenance} is {actual}")
+
+
+# ---------------------------------------------------------------------------
+# Prose statistics: same principle, applied to running text
+# ---------------------------------------------------------------------------
+
+from analysis.table_provenance import COVERAGE_PATTERNS, PROSE_CLAIMS  # noqa: E402
+
+
+@pytest.mark.parametrize("claim", PROSE_CLAIMS, ids=lambda c: c["name"])
+def test_prose_claim_occurs_as_declared_and_matches_canonical(claim):
+    text = TEX.read_text()
+    found = list(re.finditer(claim["pattern"], text))
+
+    assert len(found) == claim["occurrences"], (
+        f"{claim['name']}: declared {claim['occurrences']} occurrence(s), found "
+        f"{len(found)}. A new occurrence is an undeclared claim; a missing one means "
+        f"the declaration is stale. Either way the manuscript and this file disagree.")
+
+    if "external" in claim:
+        return  # provenance is the stated reason, not a pipeline field
+
+    data = canonical()
+    actual = resolve(claim["field"], data)
+    for match in found:
+        shown = match.group(1)
+        dp = _decimals(shown)
+        assert round(float(actual), dp) == round(float(shown), dp), (
+            f"{claim['name']}: manuscript shows {shown} but {claim['field']} is "
+            f"{actual}. This is the defect class that put a withdrawn Newey-West "
+            f"t-statistic in the text beside a correctly regenerated table.")
+
+
+@pytest.mark.parametrize("family", sorted(COVERAGE_PATTERNS))
+def test_every_prose_statistic_of_a_covered_family_is_declared(family):
+    """A statistic of a covered family that nobody declared must fail."""
+
+    text = TEX.read_text()
+    declared_spans = []
+    for claim in PROSE_CLAIMS:
+        declared_spans.extend(m.span() for m in re.finditer(claim["pattern"], text))
+
+    for match in re.finditer(COVERAGE_PATTERNS[family], text):
+        start, end = match.span()
+        covered = any(d_start <= start and end <= d_end for d_start, d_end in declared_spans)
+        line = text[:start].count("\n") + 1
+        assert covered, (
+            f"undeclared {family} {match.group(0)!r} at line {line}. Every statistic "
+            f"of this family must name the canonical field it comes from; an "
+            f"undeclared one has no evidence behind it.")

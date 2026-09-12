@@ -174,3 +174,63 @@ def resolve(path: str, data: dict | None = None):
             raise KeyError(f"{source} output has no field {dotted!r} (missing at {part!r})")
         node = node[part]
     return node
+
+
+# ---------------------------------------------------------------------------
+# Prose statistics
+#
+# Two of the first three provenance defects found were not in tables at all.
+# They were t-statistics in running text that stayed at their Newey-West values
+# after the reported inference moved to CR2, while the table beside them was
+# regenerated correctly.  Tables get rebuilt wholesale; prose is edited by hand,
+# which makes it the higher-risk surface and the one with no mechanism.
+#
+# Each declared claim carries a regex that anchors it in the manuscript, the
+# canonical field it must equal, and the number of occurrences expected.  The
+# occurrence count matters as much as the value: it is what makes a *new*
+# undeclared instance of a declared family fail, rather than being ignored.
+#
+# COVERAGE_PATTERNS close the remaining gap for the highest-risk family. Every
+# numeric t-statistic in the manuscript must fall inside some declared claim, so
+# a t-statistic of a family nobody declared fails rather than passing unseen.
+# This does not extend to every number in prose; percentages, counts and
+# coefficients outside a declared claim remain uncovered, and that limit is
+# deliberate rather than overlooked.
+# ---------------------------------------------------------------------------
+
+PROSE_CLAIMS = [
+    {
+        "name": "in-position intercept t-statistic",
+        "pattern": r"\$t = (-?\d+\.\d+)\$ on in-position weeks",
+        "field": "factor_attribution.in_position.coef.const.t",
+        "occurrences": 2,
+    },
+    {
+        "name": "full-sample intercept t-statistic",
+        "pattern": r"\$t = (-?\d+\.\d+)\$ full sample",
+        "field": "factor_attribution.full.coef.const.t",
+        "occurrences": 1,
+    },
+    {
+        "name": "original preprint momentum t, full sample",
+        "pattern": r"\(\$t = (-?\d+\.\d+)\$, \$p = 0\.71\$\)",
+        "external": EXTERNAL(
+            "value as published in the original preprint under the earlier "
+            "specification, quoted to identify what changed; not an output of "
+            "the current pipeline and must not be forced into one"),
+        "occurrences": 1,
+    },
+    {
+        "name": "original preprint momentum t, in position",
+        "pattern": r"\(\$t = (-?\d+\.\d+)\$, \$p = 0\.61\$\)",
+        "external": EXTERNAL(
+            "value as published in the original preprint under the earlier "
+            "specification; not an output of the current pipeline"),
+        "occurrences": 1,
+    },
+]
+
+# Families where every occurrence in the manuscript must be declared above.
+COVERAGE_PATTERNS = {
+    "numeric t-statistic": r"\$t = (-?\d+\.\d+)\$",
+}
