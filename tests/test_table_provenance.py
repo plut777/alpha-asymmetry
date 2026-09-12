@@ -81,12 +81,11 @@ def test_every_row_has_declared_provenance(label):
 # Known unrepaired defects, marked per-table so that a clean table still fails
 # loudly.  strict=True: correcting the value makes the xfail itself fail, which
 # forces the marker to be removed rather than quietly masking the next defect.
-KNOWN_DEFECTS = {
-    "tab:sevariants": (
-        "tab:sevariants prints the HC3 t-statistic as -2.17 where canonical output "
-        "is -2.164926, which rounds to -2.16. Found by this test on its first run. "
-        "Reported; the manuscript is deliberately not edited pending a decision."
-    ),
+KNOWN_DEFECTS: dict[str, str] = {
+    # Empty by design. The -2.17 HC3 defect this originally held was corrected
+    # once reported. Entries here are unrepaired defects only, and strict=True
+    # means a repair makes the xfail itself fail, forcing the entry's removal
+    # rather than letting it mask the next defect in the same table.
 }
 
 _VALUE_CASES = [
