@@ -23,25 +23,44 @@ sample. That is why the published null result had so little content: a strategy
 that is almost never invested cannot demonstrate much in either direction.
 
 The corrected strategy **loses 6.64% gross** over the decade, Sharpe **−0.153**,
-across 15 holding episodes. The paper's conclusion is unchanged in direction and
-considerably stronger in substance. One new result and one documented
-sensitivity come out of the revision:
+maximum drawdown **−12.56%**, across 15 holding episodes and 55 in-position
+weeks. The paper's conclusion is unchanged in direction and considerably
+stronger in substance.
+
+**What this revision contributes**, stated as narrowly as the manuscript now
+states it:
+
+1. **A corrected implementation and corrected inference.** The strategy the
+   paper describes is now the strategy the code runs, and the inference applied
+   to it is appropriate to 15 clusters rather than to 504 independent weeks.
+2. **One surviving asymmetry result.** Of five alpha signal types, only the
+   volatility-expansion (coverage) signal has skewness that survives
+   block-bootstrap inference under the paper's primary construction. The signed
+   tail signal skews *negative*, not positive, correcting a published figure that
+   described unsigned exceedance magnitude.
+3. **Documented specification sensitivity**, at magnitudes this sample cannot
+   resolve, reported rather than resolved.
+
+Two further results follow from the correction and are worth naming because they
+replace published claims:
 
 - **There is no break-even transaction cost.** Not a larger one — none. A
-  break-even presumes a gross profit to be consumed, and there is none. This is
-  a cleaner statement of the paper's null than the cost table it replaces.
-- **The results are sensitive to two design choices the original specification
-  did not argue for** — the weekly aggregation of the tail signal, and the
-  execution timing — at magnitudes the sample cannot resolve. Both are reported
-  as sensitivity exhibits, neither as a discovery.
+  break-even presumes a gross profit to be consumed, and there is none. This
+  replaces the published 19.2-pip figure and is a cleaner statement of the null.
+- **The economic null is starker, not softer.** Walk-forward selection leaves the
+  rule nearly inert (one episode in eight out-of-sample years), and no candidate
+  in the twelve-strategy formal universe beats a zero-return benchmark
+  (Reality Check *p* = 0.30, SPA *p* = 0.25).
 
-A third candidate was **demoted rather than reported**. The corrected factor
+**One candidate finding was demoted rather than reported.** The corrected factor
 regression shows the rule loading negatively on time-series momentum while
 invested. Reviewer 3 identified that the in-position sample is selected by the
 strategy's own entry rules, which are functions of the same prices the momentum
-factor is built from, so the loading is a mechanical property of the design
-rather than a factor exposure. It is retained as a description of what the rule
-is and is explicitly not counted among the revision's empirical findings.
+factor is built from, so sample and regressor are jointly determined. The loading
+is reported as **a mechanical property of the entry rules**, not as an
+independently discovered factor exposure and not as an explanation of the
+strategy's losses. It is explicitly excluded from the revision's empirical
+contribution.
 
 The sample is unchanged: n = 504, 8 January 2016 to 29 August 2025.
 
@@ -278,6 +297,99 @@ restoration is worth something only because a machine enforced it.
 
 ---
 
+## Round two — response to Reviewer 3
+
+The first round of this PR addressed Reviewer 3's eight code and inference
+comments. A second round followed, and the changes below are the substantive
+ones. `docs/REVIEWER_RESPONSE.md` has the point-by-point replies.
+
+### Inference appropriate to 15 clusters
+
+The in-position weeks are 55 observations drawn from 15 holding episodes spread
+across a decade, and they are not contiguous. A lag-based autocorrelation
+correction presumes consecutive observations, so the Newey–West treatment applied
+in an earlier draft of this revision is **withdrawn as inapplicable**, not merely
+superseded. Reported inference is the bias-reduced **CR2** estimator with
+Bell–McCaffrey degrees of freedom (10.2 here, against a naive 14) for standard
+errors and intervals, and a **restricted wild cluster bootstrap-*t*** with
+Rademacher weights (*B* = 9,999, null imposed) for the *p*-value. Fifteen clusters
+is few, and both remain approximations at that number: the *p*-value should be
+read as indicative rather than exact.
+
+For the momentum loading this gives β₂ = −0.823, CR2 standard error 0.324,
+*t* = −2.54, CR2 interval [−1.54, −0.10], wild cluster bootstrap *p* = 0.038.
+
+### Sample selection, and why the momentum loading is demoted
+
+Reviewer 3's first round-two comment is the one that changed an interpretation
+rather than a number. The in-position regression runs on the weeks the strategy
+chose to hold, and those weeks are selected by entry rules that are functions of
+the same price series the momentum factor is built from: the short leg fires
+after price has risen against its sixty-day average, and a twelve-week
+time-series momentum rule is long in exactly those states.
+
+The loading is therefore close to arithmetic. A rule that sells strength will
+look short momentum during the weeks it is on, whether or not any factor
+relationship exists in the underlying returns. The coefficient is retained
+because it describes what the rule is, and it is **not** presented as an
+empirical finding, **not** offered as an explanation of the strategy's losses,
+and **not** counted in the contribution. The abstract, conclusions, discussion
+heading and factor section were all cut back accordingly.
+
+Worth recording alongside it: inference on this coefficient was tightened three
+times, and each step was a genuine correction that made the estimate less
+impressive. None of them touched the problem. Improved standard errors fix the
+uncertainty attached to a coefficient given a specification; they cannot make a
+selected sample unselected.
+
+### Three specification sensitivities, which are not the same phenomenon
+
+Three choices the original specification did not argue for each move the results
+materially. They are reported as distinct, because their statistical behaviour
+differs, and none of them is described as showing that the results are artefacts.
+
+| Choice | What happens |
+|---|---|
+| **Tail-signal aggregation** | Across three defensible aggregations of the identical daily rule, the skewness estimate **changes sign**, and under one of them the interval excludes zero. The sign and the inferential conclusion both move. |
+| **Execution timing** | Four entry timings applied to the identical signal, on a common sample of 502 weeks, give cumulative gross returns of −6.64% (Friday close), −0.73% (Monday open), −0.92% (Monday close) and −8.03% (Tuesday open). Point estimates move materially and **non-monotonically in delay**, while the **pre-specified paired contrasts all include zero**. |
+| **Entry-rule symmetry** | The published hybrid and three pre-specified symmetrizations give −6.64%, −1.65% (pure-fast), −4.13% (pure-pricing) and −7.86% (equal-threshold): a range of 6.21 points, nearly as large as the published hybrid's own 6.64% loss. **Every pre-specified variant remains gross-negative in this sample.** |
+
+On the third: the long and short legs of the published rule differ in four
+respects — skewness gate, confirmation series, confirmation threshold, and
+direction of response — and the manuscript argued for none of them. Collapsing
+the asymmetry is underdetermined, since it requires choosing which of the rule's
+two economics to keep, so three symmetrizations were specified rather than one.
+Pure-fast and pure-pricing hold positions in fewer weeks than the published rule
+(44 and 51 against 55) but both remain negative per exposed week (−1.8 and −7.1
+basis points against −11.0), so their less negative cumulative performance is not
+solely an artefact of lower exposure.
+
+### Pre-specification and audit trail
+
+Where a robustness exercise could have been steered by its own results, the
+specification was written down and committed **before** the computation, and the
+commit ordering is the evidence. This covers the execution-timing grid and the
+entry-rule symmetrization, the latter in
+`docs/PREREGISTRATION_ENTRY_SYMMETRY.md`, which fixes the three variants, the
+metrics, the cost tier, an exposure guard, and a reporting rule stating that all
+three would be disclosed whatever they returned.
+
+Two structural predictions recorded in that document were wrong and are left
+standing in it rather than quietly corrected. A pre-registration that is rewritten
+after the fact is worth nothing.
+
+The execution-timing grid was previously computed by a standalone script that was
+never committed — twenty numbers on a headline robustness exhibit with no
+traceable source. That computation now lives in the pipeline, with the alignment convention
+documented and enforced, and all twenty previously committed cells reproduce
+exactly.
+
+`docs/REVIEW_NOTES.md` carries the full audit record: what changed, who
+originated it, whether it was a defect or a specification decision, and the
+verification failures found along the way.
+
+---
+
 ## Result changes
 
 Full table with per-item attribution in `analysis/before_after_results.csv`.
@@ -321,15 +433,23 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 14 deterministic unit tests, all passing, covering the AI edge cases, the dated
-  timing convention, entry, hold, expiry, reversal, simultaneous signals,
-  no-signal periods, both sizing modes, resize cost accounting and reversal
-  accounting.
+- 61 deterministic tests, all passing: the AI edge cases, the dated timing
+  convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
+  periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
+  causality suite run against all four entry rules, table- and prose-level
+  provenance, and a guard resolving every commit hash cited in the audit record.
 - The complete pipeline runs online and reruns identically with `--offline`.
 - Seven of the eight input files reproduce byte-for-byte on an independent
   download (see **Data** below).
-- Every figure in the manuscript was machine-checked against
-  `analysis/full_pipeline_results.json`.
+- **Table provenance, with its coverage stated honestly.** Each covered table
+  cell names the canonical output field it comes from, so a cell with no declared
+  source fails rather than being matched against any equal-looking number.
+  Coverage is **7 of the 19 manuscript tables**: six semantically mapped
+  (`tab:backtest`, `tab:factors`, `tab:sevariants`, `tab:snooping`,
+  `tab:exectiming`, `tab:entrysymmetry`) plus `tab:spec`, which is generated from
+  the specification module and asserted against it. Among prose figures the
+  mechanism currently reaches the regression statistics only. The remaining 12
+  tables are checked less formally and we do not claim otherwise.
 - The nine original provenance sentences are machine-checked for verbatim
   presence.
 - After every rerun: n = 504 spanning 2016-01-08 to 2025-08-29; the factor
@@ -340,7 +460,7 @@ statistics are unchanged in all four markets.
 ### The PDF was rebuilt and inspected
 
 `paper/alpha-asymmetry.pdf` is rebuilt from the corrected source. It compiles
-clean: 27 pages, **zero** overfull boxes, **zero** underfull boxes, no undefined
+clean: 35 pages, **zero** overfull boxes, **zero** underfull boxes, no undefined
 references or citations, bibliography resolved against `references.bib`.
 
 Both figures were regenerated from the current pipeline and compared
