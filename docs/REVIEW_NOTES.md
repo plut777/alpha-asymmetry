@@ -2193,6 +2193,119 @@ exactly the class of error it produced. The specific lesson, kept with the cause
 **a check that shells out must pin the interpreter it shells out to**, because a
 subprocess that silently does less work returns success.
 
+## The bounded claims pass
+
+Target set predeclared and exhausted at Tofik's direction, replacing the earlier
+order-dependent "stop after one clean section" rule: abstract, contribution
+statement, conclusions, section-level interpretive claims, and every sentence
+surfaced by a vocabulary scan for *shows, demonstrates, explains, supports,
+rejects, no evidence, outperforms, drives, beats, establishes, confirms* and
+equivalents. The scan surfaced **55 candidate sentences**; it is a way of finding
+candidates, not a verdict on any of them.
+
+Each candidate was checked on four separate questions: are the quoted statistics
+correct; does the analysis license the logical statement; is the wording
+appropriate to whether the claim is descriptive, inferential or causal; and would
+its validity change under the execution convention.
+
+### Finding 10 — an interpretive claim contradicted by the paper's own grid
+
+§4.3 said *"Return does not behave monotonically."* The canonical threshold grid
+gives returns of **−9.61%, −6.64%, −2.59%, +2.74%** across thresholds 0.50, 0.75,
+1.00 and 1.25: **strictly increasing.** Sharpe (−0.18, −0.15, −0.13, +0.28) and
+drawdown (−22.3, −12.6, −5.5, −0.8) are strictly increasing too. Only the hit rate
+is non-monotone.
+
+Every other number in that paragraph is correct — 25 episodes and 89 exposed weeks
+at 0.50, a single episode and four weeks at 1.25, all matching canonical output.
+Class A: the claim was presumably true of the pre-correction results and was not
+revisited when the results changed.
+
+Replaced with the accurate statement, which is also the more useful one: all three
+performance metrics improve monotonically as the threshold rises, and the
+improvement is bought entirely by trading less, with the only positive-return
+threshold resting on a single episode.
+
+### Finding 11 — a heading claiming more than its own paragraph licenses
+
+§4.2 was headed **"Non-Generalizability"** while its closing sentence read
+*"nothing here establishes generalization."* Those are not the same claim.
+Absence of evidence for generalization is not evidence of non-generalization, and
+the heading asserted the stronger one. The numbers are all correct: GBP/USD
+−13.32%, SPY +14.20% trailing buy-and-hold by 280.1 points, GLD −15.44%, and the
+tail skew does reverse sign in every other market.
+
+Retitled *"No Evidence of Generalization"*, with the paragraph now stating
+explicitly that nothing here establishes its absence either, and that four
+exploratory series show the rule does not transfer cleanly rather than that it
+cannot.
+
+### Noted, not changed
+
+§4.4's heading **"Downside-Leaning Tails"** asserts the effect while its own
+paragraph gives the interval $[-3.10, 0.54]$ and says the estimate is "too fragile
+to support a strategy". The body corrects the heading two sentences later, in the
+same paragraph, so a reader is not misled. It is the same heading-versus-body
+pattern as finding 11 in weaker form, and is recorded rather than edited.
+
+### What the pass confirmed
+
+The remaining candidates hold up. The Reality Check and SPA sentences now say
+"does not reject"; the GPD characterisation calls its own interval imprecise; the
+normality result says "do not reject ... consistent with" rather than asserting
+symmetry; the cost sentence's causal claim is licensed, since a gross return that
+is already negative cannot have been caused by costs; the cross-market and
+threshold numbers all reconcile to canonical output.
+
+### Execution-sensitive claims, tagged for recheck
+
+These are valid as written under the Friday-close baseline and must be rechecked
+once Murad rules, rather than treated as settled:
+
+| Location | Claim |
+|---|---|
+| Abstract | the 6.64% cumulative gross loss, Sharpe, and walk-forward inertness |
+| Contribution statement | "loses money before frictions"; "walk-forward selection leaves it nearly dormant" |
+| §4.3 threshold grid | the monotonicity statement replaced above, which is a property of strategy returns |
+| §4.2 cross-market | all four strategy-return figures |
+| §5.6 snooping | the `asym_full` candidate enters the universe from strategy returns |
+| Conclusions | every statement about realised strategy performance |
+
+Claims about the alpha signals themselves — skewness, normality, bootstrap
+intervals, tail aggregation, EVT — are **not** execution-dependent in
+construction. If a Monday-open ruling moves the analysis sample off 504 weeks
+they would be re-derived on a slightly different sample, so trailing digits could
+move, but the claims do not depend on the execution convention.
+
+---
+
+## A verification rule that could not have fired
+
+The stopping rule I proposed for the provenance work was: map Tier 1, then
+continue only if a **Class A** finding appears.
+
+The table-cell mapping has produced **four** findings across six tables and every
+one was Class B, a transcription or rounding defect. All four Class A findings in
+this review came from reading: the transition sweep, adjacency while mapping a
+neighbouring table, and Tofik asking what a sentence would have to mean.
+
+So the rule gated continuation on a signal the instrument had never once emitted,
+and had no demonstrated capacity to emit. It would have reported "stop, clean"
+regardless of how many interpretive defects remained. The rule is not wrong about
+Class A findings mattering most; it is wrong in asking an instrument that detects
+transcription to certify the absence of something else.
+
+**The general point, which is worth more than the instance:** a stopping rule must
+be tied to an instrument with demonstrated capacity to detect the thing whose
+absence it is being used to certify. Otherwise the rule inherits the instrument's
+blind spot and converts it into a conclusion.
+
+**No ordinal is assigned.** The running count of non-discriminating checks stands
+at eight or nine in this record, and I have not re-enumerated entries one through
+seven end-to-end to verify it. Having already miscounted two summaries, asserting
+"tenth" would be a third. The methodological point is recorded independently of
+its position in a sequence I have not checked.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
