@@ -939,6 +939,129 @@ asymmetric-design comment are resolved, since those may change what the
 defensible overarching claim is. (Tofig withdrew an earlier line calling this a
 reframing of the paper as premature.)
 
+---
+
+# Look-ahead bug in the execution grid — first-class entry
+
+**Originator: Claude. Introduced and caught within one turn, on 2026-09-12.
+Recorded as a finding rather than a process footnote, because it is the bug
+class this paper exists to correct.**
+
+## What it was
+
+Building the four-timing grid, a uniform `.shift(1)` was applied to all four
+return series so that the Friday-close series would reproduce the pipeline's own
+`weekly_return`. It did. The other three were then wrong.
+
+Friday close enters **at the decision instant**: a position decided at the Friday
+close of week $w$ is already on at that price, so its first return period is
+$C_w \to C_{w+1}$. Monday open, Monday close and Tuesday open enter **one
+boundary later**: the position is established at $P_{w+1}$ and its first return
+period is $P_{w+1} \to P_{w+2}$. The two are not aligned the same way, and a
+single shift cannot serve both.
+
+Applied uniformly, the shift made each delayed timing earn the week **before**
+its own signal. That is look-ahead: the strategy was credited with a return that
+had already happened when the signal fired.
+
+## What it produced
+
+Monday open reported as **−15.10%** cumulative. The correct figure is **−0.73%**.
+An error of 14 percentage points, in a table that was about to be presented as a
+robustness exhibit.
+
+## How it was caught
+
+**By disagreement with a number computed in an earlier turn.** Monday open had
+been computed separately before the grid existed and had returned −0.73%. The
+grid said −15.10%. One of the two had to be wrong.
+
+It was not caught by reading the code, which looked correct and symmetric — the
+symmetry was the error. It was not caught by a test. It was not caught by the
+identity checks, which the wrong version passes: the sample is still 504 weeks,
+the intercept still matches the mean weekly return of whatever series is fed in,
+and the VIX regimes still compound.
+
+## The pattern this belongs to
+
+This is the fourth error in this project that reading would not have caught:
+
+1. **The inverted momentum argument** — a sentence whose stated reason argued
+   against its own conclusion. Caught by asking what the regressor itself
+   returned over the sample.
+2. **The unreported AI window** — a parameter that existed only in code. Caught
+   by a referee; no internal check could see it, because every check compared
+   reported values against computed ones and there was nothing to compare.
+3. **The intercept in wrong units** — a correct number restated as −0.012 bps
+   instead of −1.2. Caught by a referee; the machine check passed it because the
+   value it compared was right.
+4. **This look-ahead bug** — caught by redundancy against a prior computation.
+
+And a fifth near-miss: two words inserted inside a restored historical footnote,
+caught by a substring check.
+
+**The common defence is not review. It is computing the same quantity twice by
+different routes and requiring the answers to agree.** Three of the five were
+caught that way or by an external reader; none by re-reading the code that
+contained them.
+
+---
+
+# The pre-registration worked by failing
+
+The execution grid's hypothesis — that the Friday-close/Monday-open difference
+is weekend-specific — was written down in `c7af2f3` **before any grid result
+existed**, together with an explicit decision rule: if the non-weekend contrasts
+move as much as the weekend contrast, the effect is general delay sensitivity
+and the decomposition paragraph must be rewritten rather than adjusted.
+
+**The hypothesis failed.** Monday close → Tuesday open crosses no weekend and
+moves the cumulative result by −7.11 points, comparable to the +5.91 of the
+weekend-crossing contrast, while Monday open → Monday close barely moves at all.
+
+Because the rule was committed in writing first, the weekend story cannot now be
+retained by treating Tuesday open as an outlier. That option was foreclosed
+before the number existed. **That is the entire value of the exercise**: it
+removed a degree of freedom that would otherwise have been available, and the
+paper is about researchers who kept such degrees of freedom.
+
+It also means the pre-registration should not be described as having "confirmed"
+anything. It did the opposite, and that is the reportable outcome.
+
+---
+
+# Episode-size concentration, and a PRE-REGISTERED influence check
+
+## The observation
+
+The 55 in-position weeks are distributed across 15 holding episodes as
+`[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 14]`. **One episode holds 14 of the
+55 weeks — a quarter of the sample.**
+
+Cluster-robust inference is asymptotic in the number of clusters, and 15 is
+already few. With one cluster carrying a quarter of the observations the
+effective number is lower still, and both the CR2 interval and the wild cluster
+bootstrap on the momentum loading inherit that. This bears on the momentum
+result, not only on the execution grid.
+
+## Pre-registration of the leave-one-episode-out check
+
+**Recorded before running it.**
+
+Method: refit the in-position factor regression 15 times, each time omitting one
+holding episode, and report the range of the momentum coefficient across those
+15 deletions together with the estimate obtained specifically when the 14-week
+episode is removed. Also report which episode it is and when it falls.
+
+**Constraint, declared in advance: the primary CR2 and wild cluster bootstrap
+inference will not be changed on the basis of this diagnostic, whichever way it
+comes out.** It is an influence diagnostic, not a significance search. Refitting
+after deletion and adopting whichever version reads better would be specification
+selection on outcomes.
+
+The result is reported either way. If the long episode materially drives the
+coefficient, that is stated. If it does not, that is stated too.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and
