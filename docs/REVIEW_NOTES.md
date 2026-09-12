@@ -1941,6 +1941,70 @@ That was invisible while the numbers were being read against the thirteen-candid
 diagnostic. The thirteen-candidate universe remains reported, separately and
 explicitly as a diagnostic.
 
+## `tab:backtest` and `tab:snooping`, and a repeated arithmetic error of mine
+
+`tab:backtest` maps cleanly: all 28 cells reproduce canonical output.
+
+`tab:snooping` produced **finding 7** on the mapping's first run. White's Reality
+Check statistic for the twelve-strategy formal universe printed **0.015** where
+canonical output is **0.0144767**, which is **0.014** at the three-decimal
+convention the table already uses. Class B, transcription. Corrected.
+
+Three parser extensions were forced by these two tables, none anticipated:
+repeated row labels selected by occurrence index, so `tab:snooping`'s twelve- and
+thirteen-candidate rows cannot be confused; cells carrying several values, as in
+the `15 / 61` episodes-and-legs column; and greedy field-path resolution, because
+canonical keys such as `Mean reversion (2.0 sigma)` contain dots. Row splitting
+also had to stop treating an escaped `\&` as a column break, which was reading
+`Buy \& Hold` as two columns.
+
+### The count, and my second failure to add it up
+
+**The summary line in commit `24f6e6a` is wrong in the same way as the one in
+`1f76352`.** It says "seven findings, Class A 3, Class B 4; table 3, prose 4".
+The correct figures, enumerated rather than estimated:
+
+| | |
+|---|---|
+| raised | 7 |
+| withdrawn as not a defect | 1 (finding 5) |
+| **confirmed** | **6** |
+| Class A — stale/superseded methodology | **3** (findings 2, 3, 6) |
+| Class B — transcription/rounding | **3** (findings 1, 4, 7) |
+| in tables | **2** (findings 1, 7) |
+| in prose | **4** (findings 2, 3, 4, 6) |
+
+Both cross-checks balance: 3 + 3 = 6 and 2 + 4 = 6.
+
+This is the second time I have miscounted a summary while every underlying record
+was correct, and the second time the error inflated the total. The counts are now
+computed from an enumerated list rather than written by hand, which is the same
+remedy this whole exercise applies to the manuscript: **the summary of a set of
+findings is itself an empirical claim, and deriving it beats retyping it.**
+
+Note also what the prose/table ratio does under new evidence. It was 1:5 after
+the transition sweep, which I read as prose being the dominant risk. Two table
+findings later it is 2:4. The mechanism claim still holds — tables are
+regenerated, prose is retyped — but the ratio was being over-read from six
+observations, and the honest statement is that both surfaces carry defects and
+the sample is too small to rank them.
+
+### Findings so far, all repaired
+
+| # | Location | Class | Surface |
+|---|---|---|---|
+| 1 | `tab:sevariants`, HC3 $t$ −2.17 → −2.16 | B | table |
+| 2 | §1 L165, intercept $t$ −0.84 → −0.65 | A | prose |
+| 3 | §4.9 L864, intercept $t$ −0.84 → −0.65 | A | prose |
+| 4 | §3.3 L547, entry notional 1.62 → 1.64 | B | prose |
+| 5 | §3.3 L547, 5.8\% | — | **withdrawn** |
+| 6 | §5.6 L994, thirteen-candidate reasoning | A | prose |
+| 7 | `tab:snooping`, RC statistic 0.015 → 0.014 | B | table |
+
+**Tables mapped: 6 of 19** — `tab:sevariants`, `tab:exectiming`,
+`tab:entrysymmetry`, `tab:factors`, `tab:backtest`, `tab:snooping`, plus
+`tab:spec` already generated. Remaining: 12 tables.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.
