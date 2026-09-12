@@ -805,6 +805,140 @@ Conclusions item 1, with the sensitivity added as a new conclusion item. Under
 the primary construction every one of these claims still holds; each now says so
 rather than stating it flat.
 
+---
+
+# PRE-REGISTRATION — execution-timing robustness grid
+
+**Recorded 2026-09-12T11:53:56Z, before any grid result existed. The commit
+containing this section is the evidence for that claim; its timestamp precedes
+the commit containing the results.**
+
+**Partial blindness, stated up front.** Two of the four cells are *not* blind.
+Friday close is the current baseline and Monday open was computed and reported
+earlier on 2026-09-12 (cumulative −0.73%, Sharpe 0.005, mean weekly difference
++1.25 bps, annualized +0.64 pp, paired stationary-bootstrap CI on the annualized
+difference [−0.66, +2.01]). **Monday close and Tuesday open are unseen at the
+time of writing.** A pre-registration that concealed the first fact would be
+worth nothing, so it is recorded as partial.
+
+## The grid — fixed now, not to be extended
+
+Four execution timings, all from the **identical** Friday-close signal. No
+timing is added after results are seen.
+
+| Label | Entry point | One-week return earned |
+|---|---|---|
+| **FC** | Friday close of week $t$ (current baseline) | $C_{t+1}/C_t - 1$ |
+| **MO** | Open of the first trading day of week $t+1$ | $O_{t+2}/O_{t+1} - 1$ |
+| **MC** | Close of the first trading day of week $t+1$ | $\mathrm{MC}_{t+2}/\mathrm{MC}_{t+1} - 1$ |
+| **TO** | Open of the second trading day of week $t+1$ | $\mathrm{TO}_{t+2}/\mathrm{TO}_{t+1} - 1$ |
+
+Every variant holds for exactly one week from its own entry point, so holding
+periods are comparable. Signals, entry rules, exit rules, holding clock and
+position sizing are identical across all four; only the return series changes.
+
+## Primary contrasts — three, declared now
+
+1. **FC vs MO** — published-versus-current convention. *Not blind.*
+2. **MO vs MC** — same-day execution delay, no weekend crossed. *Blind.*
+3. **MC vs TO** — overnight execution delay, no weekend crossed. *Blind.*
+
+Any other pairwise contrast is **secondary** and will be labelled as such, with
+a family-wise max-statistic block-bootstrap adjustment or simultaneous
+intervals. The grid is a robustness check, not a specification search.
+
+### What each contrast isolates, declared before seeing the numbers
+
+- FC vs MO crosses a weekend; MO vs MC and MC vs TO do not.
+- **If the weekend-crossing contrast moves and the two non-weekend contrasts do
+  not, the effect is weekend-specific** and the decomposition paragraph stands.
+- **If all three move, it is general execution-delay sensitivity**, and that
+  paragraph must be rewritten rather than adjusted.
+- If only the non-weekend contrasts move, the current decomposition is wrong.
+
+## Inference
+
+Paired **moving-block bootstrap**: fixed block length, overlapping blocks drawn
+with replacement, concatenated to sample length, **the same sampled block
+indices applied to all four variants** so the comparison is paired.
+
+- Primary block length **4 weeks**, $B = 2000$, seed 42. Four weeks is the
+  dependence scale already adopted for strategy returns in this paper; the
+  13-week block used elsewhere was chosen for overlapping-window *signals* and
+  is not the right scale for returns.
+- Pre-registered block-length sensitivity: **8 and 13 weeks**, same procedure.
+- The paired **stationary** bootstrap already run is retained as a comparison,
+  and whether the conclusion changes between the two schemes is reported.
+
+## Reported per timing
+
+Cumulative gross return, mean weekly return, annualized return, Sharpe, maximum
+drawdown, and transaction-cost-adjusted return at the paper's existing cost
+tiers (0.0 / 0.3 / 0.7 / 1.3 / 2.0 pips).
+
+## Common-sample rule
+
+Every paired comparison is computed on the **exact set of signal weeks available
+under both conventions in the pair**, and the number of observations dropped and
+the reason are reported. The common-sample figure is the **headline** for every
+paired comparison; the full-sample figure appears as a footnote where it
+differs. If any comparison changes materially between the two, that is stated
+explicitly, because it would mean part of the apparent execution effect is a
+sample-endpoint effect rather than an execution effect.
+
+Known in advance: MO loses the final week (no following open). MC and TO may
+lose further weeks to holidays.
+
+## Power bound for the weekend-gap test
+
+The null result for "does the entry signal predict the weekend gap it bears"
+will be reported with a detectable-effect bound estimated **by simulation using
+the observed dependence structure** — resampling by holding episode, injecting a
+known position-gap relationship of magnitude $\delta$, and locating the
+$\delta$ at which the wild cluster bootstrap rejects 80% of the time. **No
+i.i.d. analytical power formula will be used**, since that would contradict the
+cluster-aware inference used everywhere else.
+
+The bound will be stated against the **effective sample of 15 holding episodes**,
+not 55 weeks, since that is what cluster-robust inference is asymptotic in.
+
+## Wording rules fixed in advance
+
+- "We find no detectable relationship **in this sample**" — never "there is no
+  relationship". $p = 0.65$ fails to detect; it does not establish a zero
+  population effect.
+- Every null is reported with its power bound attached.
+
+---
+
+## Directives on the synthesis (Tofig, recorded with the pre-registration)
+
+**The three sensitivities are not equivalent and must not be written as though
+they were.**
+
+- **Tail aggregation** genuinely changes sign and significance across reasonable
+  constructions.
+- **Momentum** is weakened by both tighter inference and endogenous sample
+  selection, but survives.
+- **Execution** moves the point estimate materially while the paired bootstrap
+  cannot distinguish the conventions.
+
+The common lesson is **sensitivity to under-justified design choices**. It is
+*not* that all three headline results are proven artefacts.
+
+**The successive inference tightenings are a verification and process lesson,
+not evidence for the paper's substantive thesis.** If claims weakening under
+tighter checks validated the method, claims strengthening would have to
+invalidate it. What the sequence shows is that stronger checks exposed
+fragility — nothing more. Recording this because the temptation to read the
+pattern as confirmation is exactly the reasoning error the paper criticises.
+
+**Placement: Discussion and Limitations only.** The synthesis is not promoted to
+the abstract or the headline conclusion until the endogeneity comment and the
+asymmetric-design comment are resolved, since those may change what the
+defensible overarching claim is. (Tofig withdrew an earlier line calling this a
+reframing of the paper as premature.)
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and
