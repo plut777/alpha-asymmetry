@@ -54,7 +54,7 @@
     urlcolor=brandburgundy,
     breaklinks=true,
     pdftitle={Alpha Asymmetry in Foreign Exchange Markets},
-    pdfauthor={Murad Farzulla},
+    pdfauthor={Murad Farzulla and Tofik Israfilov},
     pdfkeywords={alpha asymmetry, forex, skewness, kurtosis, trading strategies}
 }
 
@@ -132,7 +132,7 @@
   \textsuperscript{*}Correspondence: \href{mailto:murad@dissensus.ai}{murad@dissensus.ai}
   \quad
   ORCID: \href{https://orcid.org/0009-0002-7164-8704}{0009-0002-7164-8704}\\
-  T.\ Israfilov: \href{mailto:tofiq@dissensus.ai}{tofiq@dissensus.ai}%
+  T.\ Israfilov: \href{mailto:tofik@dissensus.ai}{tofik@dissensus.ai}%
 }\\[0.3em]
 {\footnotesize \paperdate}
 \end{center}
@@ -967,7 +967,7 @@ Future research might examine whether asymmetry exploitation is viable at higher
 
 \section*{Acknowledgments}
 
-Portions of this manuscript were drafted and revised with assistance from Claude (Anthropic). The authors retain full responsibility for all intellectual content, analytical decisions, and interpretive claims. This work was conducted as part of the Adversarial Systems Research program at Dissensus. Working papers and replication materials are available through the \href{https://systems.ac}{Adversarial Systems \& Complexity Research Initiative (ASCRI)}. Comments and correspondence are welcome at \href{mailto:murad@dissensus.ai}{murad@dissensus.ai}.
+Portions of this manuscript were drafted and revised with assistance from Claude (Anthropic; Claude Opus and Claude Fable 5 models), with adversarial cross-review by ChatGPT (OpenAI; GPT-5.6 ``Sol''). The authors retain full responsibility for all intellectual content, analytical decisions, and interpretive claims. This work was conducted as part of the Adversarial Systems Research program at Dissensus. Working papers and replication materials are available through the \href{https://systems.ac}{Adversarial Systems \& Complexity Research Initiative (ASCRI)}. Comments and correspondence are welcome at \href{mailto:murad@dissensus.ai}{murad@dissensus.ai}.
 
 % ============================================================================
 % DECLARATIONS
@@ -975,7 +975,7 @@ Portions of this manuscript were drafted and revised with assistance from Claude
 
 \section*{Declarations}
 
-\paragraph{Conflict of Interest.} The author declares no competing interests.
+\paragraph{Conflict of Interest.} The authors declare no competing interests.
 
 \paragraph{Funding.} This research received no external funding.
 
@@ -983,13 +983,13 @@ Portions of this manuscript were drafted and revised with assistance from Claude
 
 \paragraph{Code Availability.} Full replication code available at \url{https://github.com/dissensus-ai/alpha-asymmetry} under MIT License.
 
-\paragraph{AI Assistance.} Claude (Anthropic) assisted both authors, in distinct phases, each author directing and remaining answerable for the assistance used in their own. M.\ Farzulla directed its use in the original version for manuscript drafting, code review, and statistical exposition. T.\ Israfilov directed its use for the corrections in the present version: reading the published replication code against the published specification, implementing the corrections, regenerating the analysis, and drafting the revised text.
+\paragraph{AI Assistance.} Claude (Anthropic; Claude Opus and Claude Fable 5 models) assisted both authors, in distinct phases, each author directing and remaining answerable for the assistance used in their own. M.\ Farzulla directed its use in the original version for manuscript drafting, replication-pipeline development and code review, and statistical exposition. T.\ Israfilov directed its use for the corrections in the present version: reading the published replication code against the published specification, implementing the corrections, regenerating the analysis, and drafting the revised text. ChatGPT (OpenAI; GPT-5.6 ``Sol'') provided adversarial cross-review of the empirical claims. Citation verification drew on \href{https://scite.ai}{scite}, among other automated research tools.
 
-Because implementing corrections is a broader role than assisting with prose, the work was structured so that it can be checked rather than trusted. Every change is a separate commit recording its rationale; the derivation of each correction from the published version is documented in the repository's correction changelog; each reported figure is machine-checked against the pipeline's own output; the restored provenance footnotes are machine-checked for verbatim preservation; and the analysis is covered by deterministic tests required to pass at every step. Two arithmetic identities---the factor intercept against the strategy's own mean weekly return, and the volatility-regime returns compounding to the full-sample return---are verified after every rerun.
+Because implementing corrections is a broader role than assisting with prose, the work was structured so that it can be checked rather than trusted. Every change is a separate commit recording its rationale; the derivation of each correction from the published version is documented in the repository's correction changelog; each reported figure is machine-checked against the pipeline's own output; every free parameter is declared in one module from which the manuscript's specification table is generated, and a test fails if the two disagree; the restored provenance footnotes are machine-checked for verbatim preservation; and the analysis is covered by deterministic tests required to pass at every step. Two arithmetic identities---the factor intercept against the strategy's own mean weekly return, and the volatility-regime returns compounding to the full-sample return---are verified after every rerun.
 
-That apparatus caught errors that review by reading did not, including a passage in the factor-attribution section whose stated reasoning ran opposite to its own conclusion. We regard it as part of the contribution rather than as housekeeping: it is what allows a reader to check these corrections instead of taking them on trust, and it is reusable by anyone auditing a quantitative result produced the same way. All research design, and all responsibility for the content of this paper, remain the authors'.
+That apparatus caught errors that review by reading did not, including a passage in the factor-attribution section whose stated reasoning ran opposite to its own conclusion. We regard it as part of the contribution rather than as housekeeping: it is what allows a reader to check these corrections instead of taking them on trust, and it is reusable by anyone auditing a quantitative result produced the same way. All research design, data analysis, and interpretation are solely the authors', who take full responsibility for all claims, judgments, and errors.
 
-\paragraph{Author Contributions.} \textbf{M.\ Farzulla:} original research question and design; alpha signal construction; strategy specification; statistical methodology; original analysis code; manuscript. \textbf{T.\ Israfilov:} audit of the published version against its replication code; identification of the specification mismatches between the two; decisions on how each mismatch was resolved, including which were implementation defects and which required a specification choice; the correction record and its verification. T.\ Israfilov did not author the original analysis code. Both authors reviewed and approved the corrected manuscript; M.\ Farzulla retains responsibility for the original research design and its interpretation.
+\paragraph{Author Contributions.} \textbf{M.F.}: conceptualisation, methodology, software, formal analysis, data curation, writing --- original draft. \textbf{T.I.}: \textcolor{red}{[TO BE COMPLETED BEFORE DEPOSIT --- describe T.I.'s contribution to v2.1 in CRediT terms]}.
 
 % ============================================================================
 % REFERENCES
