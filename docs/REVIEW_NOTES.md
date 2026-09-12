@@ -1287,6 +1287,81 @@ invariant was defective and is recorded as such. Two further defective versions
 of the permanent test were caught by requiring it to fail on a known-bad input.
 
 
+---
+
+# Test-of-tests: is each check demonstrably sensitive to what it claims to detect?
+
+Classification of the five standing checks. **Category 3 does not mean a check is
+worthless — it means its sensitivity has not been empirically demonstrated.**
+All mutations were applied to temporary copies or reverted immediately; the
+working tree was verified clean afterwards and no canonical output, figure or
+scientific result was altered.
+
+| Check | Category | Basis |
+|---|---|---|
+| Verbatim-footnote verification | **1 — caught a real defect** | Caught two words inserted inside a restored historical sentence, which reading had missed |
+| Look-ahead causality (A.3) | **2 — demonstrated by mutation** | Fails on a deliberately look-ahead variant; that mutation test is now permanent |
+| Figure-against-JSON | **2 — demonstrated by mutation** | Altering one table figure from −6.64 to −6.99 is detected |
+| Specification-table consistency | **2 — demonstrated by mutation** | Changing `ai_window` from 20 to 26 fails two of three tests |
+| Identity 2 (VIX regimes compound) | **2 — demonstrated by mutation** | Dropping a non-zero week from the partition, or overlapping the masks on one, is detected |
+| Identity 1 (intercept ≈ mean weekly return) | **3 — sensitivity partially demonstrated, with a measured blind spot** | See below |
+
+## Identity 1 has a measured blind spot
+
+Feeding the regression a **different strategy series** from the one reported is
+the defect class this identity claims to detect. It detects a large substitution
+and misses a small one:
+
+| Series fed to the regression | Gap against the reported mean | Detected at 5e−5? |
+|---|---|---|
+| canonical | 6.4e−07 | — passes correctly |
+| threshold-0.50 series | 5.0e−05 | **yes** |
+| frozen-sizing series | 1.8e−05 | **no** |
+
+The tolerance is 5e−5 and the frozen-sizing substitution moves the intercept by
+1.8e−5, so a swap between two *adjacent* specifications passes unnoticed.
+
+Separately, and already observed: **identity 1 also passes on the
+look-ahead-defective pipeline.** It ties the regression to whatever series it is
+handed; it cannot see whether that series was built correctly. Both facts are
+limitations of what the check can establish, not reasons to remove it — it does
+detect a gross mismatch between the regression and the reported result.
+
+Tightening the tolerance is not proposed here. It would be a change to a
+verification threshold made after seeing which mutations it missed, which is the
+same move this review objects to elsewhere.
+
+## Three of my mutations were themselves vacuous
+
+Worth recording, because it is the same failure as A.4 and it recurred twice
+more in this exercise:
+
+- **Identity 2, first attempt.** I dropped a week from the regime partition
+  without checking its return. The strategy is flat in 449 of 504 weeks, so the
+  week I picked had a return of exactly zero and `(1 + 0)` changed no product.
+  The mutation reported "not detected" when nothing had been mutated.
+- **Identity 1, first attempt.** I fitted the regression on a shifted series and
+  compared the intercept against *that same shifted series'* mean. The identity
+  was satisfied by construction; no mismatch existed to detect.
+
+Both were corrected by choosing a mutation that actually represents the failure
+mode — a non-zero week, and a genuinely substituted series.
+
+**Counting A.4 and the two defective versions of the permanent look-ahead test,
+five of my own checks in this review have been incapable of failing.** Every one
+looked like a pass. That is the finding, and it generalises past this paper: a
+check's output carries information only in proportion to its demonstrated
+ability to produce the other output.
+
+## Not attempted, and why
+
+No mutation was constructed for "the pipeline computes the wrong thing but
+reports it consistently". Any test for that would have to encode a second,
+independent implementation of the strategy, and a contrived mutation would
+demonstrate nothing about the real failure mode. It is recorded as undemonstrated
+rather than papered over. The nearest real protection is the A.1/A.3 alignment
+suite and external replication.
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and
