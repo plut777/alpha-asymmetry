@@ -34,7 +34,8 @@ def _table_rows(label: str):
         line = re.sub(r"\\(midrule|bottomrule|toprule)", "", raw).strip()
         if "&" not in line:
             continue
-        parts = line.split("&")
+        # An escaped \& (as in "Buy \& Hold") is literal text, not a column break.
+        parts = re.split(r"(?<!\\)&", line)
         rows.append((parts[0].strip(), [p.strip() for p in parts[1:]]))
     return rows
 
@@ -101,8 +102,10 @@ def test_declared_cells_match_their_canonical_fields(label):
     data = canonical()
     for key, spec in PROVENANCE[label].items():
         rows = [r for r in _table_rows(label) if _norm(key) in _norm(r[0])]
-        assert len(rows) == 1, f"{label}: expected exactly one {key!r} row, found {len(rows)}"
-        row_label, cells = rows[0]
+        want_n = spec.get("occurrences", 1)
+        assert len(rows) == want_n, (
+            f"{label}: expected {want_n} {key!r} row(s), found {len(rows)}")
+        row_label, cells = rows[spec.get("occurrence", 0)]
 
         # strip the row key first: "CR2" would otherwise read as the value 2
         label_text = re.sub(re.escape(key), " ", row_label, flags=re.I)
@@ -122,13 +125,17 @@ def test_declared_cells_match_their_canonical_fields(label):
                 assert not nums, f"{label}/{key}: column {i} declared non-numeric but shows {nums}"
                 continue
             assert nums, f"{label}/{key}: column {i} declares {provenance} but the cell is empty"
-            shown = nums[0]
-            if isinstance(provenance, EXTERNAL):
-                continue
-            actual = resolve(provenance, data)   # KeyError if the field does not exist
-            dp = _decimals(shown)
-            assert round(float(actual), dp) == round(float(shown), dp), (
-                f"{label}/{key}: cell shows {shown} but {provenance} is {actual}")
+            paths = provenance if isinstance(provenance, list) else [provenance]
+            assert len(nums) >= len(paths), (
+                f"{label}/{key}: column {i} declares {len(paths)} value(s) but the cell "
+                f"shows {len(nums)}")
+            for shown, path in zip(nums, paths):
+                if isinstance(path, EXTERNAL):
+                    continue
+                actual = resolve(path, data)   # KeyError if the field does not exist
+                dp = _decimals(shown)
+                assert round(float(actual), dp) == round(float(shown), dp), (
+                    f"{label}/{key}: cell shows {shown} but {path} is {actual}")
 
 
 # ---------------------------------------------------------------------------

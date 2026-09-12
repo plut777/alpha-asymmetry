@@ -51,6 +51,16 @@ class EXTERNAL:
 
 _IP = "factor_attribution.in_position"
 
+_BM = "benchmarks"
+_BM_COLS = ("ret", "vol", "sharpe", "sortino", "mdd")
+_SNOOP = "data_snooping"
+
+
+def _bench_row(key: str) -> dict:
+    return {"label": [], "cells": [f"{_BM}.{key}.{c}" for c in _BM_COLS]
+            + [[f"{_BM}.{key}.holding_episodes", f"{_BM}.{key}.execution_legs"]]}
+
+
 _FA = "factor_attribution"
 
 _FACTOR_VARS = {"Intercept": "const", "Carry": "carry", "Momentum": "mom", "Dollar": "dollar"}
@@ -90,6 +100,22 @@ PROVENANCE = {
     # before this mapping was declared.
     # Generated from analysis/entry_symmetry_results.json at insertion time rather
     # than transcribed, so the declaration below records a mapping that already held.
+    "tab:backtest": {
+        "Asymmetry": _bench_row("Asymmetry"),
+        "Momentum (20w)": _bench_row("Momentum (20w)"),
+        "Mean Rev": _bench_row("Mean reversion (2.0 sigma)"),
+        "Buy": _bench_row("Buy and hold"),
+    },
+    # The same two test names appear twice: once for the twelve-strategy formal
+    # universe and once for the thirteen-candidate diagnostic. They are declared
+    # by occurrence so the two cannot be confused for one another.
+    "tab:snooping": {
+        "White": {"label": [], "occurrences": 2, "occurrence": 0,
+                  "cells": [f"{_SNOOP}.real_only.white_rc_stat", f"{_SNOOP}.real_only.white_rc_p"]},
+        "Hansen": {"label": [], "occurrences": 2, "occurrence": 0,
+                   "cells": [f"{_SNOOP}.real_only.spa_stat", f"{_SNOOP}.real_only.spa_p"]},
+        "Candidate Strategies": {"label": [], "cells": [f"{_SNOOP}.real_only.n_strategies"]},
+    },
     "tab:factors": {
         **{name: _factor_row(var) for name, var in _FACTOR_VARS.items()},
         "R^2": {"label": [], "cells": [f"{_FA}.full.r2", f"{_FA}.in_position.r2"]},
@@ -169,10 +195,20 @@ def resolve(path: str, data: dict | None = None):
     if source not in all_sources:
         raise KeyError(f"unknown canonical source {source!r} in field path {path!r}")
     node = all_sources[source]
-    for part in dotted.split("."):
-        if not isinstance(node, dict) or part not in node:
-            raise KeyError(f"{source} output has no field {dotted!r} (missing at {part!r})")
-        node = node[part]
+    # Some canonical keys contain dots of their own, e.g. the benchmark named
+    # "Mean reversion (2.0 sigma)". Resolution is therefore greedy: at each level
+    # the longest matching key wins, so a dotted key is not split through.
+    parts = dotted.split(".")
+    i = 0
+    while i < len(parts):
+        for j in range(len(parts), i, -1):
+            candidate = ".".join(parts[i:j])
+            if isinstance(node, dict) and candidate in node:
+                node, i = node[candidate], j
+                break
+        else:
+            raise KeyError(
+                f"{source} output has no field {dotted!r} (missing at {parts[i]!r})")
     return node
 
 
