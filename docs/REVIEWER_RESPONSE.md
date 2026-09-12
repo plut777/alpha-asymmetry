@@ -351,8 +351,10 @@ result would confuse the two.
 | Tail aggregation sensitivity: three constructions reported | §3.2, Table 4 |
 | Claims depending on the tail construction qualified | Abstract, §3.2, §4.1, §5, §5.7, Conclusions |
 
-All figures in the manuscript are machine-checked against the pipeline output,
-and the analysis is covered by deterministic tests. The sample is unchanged:
+The tables carrying the headline performance, factor and data-snooping results
+are tied cell by cell to named fields of the replication output, and the analysis
+is covered by deterministic tests. That mechanism currently reaches six of the
+nineteen tables; the remainder are checked less formally. The sample is unchanged:
 $n = 504$, 8 January 2016 to 29 August 2025.
 
 ---

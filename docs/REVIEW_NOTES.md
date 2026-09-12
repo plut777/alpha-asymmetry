@@ -1961,7 +1961,9 @@ also had to stop treating an escaped `\&` as a column break, which was reading
 ### The count, and my second failure to add it up
 
 **The summary line in commit `ccb2e2f` is wrong in the same way as the one in
-`1f76352`.** (I first wrote `24f6e6a` here, a hash that does not exist in this
+`1f76352`.** (I first wrote 24f6e6a here — deliberately left without backticks, since the
+backtick form is this record's citation convention and a mechanical guard now
+resolves every hash written that way — a reference that does not exist in this
 repository. The commit had not been made when I wrote the line, so there was no
 hash to know and I supplied a plausible-looking one instead. Same reflex as the
 fabricated CR1 row, in the audit record itself, one paragraph after describing
@@ -2010,6 +2012,83 @@ the sample is too small to rank them.
 **Tables mapped: 6 of 19** — `tab:sevariants`, `tab:exectiming`,
 `tab:entrysymmetry`, `tab:factors`, `tab:backtest`, `tab:snooping`, plus
 `tab:spec` already generated. Remaining: 12 tables.
+
+## The complementary failure mode, and the three reconstructed values enumerated
+
+### Two directions of failure, not one
+
+Everything recorded in this review about verification until now concerned one
+direction: **false reassurance.** A check passes on a defective input because it
+lacks the power to discriminate. Eight instances are recorded above.
+
+Finding 5 was the reverse and is worth naming separately. A **correct** result was
+provisionally classified untraceable because the provenance search asked for the
+wrong quantity — the resize share within the weekly run, when the figure was a
+comparison between sizing modes. Both Tofik and I then moved toward deleting it.
+The check had power; it was pointed at the wrong thing, and its failure to find a
+source was read as a property of the number.
+
+**The narrower lesson, which is what the manuscript carries:** failure to
+establish provenance is evidence about the search performed, until the provenance
+mechanism itself has been validated. It is not, on its own, evidence that the
+underlying number is wrong. It licenses further tracing — version history,
+superseded outputs, the state of the surrounding text when the figure was
+authored — and licenses removal only after that tracing has been shown capable of
+succeeding.
+
+**What may and may not be claimed.** Several of the principal checks have been
+mutation-tested for false negatives: the look-ahead causality suite across all
+four entry rules, the table-cell provenance mapping on five tables, the prose
+provenance mechanism, and the Git-reference guard. That is an enumerable list,
+not a property of every check in the repository, and the manuscript now says so.
+Finding 5 is the standing demonstration of the complementary false-positive risk.
+
+Two coverage claims were overstated and are corrected: the manuscript said *every
+reported figure is verified against the pipeline that produced it*, and
+`docs/REVIEWER_RESPONSE.md` said *all figures in the manuscript are machine-checked
+against the pipeline output*. The cell-by-cell mechanism reaches **six of nineteen
+tables** and, in prose, the regression statistics only.
+
+### The three reconstructed values, enumerated and classified
+
+I described the commit-hash error as the "third fabrication". Checked rather than
+recalled, that wording is wrong twice over.
+
+| # | Value | Where it appeared | Caught by |
+|---|---|---|---|
+| 1 | Cluster-robust in-position $t$-statistics −0.72, 1.24, 0.94 (actual −0.67, 1.49, 0.98) | **manuscript table** | comparison against the results JSON |
+| 2 | Entire CR1 row: SE 0.315, $t$ −2.61, $p$ 0.009 | **manuscript table** (`tab:sevariants`) | diff against `git show HEAD` |
+| 3 | Commit hash 24f6e6a | **audit record prose** (`REVIEW_NOTES.md`) | checking against `git log` |
+
+**Two of the three were in manuscript tables, not prose.** Any claim that this
+class clusters in prose is unsupported; if anything it runs the other way.
+
+**"Fabrication" is the wrong word** and is withdrawn. It implies intent to
+deceive, and none of the three involved that. Each was a value or reference
+**reconstructed from memory and presented as though it had been read** — the
+error is that the reconstruction was not marked as one and not checked before
+use. The neutral term adopted here is **unsupported reconstructed
+statistic/reference**, and it is the term used from now on.
+
+The shared mechanism is worth stating plainly, because it is what the guards
+target: each was produced at a moment when the real value was *not to hand* — not
+yet computed, already deleted, or not yet created — and in each case supplying a
+plausible value was easier than obtaining the real one. The remedy is structural
+rather than attentional: restore deleted material from version control, generate
+table cells from canonical output, and resolve every cited reference
+mechanically.
+
+### The Git-reference guard
+
+`tests/test_audit_references.py` resolves every backtick-quoted 7–40 character
+hash in the audit documents against `git cat-file -e`. It carries its own
+negative control, asserting that a known-unresolvable hash is rejected and that
+`HEAD` is accepted, so it cannot pass by accepting everything.
+
+On its first run it failed — on the citation of 24f6e6a inside the paragraph
+*describing* that error. The mention is now written without backticks, since the
+backtick form is this record's citation convention, and the explanation is
+retained.
 
 ## Backlog — out of scope for this pull request
 
