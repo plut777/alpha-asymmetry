@@ -1171,6 +1171,70 @@ Any disagreement is reported however small, including disagreements that do not
 change a published figure. If an invariant is itself found to be wrong, that is
 reported rather than the invariant being revised to fit.
 
+## RESULTS
+
+### Invariant A — alignment: **holds**
+
+- **A.2** `weekly_return[t] = Close[t]/Close[t-1] - 1` to machine precision for
+  EUR/JPY and for all three cross-market series.
+- **A.1** `realized = position.shift(1) * weekly_return` to machine precision for
+  the headline strategy, `applied_position` itself, all three benchmarks, all
+  twelve formal snooping candidates plus the random diagnostic, the momentum
+  factor used in the factor regression, all three cross-market runs, and the
+  walk-forward out-of-sample path. **Nineteen series, no disagreement.**
+- **A.3 (causality)** At t in {80, 200, 320, 450} every input column was
+  multiplied by independent noise at every row strictly after t; decisions
+  0..t were bit-identical in all four cases, and realized returns 0..t
+  bit-identical at t in {200, 400}. The same test on `simple_strategy` confirmed
+  a perturbation at row 301 changes realized returns from 301 onward and nothing
+  before.
+
+**A.3 is the test that would have caught the look-ahead bug, and it passes on
+the shipped code.**
+
+### Invariant A.4 — the invariant was mis-specified, not the code
+
+A.4 as declared failed at three of four points, **and the failure was the test's
+fault.** The declared perturbation was a x3 scaling. That cannot lift a negative
+rolling skewness above +0.75, and it scales both sides of the short-entry
+inequality equally, leaving that condition unchanged by construction. At
+t = 80, 200, 450 the strategy was flat and the perturbation could not change any
+decision. The test failed vacuously.
+
+Recorded rather than quietly rewritten, per the reporting rule declared
+beforehand. **A.4'**, the corrected form -- set row t to values that must trigger
+a long entry -- passes at all six points tested, with earlier decisions untouched
+in every case.
+
+The lesson is narrow but real: a non-degeneracy check must be built so that it
+*can* fire. This one could not, and had A.3 also been weak the pair would have
+given false assurance.
+
+### Invariant B — episode labelling: **holds**
+
+- **B.1** An independent reconstruction written from the definition rather than
+  by calling the function matches `episode_ids()` exactly. Labels are non-zero
+  exactly on weeks with a non-zero applied position, and the episode count
+  matches the trade ledger.
+- **B.3** Every episode's weeks are contiguous, and per-episode week counts match
+  `holding_period` in the trade ledger row for row.
+- **B.2** The factor regression's sample is applied-indexed, so its unshifted
+  labels are correct, and the influence check uses the same pairing. The trade
+  ledger and cost accounting never consume `episode_ids()` -- they work from
+  `event_type` directly. The walk-forward counts episodes from `event_type`. The
+  regime and subsample splits use realized returns and no labels.
+  **`episode_ids()` is consumed in exactly one place in the pipeline.**
+
+That last fact is why the bug was confined: the only mis-paired use was in the
+ad-hoc weekend-gap script, which is not part of the pipeline.
+
+### Summary
+
+Both bug classes fired once, in code written during this review, and neither
+appears anywhere else. One declared invariant was itself defective and is
+recorded as such rather than revised to fit.
+
+
 ## Directives still to apply (Tofig, carried forward)
 
 1. **Sizing write-up must not overclaim.** Both weekly resizing and
