@@ -46,89 +46,45 @@ two facts above, but you should endorse it knowing them.
 
 ---
 
-## 2. Execution timing — Friday close or Monday open
+## 2. Execution timing — DECIDED: Monday open
 
-**This recommendation reverses the position Tofik gave earlier in the review, and
-reverses what an earlier draft of this list said. The reasons are set out below.**
+**Status: ruled on by Murad. He agreed to restore Monday open as the primary
+specification.** This item is closed and is retained as the record of what was
+asked and what was decided, not as an open question.
 
-**Asked:** The published specification entered at the **Monday open** following
-Friday signal generation. This revision entered at the **Friday close** — the
-same close at which the signal is observed.
+The branch implements the decision. A Friday signal is realised from the first
+trading-session open strictly after it — the Monday open in an ordinary week, and
+the next available session open when that Monday is a holiday — held to the first
+open after the following Friday. The signal and decision timing are unchanged;
+only the price pair used to realise the return changed.
 
-**Reviewer 3 objects to the current convention** (round-two comment 5,
-"Look-ahead bias from Friday close execution"):
+**What prompted it.** Reviewer 3's round-two comment 5, "Look-ahead bias from
+Friday close execution":
 
 > Executing at the same Friday close as the signal observation introduces a
 > simultaneous execution assumption (or look-ahead bias) because in practice, one
 > cannot observe the closing price, compute the rolling 20-week skewness and other
 > indicators, and execute a trade at that exact same closing price.
 
-He is describing a real mechanism, not a presentational preference. The rolling
-statistics are computed *from* the Friday close, and the trade is then assumed to
-happen *at* that same close.
+**Grounds for the decision**, neither of which is about which return estimate
+looks better: specification fidelity, since Monday open is what the published
+paper specified; and information timing, since Monday open cannot be executed on
+information that does not yet exist. The pre-specified paired contrasts in the
+execution grid all include zero, so the grid does not identify a uniquely correct
+convention and the choice could not rest on it.
 
-**Recommendation: restore Monday open as the primary specification**, unless
-Friday-close execution can be defended as genuinely executable using only
-information available before that close. Two reasons, neither of which is about
-which return estimate looks better:
+Friday close, Monday close and Tuesday open are retained as robustness timings.
 
-1. **Specification fidelity.** Monday open is what the published paper specified.
-   Departing from it is a change requiring justification, and the justification
-   offered so far has been that it is convenient.
-2. **Information timing.** Monday open cannot be executed on information that does
-   not yet exist. Friday close, as implemented, can only be executed on
-   information available at the instant of execution.
+**What it cost, as realised.** Cumulative gross moved from −6.64% to −0.73%,
+Sharpe from −0.153 to +0.005, drawdown from −12.56% to −10.64%. The position path
+is unchanged: 15 episodes, 55 exposed weeks, 61 legs, turnover 51.996835. The
+executable sample is 503 weeks; the panel remains 504.
 
-Keep Friday close, Monday close and Tuesday open as robustness timings. The grid
-does **not** statistically identify a uniquely correct convention — the
-pre-specified paired contrasts all include zero — so the primary choice should
-rest on specification fidelity and information timing, not on which return
-estimate is preferable.
-
-### What it costs, computed rather than estimated
-
-| | Friday close | Monday open |
-|---|---|---|
-| Cumulative gross return | **−6.64%** | **−0.73%** |
-| Sharpe | −0.153 | **+0.005** |
-| Maximum drawdown | −12.56% | −10.64% |
-| Net at 2.0 pips | −7.02% | −1.14% |
-| In-position weeks | 55 | 55 |
-| Holding episodes | 15 | 15 |
-| Execution legs | 61 | 61 |
-| Turnover | 52.00 | 52.00 |
-
-**The strategy's decisions do not change at all.** Same signal, same entries,
-exits, sizing and exposure. Only which weekly return each position earns changes.
-
-**You should weigh this before agreeing.** The paper's economic null currently
-rests on a 6.64% gross loss. Under Monday open it is a 0.73% loss with a Sharpe
-of essentially zero. The qualitative conclusion — no exploitable edge — survives
-under both, and there is still no break-even cost because the gross return remains
-negative. But "loses money before frictions" becomes a much weaker statement than
-it is today, and the paper would need to say so plainly rather than lean on the
-larger figure.
-
-**Sample.** A Monday-open headline needs **n = 503**, dropping one week
-(2025-08-29) because the last week has no following open. This is *not* the same
-as the grid's common sample of 502, which drops two weeks only because every
-timing needs a counterpart. The headline sample and the paired-comparison sample
-should be determined separately; they do not have to match.
-
-**Work.** 416 numeric fields in the replication output are strategy-derived and
-recompute. 219 are signal- or market-derived and move only through the one-week
-sample change. Mechanically this is one pipeline change and a full rerun, plus a
-manuscript pass over every claim about realised performance. It is days, not
-weeks — the machinery to switch conventions already exists and is tested.
-
-**Manuscript claims needing recheck under it:** the abstract's performance
-figures; the contribution statement's "loses money before frictions" and
-walk-forward dormancy; the threshold-sensitivity grid; the cross-market strategy
-returns; the data-snooping universe, which includes the strategy as a candidate;
-the factor regression and therefore the momentum coefficient, though the
-sample-selection argument that demotes it is structural and survives; the
-transaction-cost table and the no-break-even claim; and every conclusion about
-realised strategy performance.
+**The consequence that needs stating in the paper.** The economic null previously
+rested on a 6.64% gross loss and now rests on 0.73% with a Sharpe indistinguishable
+from zero. The qualitative conclusion survives and there is still no break-even
+cost, but "loses money before frictions" is a much weaker statement than it was,
+and the manuscript must say so rather than lean on the former figure.
 
 ---
 

@@ -2338,6 +2338,8 @@ the kind no numerical check can find.
 | 2 | Endorsing "moves the result by more than the result itself" | accepted an overstatement running with the argument |
 | 3 | Approving "skews negative" where the interval includes zero | accepted an effect claim the interval does not support |
 | 4 | Directing that Friday close be kept because switching is expensive | **a recommendation resting on convenience rather than method** |
+| 5 | Asking that the published tail construction be called "the weakest of the three" | a characterisation the data does not support; it has the largest point estimate, and is the sparsest |
+| 6 | Endorsing "harmless because the terminal position is zero" | **a dismissal accepted without asking whether the artificial value entered any downstream statistic** |
 
 The first three are claims stated more strongly than the evidence carried. The
 fourth is different in kind: no claim was overstated, a decision criterion was
@@ -2562,6 +2564,117 @@ Not proposing another guard for it here. The observation worth keeping is that
 the audit has now found defects in four separate documents — manuscript, PR
 description, audit record, and response letter — three of which had no checking at
 the time the defect entered.
+
+## The terminal non-executable return, and why "harmless" was the wrong test
+
+### The defect
+
+Under first-post-signal-open execution the terminal week has no subsequent
+executable open, so its return interval **does not exist**. The strategy computed
+`gross = applied * weekly_return.fillna(0.0)`, which made that observation
+indistinguishable from a week in which the strategy held nothing. Two different
+things were being written as the same number:
+
+- an **observable** interval over which the position is zero — a real zero;
+- an interval with **no executable price** — missing, not zero.
+
+### It was not harmless, and "harmless" was the wrong question
+
+I reported the fill as harmless because the terminal applied position is zero, and
+Tofik accepted and passed that on. Both of us conflated *the return being zero*
+with *the observation existing*. The right question was never whether the value
+was right; it was whether a fabricated observation entered anything.
+
+It did. Measured:
+
+| Consumer | Consumed the artificial zero? |
+|---|---|
+| baseline mean, standard deviation, Sharpe | **yes** — computed over 504 observations |
+| return bootstrap (`return_inference`) | **yes** — resampled the 504-observation series |
+| factor regression | **yes** — regression *n* was 504, with a fabricated dependent value |
+| regime buckets | **yes** — the terminal week fell into one |
+| data-snooping candidates | **yes** — `simple_strategy` carried the same fill |
+| EVT | no — uses `weekly_return.dropna()` |
+| cumulative return, drawdown | no — (1 + 0) is the identity for a product |
+| episodes, legs, turnover | no — decision path, not returns |
+
+The numerical effect on the headline was small: Sharpe **0.00481084 → 0.00481561**,
+both of which print as +0.005, and the cumulative return is unchanged because
+multiplying by 1 changes nothing. **The size of the error is not the point.** A
+value that was never observed was being counted as data by six procedures, and
+the only reason it did not distort them is that it happened to be zero in a week
+the strategy happened to be flat.
+
+### The fix
+
+`gross = applied * d["weekly_return"]`, with no fill. A non-executable interval
+stays NaN and every statistic skips it; a flat week over a real interval still
+produces exactly zero, because `applied == 0` times a real return is zero. The
+same fill was removed from `simple_strategy`, and the hit rate now drops NaN
+before comparing, since `NaN > 0` is False and would have counted a non-executable
+week as a losing one.
+
+The trading rule is untouched. Executable observations: **503 of 504**.
+Regression *n*: 504 → 503.
+
+`tests/test_non_executable_returns.py` fails if an active terminal position is
+ever silently assigned zero. Mutation-tested: reinstating the fill fails it with
+*"the strategy reported 0.0 while holding a position of 1.5"*.
+
+### Why it would have stayed invisible
+
+It costs nothing while the terminal position happens to be flat, and fabricates a
+zero the moment it is not. There was no state of the current data in which it
+produced a visibly wrong number.
+
+---
+
+## Entry symmetrization rerun: a pre-specified conclusion no longer holds
+
+Rerun under the new primary execution convention with the pre-registration
+untouched — no threshold or definition altered after seeing Monday-open results.
+I1 (published hybrid reproduces the committed baseline) passes; I2 sample n = 504.
+
+| Variant | Friday close | **Monday open** | Net 2.0p | Sharpe | MDD | Weeks | bps/week |
+|---|---|---|---|---|---|---|---|
+| P published hybrid | −6.64% | **−0.73%** | −1.14% | +0.005 | −10.64% | 55 | +0.4 |
+| A pure-fast | −1.65% | **−3.48%** | −3.97% | −0.067 | −12.05% | 44 | −6.1 |
+| B pure-pricing | −4.13% | **+5.57%** | +5.21% | +0.178 | −11.97% | 51 | +11.8 |
+| C equal-threshold | −7.86% | **−1.65%** | −1.96% | −0.029 | −10.83% | 43 | −2.4 |
+
+### Flagged, not written around
+
+**The manuscript states that every pre-specified version remains gross-negative in
+this sample. Under the decided execution convention that is false.** Pure-pricing
+returns **+5.57%** gross, +5.21% net of the widest cost tier, Sharpe +0.178, and
++11.8 basis points per exposed week — better than the published hybrid on the
+exposure-adjusted measure as well as cumulatively.
+
+Two further changes to statements that currently stand:
+
+- The spread across the four rules is now **9.04 percentage points**, from −3.48%
+  to +5.57%, against a published-hybrid loss of 0.73%. Previously the range was
+  6.21 points against a 6.64% loss and was described as "nearly as large as" the
+  result. It is now **more than twelve times** the headline. The sentence needs
+  rewriting and the earlier phrasing must not simply be inverted.
+- The direction of the equal-threshold comparison reverses. Under Friday close,
+  equalising the threshold **worsened** realised performance (−7.86% against
+  −6.64%); under Monday open it **improves** it (−1.65% against −0.73%). The
+  specification-search remark attached to the old direction no longer has that
+  direction to attach to.
+
+### What does not change
+
+The pre-registration's reporting rule stands and is doing exactly the work it was
+written for: **realised performance was fixed in advance as not determining which
+symmetrization is defensible.** B being the only profitable variant is not
+evidence that B is the right rule, and the discipline that forbids promoting it
+was committed before any of these numbers existed. A sample that produces one
+positive variant out of four, on a rule whose entry asymmetry the manuscript never
+argued for, is a statement about specification fragility rather than a discovery.
+
+No new inference was introduced; the comparison above is descriptive, as
+pre-specified.
 
 ## Backlog — out of scope for this pull request
 

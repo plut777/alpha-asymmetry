@@ -1,6 +1,6 @@
 metric,published_4d21c69,corrected,stage,note
 Baseline cumulative return (%),3.6016,-0.7300549497777253,implementation,Sign flips. Holding through unsignalled weeks and removing the second execution lag; weekly sizing accounts for +0.93pp of the move.
-Baseline Sharpe,0.1489,0.004810839452106501,implementation,Follows the corrected return series.
+Baseline Sharpe,0.1489,0.004815609709656346,implementation,Follows the corrected return series.
 Baseline maximum drawdown (%),-7.9572,-10.641203020044077,implementation,Deeper because the strategy is now exposed for 55 weeks rather than 25.
 Baseline annualized volatility (%),2.69,4.415813973806051,implementation,Higher for the same reason: more weeks with a position.
 Baseline Sortino,0.062,0.0033218706696285056,implementation,Follows the corrected return series.
@@ -18,10 +18,10 @@ Pre-COVID strategy return (%),1.06,-7.084019565157773,implementation,Sign flips.
 COVID-2020 strategy return (%),-0.19,2.7696253924041514,implementation,Sign flips. Identical under both sizing specifications: 2020 holds one episode whose notional was never revised.
 Post-COVID strategy return (%),2.71,3.9591198905909453,implementation,Sign flips.
 Rate-hike strategy return (%),2.86,7.209871944663182,implementation,Remains positive; the only subsample that does.
-Full-sample factor intercept,8e-05,-2.1395632756812354e-05,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
+Full-sample factor intercept,8e-05,-2.128055991899474e-05,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
 In-position factor sample,25.0,55.0,implementation,"25 to 55 weeks, the same exposure defect."
-"Momentum loading, full sample",-0.00696,-0.08385519289583981,implementation,"Was insignificant, now significant and negative."
-"Momentum t-stat, full sample",-0.37,-2.485808072568031,implementation,"p = 0.710 published, p = 0.038 corrected."
+"Momentum loading, full sample",-0.00696,-0.08385506875729618,implementation,"Was insignificant, now significant and negative."
+"Momentum t-stat, full sample",-0.37,-2.4858250319073596,implementation,"p = 0.710 published, p = 0.038 corrected."
 "Momentum loading, in-position",-0.24705,-1.005877803175389,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
 "Momentum t-stat, in-position",-0.51,-3.701778315046949,implementation,"p = 0.609 published, p = 0.00019 corrected."
 Retail-wide net return (%),3.22,-1.1357820107034011,implementation,Sign flips. Cost drag is 0.38pp; the gross return was already negative.

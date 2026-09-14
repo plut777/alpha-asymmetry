@@ -129,6 +129,9 @@ def _performance(rets: pd.Series, applied_position: pd.Series) -> dict:
     sd = float(rets.std())
     sharpe = float(rets.mean() / sd * np.sqrt(52)) if sd > 0 else 0.0
     in_position = rets[applied_position.abs() > 0]
+    # dropna first: a non-executable week is not a losing week, and "NaN > 0"
+    # is False, which would silently count it as one.
+    in_position = in_position.dropna()
     hit = float((in_position > 0).mean() * 100) if len(in_position) else np.nan
     return {
         "return": cum * 100,
@@ -379,7 +382,18 @@ def run_asymmetry_strategy(
 
     position = pd.Series(positions, index=d.index, name="decision_position")
     applied = position.shift(1).fillna(0.0).rename("applied_position")
-    gross = (applied * d["weekly_return"].fillna(0.0)).rename("gross_return")
+    # A missing weekly_return means the return interval does not exist -- under
+    # first-post-signal-open execution the terminal week has no subsequent
+    # executable open. That is NOT the same as an interval during which the
+    # strategy happened to hold nothing, which legitimately returns zero and is
+    # produced here by applied == 0 against a real return.
+    #
+    # Filling the missing interval with 0.0 made a non-executable observation
+    # indistinguishable from a flat one, and it entered the mean, the standard
+    # deviation, the Sharpe ratio, the return bootstrap, the factor regression
+    # and the regime buckets as a real zero. NaN is preserved instead, and every
+    # statistic below skips it.
+    gross = (applied * d["weekly_return"]).rename("gross_return")
     previous_position = position.shift(1).fillna(0.0)
     turnover = (position - previous_position).abs().rename("turnover")
     price = d["Close"].replace(0, np.nan)
@@ -472,6 +486,8 @@ def run_asymmetry_strategy(
 def simple_strategy(position: pd.Series, weekly_return: pd.Series) -> pd.Series:
     """Apply the same one-lag Friday-close convention to any benchmark."""
 
-    return (position.reindex(weekly_return.index).shift(1).fillna(0.0) * weekly_return.fillna(0.0)).rename(
+    # weekly_return is deliberately not filled: see run_asymmetry_strategy. A
+    # benchmark cannot earn a return over an interval that does not exist either.
+    return (position.reindex(weekly_return.index).shift(1).fillna(0.0) * weekly_return).rename(
         "strategy_return"
     )

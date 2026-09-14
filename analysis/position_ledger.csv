@@ -502,4 +502,4 @@ signal_date_index,signal_date,execution_date,return_period_end,direction,long_si
 2025-08-08,2025-08-08,2025-08-08,2025-08-15,flat,False,False,0.0,0.0,0.0,no_signal,none,False,False,False,False,0,171.44900512695312,0.0,0.0,0.0,0.0,0.0,0.0
 2025-08-15,2025-08-15,2025-08-15,2025-08-22,flat,False,False,0.0,0.0,0.0,no_signal,none,False,False,False,False,0,172.06985473632812,0.0,0.0,0.0,0.0,0.0,0.0
 2025-08-22,2025-08-22,2025-08-22,2025-08-29,flat,False,False,0.0,0.0,0.0,no_signal,none,False,False,False,False,0,172.31500244140625,-0.0,0.0,0.0,0.0,0.0,-0.0
-2025-08-29,2025-08-29,2025-08-29,,flat,False,False,0.0,0.0,0.0,no_signal,none,False,False,False,False,0,171.4720001220703,0.0,0.0,0.0,0.0,0.0,0.0
+2025-08-29,2025-08-29,2025-08-29,,flat,False,False,0.0,0.0,0.0,no_signal,none,False,False,False,False,0,171.4720001220703,,0.0,0.0,0.0,0.0,
