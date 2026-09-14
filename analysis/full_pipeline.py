@@ -120,6 +120,15 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
     first_open = daily_px.groupby(pd.Grouper(freq="W-FRI"))["Open"].first().reindex(w.index)
     w["execution_open"] = first_open
     w["weekly_return"] = first_open.shift(-1) / first_open - 1.0
+
+    # The market return is a separate object from the strategy's executable
+    # return and must not follow the execution convention. Friday-close to
+    # Friday-close is what the EVT section characterises -- "absolute
+    # Friday-close-to-Friday-close EUR/JPY returns" -- and what the proxy
+    # momentum factor is built from, alongside the carry and dollar factors
+    # which are close-to-close market series. Execution timing describes how a
+    # position is realised; it does not redefine the market.
+    w["market_return"] = w["Close"].pct_change(fill_method=None)
     w = w.loc["2015-11-01":"2025-08-31"]
     w["fast_skew_20w"] = w["fast_alpha"].rolling(20, min_periods=10).apply(
         lambda x: stats.skew(x, nan_policy="omit", bias=False), raw=False
@@ -718,7 +727,8 @@ def main() -> int:
     aud = datasets["AUDJPY"]["Close"].resample("W-FRI").last().pct_change(fill_method=None).reindex(weekly.index)
     nzd = datasets["NZDJPY"]["Close"].resample("W-FRI").last().pct_change(fill_method=None).reindex(weekly.index)
     factor["carry"] = pd.concat([aud, nzd], axis=1).mean(axis=1)
-    factor["mom"] = simple_strategy(np.sign(weekly["Close"].pct_change(12, fill_method=None)), weekly["weekly_return"])
+    # market basis, consistent with the carry and dollar regressors beside it
+    factor["mom"] = simple_strategy(np.sign(weekly["Close"].pct_change(12, fill_method=None)), weekly["market_return"])
     factor = factor.dropna()
     inpos_mask = base.applied_position.reindex(factor.index).abs() > 0
     clusters = episode_ids(base.position_ledger).reindex(factor.index)
@@ -856,7 +866,8 @@ def main() -> int:
                  "best_candidate": universe.mean().idxmax(),
                  "annualized_mean_pct": {k: float(v * 52 * 100) for k, v in universe.mean().items()}}
 
-    ret = weekly["weekly_return"].dropna()
+    # market tail object, not strategy P&L -- see build_weekly_alphas
+    ret = weekly["market_return"].dropna()
     threshold_u = float(ret.abs().quantile(0.95))
     exceed_idx = np.where(ret.abs().to_numpy() > threshold_u)[0]
     theta = ferro_segers_theta(exceed_idx)
@@ -954,7 +965,7 @@ def main() -> int:
                           "max_holding_return_periods": 4, "simultaneous_signals": "flat", "weekly_resizing": True,
                           "position_size_units": "1.0 to 2.0 gross notional units; values above 1 imply leverage",
                           "hedge_alpha": "100-day rolling correlation multiplied by fixed -0.02 proxy",
-                          "evt_input": "absolute weekly strategy-horizon returns under the primary execution convention (open-to-open), separate from daily tail-alpha flags"},
+                          "evt_input": "absolute Friday-close-to-Friday-close EURJPY returns, independent of the execution convention, separate from daily tail-alpha flags"},
         "data_manifest": manifest,
         "sample": {"raw_weekly_start": "2015-11-06", "analysis_start": weekly.index[0], "analysis_end": weekly.index[-1], "n": n},
         "alpha_statistics": table_stats, "tail_construction_sensitivity": tail_sensitivity,

@@ -2754,6 +2754,149 @@ as a zero. No chronology, no incident. The detail stays here.
 session open after signal" and adds `executable_n = 503`, so the specification
 table states both sample sizes.
 
+## EVT semantics: the execution migration silently redefined a market object
+
+### What the evidence says, established before touching code
+
+The question is what the EVT/GPD analysis is *intended* to characterise. Settled
+from the manuscript, the published paper and the reviewer discussion, not from the
+architecture:
+
+- The manuscript's own EVT section states it characterises **"absolute
+  Friday-close-to-Friday-close EUR/JPY returns"**, and adds "This is not the same
+  sample as tail alpha... The exercise therefore describes weekly return
+  magnitudes."
+- The published paper's conclusion built on it reads: "**No Heavy Tails.** The GPD
+  analysis shows $\xi \approx 0$: exceedance magnitudes decay exponentially
+  rather than by power law." That is a claim about the *market's* return
+  distribution, not about strategy P&L.
+- Reviewer 3's round-one comment 4 concerned the declustering separation on weekly
+  data — again a question about the market return series.
+
+**EVT is a market-tail object.** It was never intended to characterise executable
+strategy-period returns.
+
+### The defect
+
+Routing the execution migration through the centralised `weekly_return` made EVT
+consume open-to-open strategy-horizon returns. The shape parameter moved from
+$-0.25$ to $+0.12$ — a change of sign, and economically a different statement.
+I then *documented* the corruption by rewriting the `evt_input` string to say
+"weekly strategy-horizon returns (open-to-open)", which described what the code
+had started doing rather than what the analysis is for.
+
+**Execution timing describes how a position is realised. It does not redefine the
+market.**
+
+### The fix, and a second coupling it exposed
+
+`build_weekly_alphas` now carries `market_return` (Friday close to Friday close)
+alongside `weekly_return` (first post-signal open to first post-signal open). EVT
+consumes `market_return`.
+
+Auditing the other consumers for the same coupling separated three cases:
+
+| Consumer | Conceptually requires | Verdict |
+|---|---|---|
+| benchmarks, snooping candidates, regimes, costs, walk-forward, sizing variants, return bootstrap | **executable strategy return** — they are comparator strategies or the strategy itself | correct as built |
+| EVT | **market return** | defect, fixed |
+| `factor["mom"]` | the same basis as the `carry` and `dollar` regressors beside it, which are close-to-close market series | **inconsistent** — one regressor had moved basis and two had not |
+
+The momentum factor is a proxy *factor*, not a candidate strategy, and sat in a
+regression whose other two regressors are close-to-close market returns. My
+migration moved it alone. Restored to `market_return`, which returns the factor
+block to the internally consistent state it had before.
+
+### Consequences
+
+| | Strategy basis (wrong) | Market basis (restored) |
+|---|---|---|
+| GPD shape $\xi$ | $+0.12$ | **$-0.25$** |
+| $\xi$ 95% CI | $[-1.67, 0.69]$ | $[-1.49, 0.27]$ |
+| Extremal index $\theta$ | 0.70 | 0.83 |
+| Cluster maxima | 17 | 20 |
+| In-position $\beta_2$ | $-1.006$ | $-0.652$ |
+| In-position wild bootstrap $p$ | 0.024 | **0.0506** |
+| Full-sample $\beta_2$ ($p$) | $-0.084$ (0.013) | $-0.037$ (0.088) |
+
+$\xi$ returns to exactly the published $-0.25$, which is corroboration that the
+restored object is the one the paper has always described.
+
+**The momentum loading no longer clears the 5% level**, at $p = 0.0506$ under the
+reported inference. The manuscript now says so plainly rather than rounding it
+into significance. This does not change the demotion — the identification problem
+was never about significance — but it does remove the last reason a reader might
+have had to treat the loading as a finding.
+
+Strategy returns are untouched: cumulative gross remains $-0.7301\%$.
+
+### On the sign of $\xi$
+
+The manuscript does not, and must not, read anything into the sign. The interval
+$[-1.49, 0.27]$ spans 1.76 and contains zero, so neither bounded-tail nor
+heavy-tail behaviour is established. The abstract now says the interval is "too
+wide to distinguish bounded from heavy tails" explicitly.
+
+---
+
+## Derived verbal claims: the interpretive analogue of stale provenance
+
+Two mistakes of mine during the migration share one shape, and it is worth naming
+as a class rather than as two incidents.
+
+**1. The equal-threshold comparison.** I reported that under Monday open the
+equal-threshold variant "improves" performance at $-1.65\%$ against $-0.73\%$.
+It does not; $-1.65\%$ is more negative. C is worse than P under both
+conventions. I misread the sign of a comparison between two negative numbers.
+
+**2. The threshold-grid monotonicity.** Finding 10 replaced the manuscript's
+"Return does not behave monotonically" with a monotone reading. That was correct
+under Friday close. Under the migrated convention the returns are $-10.55\%$,
+$-0.73\%$, $-1.25\%$, $+2.77\%$ — not monotone. The original sentence was right
+and my correction had become wrong.
+
+**The class: a derived verbal statement can be correct under one canonical output
+and silently false after a specification migration, even when every individual
+number in the sentence is current.** "Improves", "worsens", "monotonically",
+"larger than", "robust to" are all claims *about relationships between* numbers.
+Regenerating the numbers does not regenerate the relationships, and the provenance
+mechanism — which compares a cell to a field — cannot see any of it.
+
+This is the interpretive analogue of stale numerical provenance, and the remedy is
+the same in structure: the claims pass must be rerun after any migration, not only
+after new prose is written. Both were caught that way.
+
+Both are my errors, not instruction-level ones; the instruction-level table
+elsewhere in this record stands at six and is unchanged by these.
+
+---
+
+## The `\multicolumn` rewrite: a loud failure, recorded as the contrast case
+
+A generic rewriter was written to update mapped table cells in place from their
+declared canonical fields. Applied to `tab:factors`, it matched the `2` inside
+`\multicolumn{2}{c}{...}` as a data value and wrote `\multicolumn{11}{c}{4.32}`,
+corrupting the table's column structure.
+
+**The lesson:** a regex that identifies numbers inside a LaTeX table cell cannot
+distinguish empirical values from structural LaTeX arguments. `\multicolumn{2}`,
+`\hspace{2em}`, a footnote marker and a coefficient all present as digits. The
+replacement is structure-aware per-table generation, which knows which tokens are
+data because it produced them.
+
+**Why this failure was safe, and why that is the point.** It was detected
+immediately, reverted to HEAD, and reached no reported result. It failed *loudly*:
+the corrupted markup was visible in the very next read of the table, and the
+change was not committed.
+
+Set against the rest of this record, the contrast is the useful part. The defects
+that have cost real effort here — the fabricated CR1 row, the stale HAC
+t-statistics, the artificial terminal zero, the silently redefined EVT input —
+were all **quiet**. They produced plausible output and survived review. A tool
+that corrupts markup visibly is a much smaller problem than a tool that produces
+a well-formed wrong number, and the difference is not the size of the error but
+whether anything downstream is capable of noticing it.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.

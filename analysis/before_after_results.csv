@@ -18,12 +18,12 @@ Pre-COVID strategy return (%),1.06,-7.084019565157773,implementation,Sign flips.
 COVID-2020 strategy return (%),-0.19,2.7696253924041514,implementation,Sign flips. Identical under both sizing specifications: 2020 holds one episode whose notional was never revised.
 Post-COVID strategy return (%),2.71,3.9591198905909453,implementation,Sign flips.
 Rate-hike strategy return (%),2.86,7.209871944663182,implementation,Remains positive; the only subsample that does.
-Full-sample factor intercept,8e-05,-2.128055991899474e-05,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
+Full-sample factor intercept,8e-05,3.5138503240835168e-06,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
 In-position factor sample,25.0,55.0,implementation,"25 to 55 weeks, the same exposure defect."
-"Momentum loading, full sample",-0.00696,-0.08385506875729618,implementation,"Was insignificant, now significant and negative."
-"Momentum t-stat, full sample",-0.37,-2.4858250319073596,implementation,"p = 0.710 published, p = 0.038 corrected."
-"Momentum loading, in-position",-0.24705,-1.005877803175389,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
-"Momentum t-stat, in-position",-0.51,-3.701778315046949,implementation,"p = 0.609 published, p = 0.00019 corrected."
+"Momentum loading, full sample",-0.00696,-0.03751144394626789,implementation,"Was insignificant, now significant and negative."
+"Momentum t-stat, full sample",-0.37,-1.709002880467205,implementation,"p = 0.710 published, p = 0.038 corrected."
+"Momentum loading, in-position",-0.24705,-0.6517551071721814,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
+"Momentum t-stat, in-position",-0.51,-2.327003929183362,implementation,"p = 0.609 published, p = 0.00019 corrected."
 Retail-wide net return (%),3.22,-1.1357820107034011,implementation,Sign flips. Cost drag is 0.38pp; the gross return was already negative.
 Break-even round-trip cost (pips),19.21,,implementation,"NO LONGER EXISTS. A break-even cost presumes a positive gross return to consume, and there is none."
 White Reality Check p-value,0.15,0.06,implementation,"Unchanged. The maximum is attained by the seeded random candidate, which no change to the asymmetry rule affects."
