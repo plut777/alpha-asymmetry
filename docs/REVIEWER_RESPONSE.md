@@ -57,19 +57,14 @@ have been enough, so we corrected for it:
 
 | Inference | $\hat{\beta}_2$ | SE | $t$ | $p$ | Role |
 |---|---|---|---|---|---|
-| **Wild cluster bootstrap-$t$** | −0.823 | — | −2.54 | **0.038** | **Primary** |
-| CR2, BM dof = 10.2 | −0.823 | 0.324 | −2.54 | 0.029 | SE and interval |
-| HC3 | −0.823 | 0.380 | −2.16 | 0.030 | Robustness |
-| Newey-West HAC, 4 lags | −0.823 | 0.221 | −3.73 | 0.0002 | *Withdrawn* |
+| **Wild cluster bootstrap-$t$** | -0.652 | — | -2.33 | **0.0506** | **Primary** |
+| CR2, BM dof = 10.2 | -0.652 | 0.280 | -2.33 | 0.042 | SE and interval |
+| HC3 | -0.652 | 0.346 | -1.88 | 0.060 | Robustness |
+| Newey-West HAC, 4 lags | -0.652 | 0.251 | -2.60 | 0.0094 | *Withdrawn* |
 
 **What we withdraw.** The previous version reported $p = 0.00019$ and said it
 "clears that bar comfortably", referring to a Bonferroni threshold of 0.0083 at
-family size six. Under appropriate small-cluster inference the p-value is
-**0.038**. The revised text states that the loading is nominally significant at
-the 5% level under each reported inference specification but does not meet the
-paper's pre-specified Bonferroni-adjusted threshold — and that the appropriate
-inference places it an order of magnitude away from that threshold rather than
-below it.
+family size six. Under appropriate small-cluster inference, and with the momentum factor on the market-return basis its companion regressors use, the p-value is **0.0506** — which does not clear the 5% level at all. The revised text states that the loading does not clear the 5% level under the reported inference, and is therefore nowhere near the paper's pre-specified Bonferroni-adjusted threshold.
 
 **A later comment overtook this one.** Round-two comment 1 observes that the
 in-position sample is selected by the strategy's own entry rules, which are
@@ -81,7 +76,7 @@ from the paper's stated contribution. The inference corrections above stand as
 corrections; they are no longer the binding constraint on the claim. See our
 response to round-two comment 1.
 
-The CR2 interval is $[-1.54, -0.10]$, wider than the $[-1.26, -0.39]$ previously
+The CR2 interval is $[-1.27, -0.03]$, wider than the $[-1.26, -0.39]$ previously
 reported. We have propagated it to the abstract, the discussion and the
 conclusion.
 
@@ -97,7 +92,7 @@ The reviewer is correct that $\sqrt{6/n} = 0.109$ presumes a Gaussian null which
 tail alpha violates severely, and that attributing the widening to serial
 dependence alone is not supportable. To separate the two effects we added an
 i.i.d. bootstrap, which relaxes normality but applies no dependence correction
-(new Table 3):
+(Table 4):
 
 | Signal | Normal SE | i.i.d. bootstrap SE | i.i.d. CI | Block CI |
 |---|---|---|---|---|
@@ -169,7 +164,7 @@ Strategy returns are not overlapping constructions. Their dependence is short
 and of unknown length, which is the case the stationary bootstrap's randomised
 block length is designed for; we use an expected block of 4 weeks.
 
-We have added a sensitivity table (new Table 12). Varying the expected block
+We have added a sensitivity table (Table 18). Varying the expected block
 length from 2 to 13 weeks moves the Sharpe interval within
 [−0.78, 0.48] at the widest:
 
@@ -205,14 +200,13 @@ way:
 
 | Universe | RC | RC $p$ | SPA | SPA $p$ | Best candidate |
 |---|---|---|---|---|---|
-| 12 real strategies | 0.014 | **0.30** | 1.90 | 0.25 | always-long |
-| 13, including random | 0.020 | **0.15** | 1.90 | 0.26 | random sequence |
+| 12 real strategies | 0.015 | **0.30** | 1.43 | 0.58 | always-long |
+| 13, including random | 0.025 | **0.06** | 2.00 | 0.22 | random sequence |
 
-Removing the random sequence **doubles** the Reality Check $p$-value. The reason
+Removing the random sequence **raises** the Reality Check $p$-value, from 0.06 to 0.30. The reason
 is that the random sequence is the argmax of the universe: dropping it lowers
 the observed statistic more than it lowers the bootstrap distribution, so the
-test becomes harder to reject rather than easier. The SPA $p$-value moves by
-0.013 in the other direction.
+test becomes harder to reject rather than easier. The SPA $p$-value moves the same way and by much more, from 0.22 to 0.58.
 
 We note this only because the report presents the direction as a general
 consequence. The conclusion is unchanged under either universe — no candidate is
@@ -330,7 +324,7 @@ distributional character is not robust to the aggregation rule, and is not
 established until weekly tail exposure is defined.** That is a statement about
 the construction rather than about the market, and it applies equally to the
 published result and to both alternatives. It is in the manuscript as
-Table 4 with the reasoning above, and the claims that depend on it —
+Table 5 with the reasoning above, and the claims that depend on it —
 in the abstract, the results, the discussion, the robustness introduction, the
 multiple-testing section and the conclusions — are now qualified as holding
 under the primary construction rather than stated flat.
@@ -348,7 +342,7 @@ result would confuse the two.
 | Change | Location |
 |---|---|
 | CR2 clustered by episode; wild cluster bootstrap primary; HAC withdrawn | §5.7, Tables 14–15 |
-| Bonferroni claim withdrawn; $p = 0.038$ reported | §5.7 |
+| Bonferroni claim withdrawn; $p = 0.0506$ reported, below no conventional threshold | §5.7 |
 | Momentum loading demoted to a mechanical property of the entry rules | Abstract, §1, §5.7, Conclusions |
 | i.i.d. versus block bootstrap comparison | §3.2, Table 4 |
 | Tail-alpha interval attributed to sparsity, not dependence | §3.2 |
@@ -416,9 +410,7 @@ Table 5 now reports the identical daily rule under three weekly aggregations. Th
 point estimate changes sign across them and the interval excludes zero under one
 of the three. We report that sensitivity rather than resolve it: selecting an
 aggregation on the result it produces is the practice this paper criticises
-elsewhere. The published Friday-sampled construction remains primary and is the
-sparsest of the three, resting its estimate on 35 non-zero observations against
-105 for both alternatives.
+elsewhere. The published Friday-sampled construction remains primary. It is non-zero in **35 of 504 weeks**, against **105** under each all-days construction. Point estimates and inferential conclusions differ across the three: the skewness estimate changes sign, and the dependence-robust interval excludes zero under one construction and includes it under the other two. We report that sensitivity rather than resolve it.
 
 ---
 
@@ -443,18 +435,30 @@ it, and executing at that same close is not implementable. The published
 specification entered at the Monday open following Friday signal generation, and
 this revision departed from it without adequate justification.
 
-§5.4 and Table 11 now report four entry timings applied to the identical signal on
-a common sample of 502 weeks: Friday close −6.64%, Monday open −0.73%, Monday
-close −0.92%, Tuesday open −8.03%. The point estimates move materially and
-non-monotonically in delay, while the pre-specified paired contrasts all include
-zero, so the grid does not identify a uniquely correct convention.
+**The primary implementation has been changed.** A position is now realised at the
+first executable trading-session open after its Friday signal — the Monday open
+when available, and the next available session open after a holiday, which occurs
+once in this sample. The signal and decision timing are unchanged; only the price
+pair used to realise the return changed.
 
-Because it does not, we take the choice to rest on specification fidelity and
-information timing rather than on which return estimate is preferable, and on
-those grounds Monday open is the better primary. That change is before the
-corresponding author; it moves the headline sample to 503 weeks, dropping one week
-for want of a following open, and it would change every figure derived from
-strategy returns. We will report the outcome rather than pre-empt it.
+§5.4 and Table 11 retain the four-timing grid as robustness, on a common sample of
+502 weeks: Friday close −6.64%, Monday open −0.73%, Monday close −0.92%, Tuesday
+open −8.03%. Point estimates move materially and non-monotonically in delay, while
+the pre-specified paired contrasts all include zero, so the grid does not identify
+a uniquely correct convention. The choice therefore rests on specification
+fidelity — Monday open is what the published paper specified — and on information
+timing, not on which return estimate is preferable.
+
+Two samples should not be confused. The **primary executable sample is 503 weeks**:
+the panel retains all 504, and the final week has no subsequent open and so no
+realisable return. The **502-week common sample** is used only for the paired
+timing comparisons, where every timing must exist in the same weeks.
+
+The headline consequence is disclosed rather than buried: cumulative gross moves
+from −6.64% to −0.73% and the Sharpe ratio from −0.153 to +0.005. The economic
+conclusion is unchanged in direction — the analysis does not establish an
+exploitable edge — but it now rests on a result indistinguishable from zero rather
+than on a sizeable loss, and the manuscript says so.
 
 ---
 
@@ -492,27 +496,52 @@ The metrics, the cost tier, an exposure guard and a reporting rule fixing that
 all three would be disclosed whatever they returned were committed before any of
 them was computed.
 
-The published hybrid and all three pre-specified symmetrizations produce negative
-realised gross returns in this sample; the magnitude varies materially across
-specifications. Realised gross returns are −6.64% for the published hybrid,
-−1.65% pure-fast, −4.13% pure-pricing and −7.86% for the equal-threshold hybrid:
-a range of 6.21 percentage points, nearly as large as the published hybrid's own
-6.64% cumulative loss.
+**We withdraw a claim we made in the previous round.** That response reported
+that every pre-specified symmetrization was gross-negative, and concluded that the
+economic failure was robust to how the entry asymmetry is resolved. Under the
+execution convention now adopted, that is no longer true and we do not qualify it;
+we withdraw it.
 
-Pure-fast and pure-pricing hold positions in fewer weeks than the published rule,
-44 and 51 against 55, but both also remain negative per exposed week, at −1.8 and
-−7.1 basis points against −11.0. Their less negative cumulative performance is
-therefore not solely an artefact of lower exposure. Pure-pricing records the
-deepest drawdown of the four, −16.01%.
+Realised gross returns across the four pre-specified rules:
 
-Equalising the confirmation threshold worsens realised performance in this
-sample. This is one comparison and is not evidence that the published threshold
-was tuned; its direction is merely consistent with what a specification-search
-concern would predict.
+| Entry rule | Gross | Net at 2.0 pips | Sharpe | Weeks | bps/exposed week |
+|---|---|---|---|---|---|
+| Published hybrid | -0.73% | -1.14% | +0.005 | 55 | +0.4 |
+| Pure-fast | -3.48% | -3.97% | -0.067 | 44 | -6.1 |
+| **Pure-pricing** | **+5.57%** | **+5.21%** | +0.178 | 51 | +11.8 |
+| Equal-threshold | -1.65% | -1.96% | -0.029 | 43 | -2.4 |
+
+**Pure-pricing returns +5.57% gross and +5.21% net of the widest cost tier**, and
+does so on fewer exposed weeks than the published rule, so the result is not an
+artefact of exposure.
+
+This **strengthens** the evidence the reviewer's comment was aimed at. The spread
+across four defensible readings of one entry rule is 9.04 percentage points against a
+published-hybrid result of -0.73%, and it includes a change of sign. The
+economic conclusion is not stable across the pre-specified entry-rule
+constructions.
+
+**It does not establish that pure-pricing is superior or has positive expected
+alpha.** No comparative inference among the four was pre-specified, and we have
+run none; offering one now, chosen after seeing which variant won, would be the
+specification search this paper criticises. We report the number and decline the
+conclusion.
+
+The three variants, the metrics, the cost tier, the exposure guard and a reporting
+rule stating that all three would be disclosed whatever they returned — and that
+realised performance would not determine which symmetrization is treated as
+defensible — were committed before any of them was computed, and before the
+execution convention was decided. That ordering is why this result can be reported
+at all rather than discovered.
+
+Equalising the confirmation threshold worsens realised performance under both
+execution conventions, by 1.22 percentage points under Friday close and 0.92 under
+Monday open. This is one comparison and is not evidence that the published
+threshold was tuned.
 
 These are sensitivity exhibits. No variant is offered as a replacement rule, and
 realised performance was pre-specified not to determine which symmetrization is
-treated as defensible. New Section 4.6 and Table 12 report the grid; the
+treated as defensible. Section 5.5 and Table 12 report the grid; the
 pre-registration is `docs/PREREGISTRATION_ENTRY_SYMMETRY.md`.
 
 Two structural predictions in that pre-registration were wrong and are left
