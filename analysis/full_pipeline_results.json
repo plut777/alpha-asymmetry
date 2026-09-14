@@ -1,16 +1,16 @@
 {
   "specification": {
-    "execution": "Friday-close signal and execution proxy; position earns next Friday-close return (one shift)",
-    "execution_proxy_is_a_choice": "Daily bars carry an Open column, so Monday-open execution is implementable; the Friday-close proxy is a deliberate choice, not a data limitation",
+    "execution": "Friday-close signal; position executes at the first trading-session open after the signal (Monday open, or the next available session open after a holiday) and earns to the first open after the following Friday",
+    "execution_proxy_is_a_choice": "The published specification entered at the Monday open following Friday signal generation; this is restored as primary. Friday close is retained as a robustness timing in the execution grid",
     "max_holding_return_periods": 4,
     "simultaneous_signals": "flat",
     "weekly_resizing": true,
     "position_size_units": "1.0 to 2.0 gross notional units; values above 1 imply leverage",
     "hedge_alpha": "100-day rolling correlation multiplied by fixed -0.02 proxy",
-    "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"
+    "evt_input": "absolute weekly strategy-horizon returns under the primary execution convention (open-to-open), separate from daily tail-alpha flags"
   },
   "data_manifest": {
-    "manifest_generated_at_utc": "2026-09-12T14:32:08.831781+00:00",
+    "manifest_generated_at_utc": "2026-09-14T09:01:35.268732+00:00",
     "requested_start": "2014-06-01",
     "requested_end_exclusive": "2025-09-01",
     "original_snapshot_available": false,
@@ -327,10 +327,10 @@
     "conclusion": "Tail inference is aggregation-sensitive: across three defensible weekly aggregations of the same daily exceedance rule the skewness point estimate changes sign and the dependence-robust interval excludes zero under 1 of 3. The signal is not robust until weekly tail exposure is defined."
   },
   "baseline": {
-    "return": -6.640684042044798,
-    "sharpe": -0.1533055422786252,
-    "mdd": -12.560470113825662,
-    "hit": 47.27272727272727,
+    "return": -0.7300549497777253,
+    "sharpe": 0.004810839452106501,
+    "mdd": -10.641203020044077,
+    "hit": 49.09090909090909,
     "in_position_weeks": 55,
     "holding_episodes": 15,
     "closed_episodes": 15,
@@ -338,15 +338,15 @@
     "reversals": 1,
     "resizes": 31,
     "turnover": 51.996835180843775,
-    "net_return": -6.640684042044798
+    "net_return": -0.7300549497777253
   },
   "benchmarks": {
     "Asymmetry": {
-      "ret": -6.640684042044798,
-      "vol": 4.080050119134984,
-      "sharpe": -0.1533055422786252,
-      "sortino": -0.07898994891864058,
-      "mdd": -12.560470113825662,
+      "ret": -0.7300549497777253,
+      "vol": 4.415813973806051,
+      "sharpe": 0.004810839452106501,
+      "sortino": 0.0033218706696285056,
+      "mdd": -10.641203020044077,
       "holding_episodes": 15,
       "execution_legs": 61,
       "reversals": 1,
@@ -354,11 +354,11 @@
       "turnover": 51.996835180843775
     },
     "Momentum (20w)": {
-      "ret": -18.91647831540857,
-      "vol": 8.40023104655805,
-      "sharpe": -0.21547333181243405,
-      "sortino": -0.308558458668041,
-      "mdd": -31.32004771737349,
+      "ret": -23.478565741511147,
+      "vol": 8.513311476691712,
+      "sharpe": -0.28159687881406187,
+      "sortino": -0.3933101307321529,
+      "mdd": -34.766256761803284,
       "holding_episodes": 54,
       "execution_legs": 107,
       "reversals": 53,
@@ -366,11 +366,11 @@
       "turnover": 107.0
     },
     "Mean reversion (2.0 sigma)": {
-      "ret": 10.737001701049254,
-      "vol": 3.018572934522139,
-      "sharpe": 0.36355253388874453,
-      "sortino": 0.1978013683338486,
-      "mdd": -4.323896160703056,
+      "ret": -1.2749895720651216,
+      "vol": 3.484033824412891,
+      "sharpe": -0.020664414598131047,
+      "sortino": -0.009568473525585892,
+      "mdd": -7.6283600508235345,
       "holding_episodes": 27,
       "execution_legs": 54,
       "reversals": 0,
@@ -378,11 +378,11 @@
       "turnover": 54.0
     },
     "Buy and hold": {
-      "ret": 33.52645353458825,
-      "vol": 8.599070192433892,
-      "sharpe": 0.38994703681778675,
-      "sortino": 0.5836826123259647,
-      "mdd": -15.781589557726761,
+      "ret": 34.634066751571346,
+      "vol": 8.772977916018116,
+      "sharpe": 0.3936413383262193,
+      "sortino": 0.6083192050308158,
+      "mdd": -15.401862793918964,
       "holding_episodes": 1,
       "execution_legs": 1,
       "reversals": 0,
@@ -413,8 +413,8 @@
       {
         "year": 2020,
         "threshold": 1.25,
-        "return": 2.739970744653175,
-        "sharpe": 0.8820026879083264,
+        "return": 2.7696253924041514,
+        "sharpe": 0.802705237197265,
         "hit": 50.0,
         "new_episodes": 1,
         "inference_supported": false
@@ -466,9 +466,9 @@
       }
     ],
     "pooled": {
-      "cum_return": 2.739970744653175,
-      "annualized_return": 0.35202185257012797,
-      "sharpe": 0.31860450383637456,
+      "cum_return": 2.7696253924041514,
+      "annualized_return": 0.3557868812489762,
+      "sharpe": 0.29028662966655844,
       "hit": 50.0,
       "new_episodes": 1,
       "inference_supported": false
@@ -482,50 +482,50 @@
       "tail_skew": -3.2540577355278937,
       "fast_skew": 0.04024643721478368,
       "pricing_skew": -0.19891163074119927,
-      "strategy_return": -5.077846720018142
+      "strategy_return": -1.6936451999577495
     },
     "high_vix": {
       "n": 162,
       "tail_skew": 0.6218890464691171,
       "fast_skew": -0.06375930662811465,
       "pricing_skew": -0.09770940863644323,
-      "strategy_return": -1.646441076212135
+      "strategy_return": 0.9801912115853684
     },
     "pre_covid": {
       "n": 208,
       "tail_skew": -3.3974644596506445,
       "fast_skew": -0.05445867999100125,
       "pricing_skew": 0.12236618069507359,
-      "strategy_return": -6.404497055279757
+      "strategy_return": -7.084019565157773
     },
     "covid_2020": {
       "n": 52,
       "tail_skew": 5.016453643773992,
       "fast_skew": 0.09143887493208268,
       "pricing_skew": -0.06998905348120305,
-      "strategy_return": 2.739970744653175
+      "strategy_return": 2.7696253924041514
     },
     "post_covid": {
       "n": 244,
       "tail_skew": -0.7324552448606216,
       "fast_skew": 0.04735843341877572,
       "pricing_skew": -0.38273981689955894,
-      "strategy_return": -2.912517271996651
+      "strategy_return": 3.9591198905909453
     },
     "rate_hike_2022_2025": {
       "n": 191,
       "tail_skew": -0.710513885218147,
       "fast_skew": -0.13122043583633974,
       "pricing_skew": -0.5286970265719076,
-      "strategy_return": 3.4740589532967547
+      "strategy_return": 7.209871944663182
     }
   },
   "sensitivity": {
     "0.5": {
-      "return": -9.614013208128059,
-      "sharpe": -0.18195519859336057,
-      "mdd": -22.30304187346578,
-      "hit": 46.06741573033708,
+      "return": -10.554645966194398,
+      "sharpe": -0.18838530668296635,
+      "mdd": -20.91985004159519,
+      "hit": 49.43820224719101,
       "in_position_weeks": 89,
       "holding_episodes": 25,
       "closed_episodes": 25,
@@ -533,14 +533,14 @@
       "reversals": 1,
       "resizes": 52,
       "turnover": 87.31506522471314,
-      "net_return": -9.614013208128059,
+      "net_return": -10.554645966194398,
       "inference_supported": true
     },
     "0.75": {
-      "return": -6.640684042044798,
-      "sharpe": -0.1533055422786252,
-      "mdd": -12.560470113825662,
-      "hit": 47.27272727272727,
+      "return": -0.7300549497777253,
+      "sharpe": 0.004810839452106501,
+      "mdd": -10.641203020044077,
+      "hit": 49.09090909090909,
       "in_position_weeks": 55,
       "holding_episodes": 15,
       "closed_episodes": 15,
@@ -548,14 +548,14 @@
       "reversals": 1,
       "resizes": 31,
       "turnover": 51.996835180843775,
-      "net_return": -6.640684042044798,
+      "net_return": -0.7300549497777253,
       "inference_supported": true
     },
     "1.0": {
-      "return": -2.5929275408679175,
-      "sharpe": -0.12561939451612153,
-      "mdd": -5.491573915698311,
-      "hit": 43.75,
+      "return": -1.2454049147415658,
+      "sharpe": -0.06335763243131559,
+      "mdd": -5.473788323649941,
+      "hit": 50.0,
       "in_position_weeks": 16,
       "holding_episodes": 4,
       "closed_episodes": 4,
@@ -563,13 +563,13 @@
       "reversals": 0,
       "resizes": 9,
       "turnover": 13.558739691147524,
-      "net_return": -2.5929275408679175,
+      "net_return": -1.2454049147415658,
       "inference_supported": true
     },
     "1.25": {
-      "return": 2.739970744653175,
-      "sharpe": 0.2838515297588321,
-      "mdd": -0.8442376336851187,
+      "return": 2.7696253924041514,
+      "sharpe": 0.25863140015613567,
+      "mdd": -1.5218808463220324,
       "hit": 50.0,
       "in_position_weeks": 4,
       "holding_episodes": 1,
@@ -578,206 +578,206 @@
       "reversals": 0,
       "resizes": 3,
       "turnover": 2.438705737507728,
-      "net_return": 2.739970744653175,
+      "net_return": 2.7696253924041514,
       "inference_supported": false
     }
   },
   "factor_attribution": {
     "full": {
       "n": 504,
-      "r2": 0.011214301066838961,
-      "adj_r2": 0.005281586873239985,
-      "f": 2.1164275274855084,
+      "r2": 0.034789969303337775,
+      "adj_r2": 0.028998709119157806,
+      "f": 2.3222563405463093,
       "inference": "newey_west_hac_4_lags",
       "inference_note": "Consecutive weekly observations; a lag-based correction applies.",
       "coef": {
         "const": {
-          "b": -0.00011964440875480527,
-          "t": -0.5180129566681052,
-          "p": 0.6044492293787618,
-          "se": 0.00023096798490208873,
+          "b": -2.1395632756812354e-05,
+          "t": -0.07896127310047907,
+          "p": 0.937063426435177,
+          "se": 0.00027096362453004247,
           "ci": [
-            -0.0005723333407446901,
-            0.0003330445232350796
+            -0.0005524745779561295,
+            0.0005096833124425048
           ]
         },
         "carry": {
-          "b": 0.01798278890782703,
-          "t": 0.6040657302536675,
-          "p": 0.5457999425213538,
-          "se": 0.02976958964428499,
+          "b": 0.01656030787915487,
+          "t": 0.6508383430956769,
+          "p": 0.5151508458969478,
+          "se": 0.02544457937187086,
           "ci": [
-            -0.040364534629508106,
-            0.07633011244516216
+            -0.033310151291482806,
+            0.06643076704979255
           ]
         },
         "mom": {
-          "b": -0.046175416000271224,
-          "t": -2.076034244527142,
-          "p": 0.03789078390799754,
-          "se": 0.022242126362799278,
+          "b": -0.08385519289583981,
+          "t": -2.485808072568031,
+          "p": 0.012925765524021481,
+          "se": 0.03373357493734862,
           "ci": [
-            -0.08976918261094669,
-            -0.0025816493895957707
+            -0.1499717848428261,
+            -0.017738600948853517
           ]
         },
         "dollar": {
-          "b": 0.014789508242133704,
-          "t": 0.6688461733126811,
-          "p": 0.5035936092415289,
-          "se": 0.022111972576420356,
+          "b": 0.063390048461276,
+          "t": 1.675503493605487,
+          "p": 0.09383548619726871,
+          "se": 0.03783343257904408,
           "ci": [
-            -0.028549161634787545,
-            0.05812817811905495
+            -0.010762116805174735,
+            0.13754221372772674
           ]
         }
       }
     },
     "in_position": {
       "n": 55,
-      "r2": 0.20261958460297402,
-      "adj_r2": 0.1557148542855019,
-      "f": 4.319811311813422,
+      "r2": 0.39017967982948143,
+      "adj_r2": 0.3543078962900391,
+      "f": 10.877063846029998,
       "n_clusters": 15,
       "inference": "cr2_clustered_by_episode_with_wild_cluster_bootstrap",
       "inference_note": "The in-position weeks are non-contiguous. Standard errors and intervals are CR2 clustered by holding episode with Bell-McCaffrey degrees of freedom; the primary p-value is a restricted wild cluster bootstrap-t with Rademacher weights.",
       "coef": {
         "const": {
-          "b": -0.001310077962934717,
-          "se": 0.002026086936709752,
-          "t": -0.6466050094879975,
-          "dof": 12.04403588515155,
-          "p": 0.5300172273472104,
+          "b": -0.0019963469667239452,
+          "se": 0.0022883777450116694,
+          "t": -0.8723852393144843,
+          "dof": 12.082453805463834,
+          "p": 0.4000028869485917,
           "ci": [
-            -0.005722752725908118,
-            0.0031025968000386837
+            -0.006978522638490065,
+            0.002985828705042174
           ]
         },
         "carry": {
-          "b": 0.3476830846627503,
-          "se": 0.24285592660920674,
-          "t": 1.4316434007485717,
-          "dof": 7.7149479149419,
-          "p": 0.19148414885750958,
+          "b": 0.2483609509195227,
+          "se": 0.16314702652241564,
+          "t": 1.522313683635534,
+          "dof": 8.716691008818204,
+          "p": 0.16334666551693552,
           "ci": [
-            -0.2159659139760695,
-            0.9113320833015701
+            -0.1225398904269982,
+            0.6192617922660436
           ]
         },
         "mom": {
-          "b": -0.8227375917010189,
-          "se": 0.323649159839334,
-          "t": -2.5420662056080805,
-          "dof": 10.205114994140267,
-          "p": 0.028840595893799944,
+          "b": -1.005877803175389,
+          "se": 0.27172826613811735,
+          "t": -3.701778315046949,
+          "dof": 7.588483259885915,
+          "p": 0.006616161387070785,
           "ci": [
-            -1.5419130030294645,
-            -0.10356218037257325
+            -1.6384486111984002,
+            -0.37330699515237775
           ]
         },
         "dollar": {
-          "b": 0.15513179675157085,
-          "se": 0.15966568518200358,
-          "t": 0.9716038645043578,
-          "dof": 6.829472118165218,
-          "p": 0.36439238606487706,
+          "b": 0.5188411217577573,
+          "se": 0.249656502551686,
+          "t": 2.078219940016753,
+          "dof": 7.005413618011928,
+          "p": 0.07625455917781664,
           "ci": [
-            -0.22433704687890083,
-            0.5346006403820425
+            -0.07141023062623264,
+            1.1090924741417472
           ]
         }
       },
       "wild_cluster_bootstrap": {
         "mom": {
-          "observed_t": -2.5420662056080805,
+          "observed_t": -3.701778315046949,
           "reps": 9999,
-          "p": 0.0379,
+          "p": 0.024,
           "weights": "Rademacher, one draw per cluster",
           "null_imposed": true
         }
       },
       "robustness_hc3": {
         "const": {
-          "b": -0.001310077962934556,
-          "t": -0.5403919819071233,
-          "p": 0.5889267362105297,
-          "se": 0.002424310513104019,
+          "b": -0.0019963469667240038,
+          "t": -0.9556552846928587,
+          "p": 0.3392464205910337,
+          "se": 0.002088982291732543,
           "ci": [
-            -0.006061639255960252,
-            0.00344148333009114
+            -0.0060906770228617325,
+            0.0020979830894137254
           ]
         },
         "carry": {
-          "b": 0.3476830846627504,
-          "t": 1.2776134078004162,
-          "p": 0.2013857706701837,
-          "se": 0.2721348120957291,
+          "b": 0.24836095091952257,
+          "t": 1.2594231009864416,
+          "p": 0.20787754977917472,
+          "se": 0.19720215607050096,
           "ci": [
-            -0.18569134598445375,
-            0.8810575153099545
+            -0.13814817265230608,
+            0.6348700744913512
           ]
         },
         "mom": {
-          "b": -0.8227375917010193,
-          "t": -2.1649257311209267,
-          "p": 0.030393373328124744,
-          "se": 0.38003040006136063,
+          "b": -1.0058778031753872,
+          "t": -3.9671870837854057,
+          "p": 7.2725903882936e-05,
+          "se": 0.25354937438836384,
           "ci": [
-            -1.5675834888516347,
-            -0.07789169455040412
+            -1.5028254452792427,
+            -0.5089301610715318
           ]
         },
         "dollar": {
-          "b": 0.15513179675157104,
-          "t": 0.5799512737789146,
-          "p": 0.5619474772704142,
-          "se": 0.26749108720935305,
+          "b": 0.518841121757757,
+          "t": 1.7916966320216066,
+          "p": 0.07318157434358728,
+          "se": 0.2895808991795326,
           "ci": [
-            -0.36914110036422365,
-            0.6794046938673658
+            -0.04872701124485146,
+            1.0864092547603654
           ]
         }
       },
       "withdrawn_hac": {
         "note": "Newey-West with 4 lags, as published in an earlier draft of this revision. Reported only to identify the withdrawn figure: a lag-based correction presumes consecutive observations and is inappropriate to this sample. It is NOT an alternative specification.",
         "const": {
-          "b": -0.001310077962934556,
-          "t": -0.8402922269117447,
-          "p": 0.4007445586193841,
-          "se": 0.0015590742374820906,
+          "b": -0.0019963469667240038,
+          "t": -1.0722002860764424,
+          "p": 0.283630081954801,
+          "se": 0.0018619160922156988,
           "ci": [
-            -0.004365807317623701,
-            0.0017456513917545888
+            -0.005645635449702331,
+            0.0016529415162543238
           ]
         },
         "carry": {
-          "b": 0.3476830846627504,
-          "t": 1.5182057784520326,
-          "p": 0.1289625312591982,
-          "se": 0.22900919598478223,
+          "b": 0.24836095091952257,
+          "t": 1.6026094728799827,
+          "p": 0.10902090103191736,
+          "se": 0.15497284592559124,
           "ci": [
-            -0.10116669159589753,
-            0.7965328609213983
+            -0.05538024567631114,
+            0.5521021475153562
           ]
         },
         "mom": {
-          "b": -0.8227375917010193,
-          "t": -3.7254220518874614,
-          "p": 0.00019498870117146973,
-          "se": 0.2208441299380253,
+          "b": -1.0058778031753872,
+          "t": -5.979113306990236,
+          "p": 2.2435546806528448e-09,
+          "se": 0.16823193532716738,
           "ci": [
-            -1.2555841325766328,
-            -0.38989105082540587
+            -1.335606337466107,
+            -0.6761492688846675
           ]
         },
         "dollar": {
-          "b": 0.15513179675157104,
-          "t": 1.0766727626885566,
-          "p": 0.2816264847634251,
-          "se": 0.1440844443433229,
+          "b": 0.518841121757757,
+          "t": 2.8410583611786957,
+          "p": 0.004496408291897046,
+          "se": 0.1826224793011646,
           "ci": [
-            -0.12726852489380777,
-            0.43753211839694983
+            0.16090763956006288,
+            0.8767746039554511
           ]
         }
       }
@@ -790,32 +790,32 @@
       {
         "name": "Zero cost",
         "pips": 0.0,
-        "net_return": -6.640684042044798,
-        "sharpe": -0.1533055422786252
+        "net_return": -0.7300549497777253,
+        "sharpe": 0.004810839452106501
       },
       {
         "name": "Prime brokerage",
         "pips": 0.3,
-        "net_return": -6.69811190639753,
-        "sharpe": -0.15487641881520495
+        "net_return": -0.7910166400665664,
+        "sharpe": 0.0033711355413677665
       },
       {
         "name": "Institutional",
         "pips": 0.7,
-        "net_return": -6.774629174941271,
-        "sharpe": -0.15697113730679105
+        "net_return": -0.8722425004009215,
+        "sharpe": 0.0014509990751771845
       },
       {
         "name": "Retail tight",
         "pips": 1.3,
-        "net_return": -6.8892911357538384,
-        "sharpe": -0.16011366302712074
+        "net_return": -0.9939605484058922,
+        "sharpe": -0.0014303323687715102
       },
       {
         "name": "Retail wide",
         "pips": 2.0,
-        "net_return": -7.02289079953704,
-        "sharpe": -0.1637805910547035
+        "net_return": -1.1357820107034011,
+        "sharpe": -0.004793571449994371
       }
     ],
     "break_even_pips": null,
@@ -831,58 +831,58 @@
       ],
       "argmax_weekly": "always_long",
       "argmax_frozen": "always_long",
-      "white_rc_stat_weekly": 0.014476682282849198,
-      "white_rc_stat_frozen": 0.014476682282849198,
-      "spa_stat_weekly": 1.9023938404696377,
-      "spa_stat_frozen": 1.9023938404696377,
+      "white_rc_stat_weekly": 0.014909382626424935,
+      "white_rc_stat_frozen": 0.014909382626424935,
+      "spa_stat_weekly": 1.4286861751349413,
+      "spa_stat_frozen": 1.4286861751349413,
       "white_rc_stat_identical": true,
       "spa_stat_identical": true,
-      "white_rc_p_weekly": 0.3,
-      "white_rc_p_frozen": 0.3,
-      "spa_p_weekly": 0.248,
-      "spa_p_frozen": 0.249,
-      "white_rc_p_abs_diff": 0.0,
-      "spa_p_abs_diff": 0.0010000000000000009
+      "white_rc_p_weekly": 0.302,
+      "white_rc_p_frozen": 0.304,
+      "spa_p_weekly": 0.58,
+      "spa_p_frozen": 0.578,
+      "white_rc_p_abs_diff": 0.0020000000000000018,
+      "spa_p_abs_diff": 0.0020000000000000018
     },
     "real_only": {
       "n_strategies": 12,
-      "white_rc_stat": 0.014476682282849198,
-      "white_rc_p": 0.3,
-      "spa_stat": 1.9023938404696377,
-      "spa_p": 0.248,
+      "white_rc_stat": 0.014909382626424935,
+      "white_rc_p": 0.302,
+      "spa_stat": 1.4286861751349413,
+      "spa_p": 0.58,
       "best_candidate": "always_long"
     },
     "with_random_candidate_note": "retained for comparison; the random sequence is the argmax, so removing it lowers the observed statistic more than the bootstrap distribution and raises the RC p-value",
     "n_strategies": 13,
-    "white_rc_stat": 0.020349060144897665,
-    "white_rc_p": 0.15,
-    "spa_stat": 1.9023938404696377,
-    "spa_p": 0.261,
+    "white_rc_stat": 0.025138134937642567,
+    "white_rc_p": 0.06,
+    "spa_stat": 1.9959801906058694,
+    "spa_p": 0.217,
     "best_candidate": "random_candidate",
     "annualized_mean_pct": {
-      "asym_tail_alpha": -0.7817219878622628,
-      "asym_fast_alpha": 0.40817288411644903,
-      "asym_pricing_alpha": -0.29568349177031233,
-      "asym_coverage_alpha": 2.254605220179772,
-      "asym_hedge_alpha": 0.9552655630247662,
-      "asym_full": -0.6254942960379581,
-      "momentum_10w": 0.48449951546079606,
-      "momentum_20w": -1.8100257715961132,
-      "momentum_40w": 2.9862125653387386,
-      "mean_reversion_1.5": 2.384553648343931,
-      "mean_reversion_2.0": 1.097409839073507,
-      "always_long": 3.353181940927752,
-      "random_candidate": 4.71337974126584
+      "asym_tail_alpha": -0.564601185797022,
+      "asym_fast_alpha": 0.3976437821955413,
+      "asym_pricing_alpha": -0.355030390443233,
+      "asym_coverage_alpha": 1.5154905924386286,
+      "asym_hedge_alpha": 0.6573058686729647,
+      "asym_full": 0.021243772078349335,
+      "momentum_10w": 0.3310983643428285,
+      "momentum_20w": -2.397321940208318,
+      "momentum_40w": 3.172857452832565,
+      "mean_reversion_1.5": 1.8960191043156942,
+      "mean_reversion_2.0": -0.0719955194215801,
+      "always_long": 3.453406767967738,
+      "random_candidate": 5.822655941090263
     }
   },
   "sizing_variants": {
     "headline": "weekly",
     "note": "Neither mode is a pure restoration of the published rule: repairing the dead exit branch creates held-but-unsignalled weeks that the published specification never had to size. Weekly is the smaller extension because it keeps the manuscript's stated rebalancing frequency and Equation 10's contemporaneous index.",
     "weekly": {
-      "return": -6.640684042044798,
-      "sharpe": -0.1533055422786252,
-      "mdd": -12.560470113825662,
-      "hit": 47.27272727272727,
+      "return": -0.7300549497777253,
+      "sharpe": 0.004810839452106501,
+      "mdd": -10.641203020044077,
+      "hit": 49.09090909090909,
       "in_position_weeks": 55,
       "holding_episodes": 15,
       "closed_episodes": 15,
@@ -890,13 +890,13 @@
       "reversals": 1,
       "resizes": 31,
       "turnover": 51.996835180843775,
-      "net_return": -6.640684042044798
+      "net_return": -0.7300549497777253
     },
     "entry": {
-      "return": -7.573378314630464,
-      "sharpe": -0.17259600444762924,
-      "mdd": -14.293721190006714,
-      "hit": 47.27272727272727,
+      "return": -2.0138880572921014,
+      "sharpe": -0.023276638018641913,
+      "mdd": -12.171446802076524,
+      "hit": 49.09090909090909,
       "in_position_weeks": 55,
       "holding_episodes": 15,
       "closed_episodes": 15,
@@ -904,7 +904,7 @@
       "reversals": 1,
       "resizes": 0,
       "turnover": 49.14674134797333,
-      "net_return": -7.573378314630464
+      "net_return": -2.0138880572921014
     }
   },
   "execution_timing": {
@@ -925,7 +925,7 @@
     ],
     "timings": {
       "friday_close": {
-        "label": "Friday close (reported baseline)",
+        "label": "Friday close",
         "cumulative_return": -6.640684042044798,
         "mean_weekly_bps": -1.2076659715106146,
         "annualized_return": -0.7092567417501083,
@@ -940,7 +940,7 @@
         "net_return_2p0_pips": -7.02289079953704
       },
       "monday_open": {
-        "label": "Monday open (published spec.)",
+        "label": "Monday open (reported baseline)",
         "cumulative_return": -0.7300549497777253,
         "mean_weekly_bps": 0.04101617042402722,
         "annualized_return": -0.07587182111581381,
@@ -991,102 +991,102 @@
     "declustering_sensitivity": [
       {
         "separation_weeks": 1,
-        "clusters": 22,
-        "xi": -0.20906674802955907,
+        "clusters": 21,
+        "xi": 0.2393634000905119,
         "xi_ci": [
-          -1.5284437362797418,
-          0.22233190667645258
+          -1.5013045516064427,
+          0.8247809678821179
         ],
-        "ks_p": 0.9970420205795328
+        "ks_p": 0.9861645603168697
       },
       {
         "separation_weeks": 2,
-        "clusters": 21,
-        "xi": -0.24121696974964218,
+        "clusters": 18,
+        "xi": 0.15745267286642933,
         "xi_ci": [
-          -1.5055943795802016,
-          0.21575235427140516
+          -1.5667658513043532,
+          0.6453331226342045
         ],
-        "ks_p": 0.9808707037098692
+        "ks_p": 0.9854307423535392
       },
       {
         "separation_weeks": 3,
-        "clusters": 20,
-        "xi": -0.24760628062561096,
+        "clusters": 18,
+        "xi": 0.15745267286642933,
         "xi_ci": [
-          -1.5064468963819548,
-          0.2544136271708984
+          -1.5667658513043532,
+          0.6453331226342045
         ],
-        "ks_p": 0.9712296726876982
+        "ks_p": 0.9854307423535392
       },
       {
         "separation_weeks": 5,
-        "clusters": 20,
-        "xi": -0.24760628062561096,
+        "clusters": 17,
+        "xi": 0.12017189453889857,
         "xi_ci": [
-          -1.5064468963819548,
-          0.2544136271708984
+          -1.6605473059359075,
+          0.6619920087511235
         ],
-        "ks_p": 0.9712296726876982
+        "ks_p": 0.8803879461475951
       }
     ],
-    "threshold_pct": 2.442754968630052,
+    "threshold_pct": 2.500505111073453,
     "raw_exceedances": 26,
-    "clusters": 20,
-    "theta": 0.8301271843656292,
+    "clusters": 17,
+    "theta": 0.6973141210374639,
     "theta_ci": [
-      0.5953703621161284,
+      0.4886979713965413,
       1.0
     ],
-    "xi": -0.24760628062561096,
+    "xi": 0.12017189453889857,
     "xi_ci": [
-      -1.487515552166811,
-      0.2701044756201768
+      -1.669624566244247,
+      0.6883425495450898
     ],
-    "scale": 0.008874870885843107,
-    "ks_stat": 0.10215144353862338,
-    "ks_p": 0.9712296726876982
+    "scale": 0.006495655395446134,
+    "ks_stat": 0.1342002427551554,
+    "ks_p": 0.8803879461475951
   },
   "return_inference": {
     "block_length_sensitivity": [
       {
         "expected_block_weeks": 2.0,
         "sharpe_ci": [
-          -0.7757792948003481,
-          0.47523405090759874
+          -0.7079469627959085,
+          0.6272665202509129
         ]
       },
       {
         "expected_block_weeks": 4.0,
         "sharpe_ci": [
-          -0.7053538582495441,
-          0.39557570551943816
+          -0.6811787183622765,
+          0.6027569086110703
         ]
       },
       {
         "expected_block_weeks": 8.0,
         "sharpe_ci": [
-          -0.7222775122703265,
-          0.40941520771016165
+          -0.653026112138891,
+          0.6214034319626555
         ]
       },
       {
         "expected_block_weeks": 13.0,
         "sharpe_ci": [
-          -0.7243087076772619,
-          0.41969666251363674
+          -0.6782498267966187,
+          0.6400640428438882
         ]
       }
     ],
-    "annualized_return": -0.7064521959978087,
+    "annualized_return": -0.07557085625318205,
     "annualized_return_ci": [
-      -3.2547959040136005,
-      1.4577625132836174
+      -3.0989339806930163,
+      2.775174180428977
     ],
-    "sharpe": -0.1533055422786252,
+    "sharpe": 0.004810839452106501,
     "sharpe_ci": [
-      -0.7252179249000559,
-      0.3981634471474339
+      -0.6954863141801837,
+      0.6022685703384837
     ]
   },
   "cross_market": {
@@ -1096,7 +1096,7 @@
       "fast_skew": 0.005979876935517719,
       "pricing_skew": -0.16579765191616988,
       "coverage_skew": 1.7549493631159514,
-      "strategy_return": -6.640684042044798,
+      "strategy_return": -0.7300549497777253,
       "holding_episodes": 15,
       "buy_hold_return": 33.52645353458803
     },
@@ -1106,7 +1106,7 @@
       "fast_skew": 0.006712874231737761,
       "pricing_skew": -0.13625061230498653,
       "coverage_skew": 1.5783446109124124,
-      "strategy_return": -13.320890488918003,
+      "strategy_return": -14.450083244529942,
       "holding_episodes": 19,
       "buy_hold_return": -7.62839052460369
     },
@@ -1116,7 +1116,7 @@
       "fast_skew": -0.20500269553023578,
       "pricing_skew": -1.086023772867988,
       "coverage_skew": 1.8501217193518453,
-      "strategy_return": 14.20063574390138,
+      "strategy_return": 14.707580654079845,
       "holding_episodes": 4,
       "buy_hold_return": 294.3030095898565
     },
@@ -1126,7 +1126,7 @@
       "fast_skew": -0.00310955883963346,
       "pricing_skew": -0.19281760837897835,
       "coverage_skew": 1.3247195494350394,
-      "strategy_return": -15.444320008721657,
+      "strategy_return": -13.031062973557528,
       "holding_episodes": 17,
       "buy_hold_return": 200.97464648534918
     }

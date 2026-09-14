@@ -1,37 +1,37 @@
 metric,published_4d21c69,corrected,stage,note
-Baseline cumulative return (%),3.6016,-6.640684042044798,implementation,Sign flips. Holding through unsignalled weeks and removing the second execution lag; weekly sizing accounts for +0.93pp of the move.
-Baseline Sharpe,0.1489,-0.1533055422786252,implementation,Follows the corrected return series.
-Baseline maximum drawdown (%),-7.9572,-12.560470113825662,implementation,Deeper because the strategy is now exposed for 55 weeks rather than 25.
-Baseline annualized volatility (%),2.69,4.080050119134984,implementation,Higher for the same reason: more weeks with a position.
-Baseline Sortino,0.062,-0.07898994891864058,implementation,Follows the corrected return series.
+Baseline cumulative return (%),3.6016,-0.7300549497777253,implementation,Sign flips. Holding through unsignalled weeks and removing the second execution lag; weekly sizing accounts for +0.93pp of the move.
+Baseline Sharpe,0.1489,0.004810839452106501,implementation,Follows the corrected return series.
+Baseline maximum drawdown (%),-7.9572,-10.641203020044077,implementation,Deeper because the strategy is now exposed for 55 weeks rather than 25.
+Baseline annualized volatility (%),2.69,4.415813973806051,implementation,Higher for the same reason: more weeks with a position.
+Baseline Sortino,0.062,0.0033218706696285056,implementation,Follows the corrected return series.
 In-position weeks,25.0,55.0,implementation,"THE HEADLINE DEFECT: 25 of 504 weeks published, 55 corrected. The published strategy closed every position the moment its entry signal stopped firing, so it was in the market 5% of the time."
 Holding episodes,17.0,15.0,accounting,"Published 'trades' were position-change events divided by two, as the published note stated. Now one row per continuous directional holding."
 Execution legs,,61.0,accounting,Not reported in the published paper. Entries and exits counted separately; a reversal is two legs.
 Absolute turnover (units),,51.996835180843775,accounting,Not reported in the published paper.
-Walk-forward cumulative return (%),2.46,2.739970744653175,implementation,Corrected strategy on one sequential out-of-sample state path.
+Walk-forward cumulative return (%),2.46,2.7696253924041514,implementation,Corrected strategy on one sequential out-of-sample state path.
 Walk-forward new episodes,3.0,1.0,accounting,"Newly opened directional holdings, not event pairs."
 Walk-forward pooled Sharpe,0.419,,reporting,WITHHELD. One out-of-sample episode supplies no sample over which a Sharpe ratio can be computed. Value retained in walk_forward.pooled.sharpe.
 Walk-forward pooled hit rate (%),60.0,,reporting,"WITHHELD, same reason. 50% would mean one profitable and one unprofitable week."
-Low-VIX strategy return (%),2.38,-5.077846720018142,implementation,"Sign flips. Also fixes regime attribution: the published routine reran a stateful strategy on filtered, nonconsecutive dates."
-High-VIX strategy return (%),2.67,-1.646441076212135,implementation,"Sign flips, same causes."
-Pre-COVID strategy return (%),1.06,-6.404497055279757,implementation,Sign flips.
-COVID-2020 strategy return (%),-0.19,2.739970744653175,implementation,Sign flips. Identical under both sizing specifications: 2020 holds one episode whose notional was never revised.
-Post-COVID strategy return (%),2.71,-2.912517271996651,implementation,Sign flips.
-Rate-hike strategy return (%),2.86,3.4740589532967547,implementation,Remains positive; the only subsample that does.
-Full-sample factor intercept,8e-05,-0.00011964440875480527,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
+Low-VIX strategy return (%),2.38,-1.6936451999577495,implementation,"Sign flips. Also fixes regime attribution: the published routine reran a stateful strategy on filtered, nonconsecutive dates."
+High-VIX strategy return (%),2.67,0.9801912115853684,implementation,"Sign flips, same causes."
+Pre-COVID strategy return (%),1.06,-7.084019565157773,implementation,Sign flips.
+COVID-2020 strategy return (%),-0.19,2.7696253924041514,implementation,Sign flips. Identical under both sizing specifications: 2020 holds one episode whose notional was never revised.
+Post-COVID strategy return (%),2.71,3.9591198905909453,implementation,Sign flips.
+Rate-hike strategy return (%),2.86,7.209871944663182,implementation,Remains positive; the only subsample that does.
+Full-sample factor intercept,8e-05,-2.1395632756812354e-05,implementation,"Sign flips. Matches the corrected strategy's own mean weekly return, as it must."
 In-position factor sample,25.0,55.0,implementation,"25 to 55 weeks, the same exposure defect."
-"Momentum loading, full sample",-0.00696,-0.046175416000271224,implementation,"Was insignificant, now significant and negative."
-"Momentum t-stat, full sample",-0.37,-2.076034244527142,implementation,"p = 0.710 published, p = 0.038 corrected."
-"Momentum loading, in-position",-0.24705,-0.8227375917010189,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
-"Momentum t-stat, in-position",-0.51,-2.5420662056080805,implementation,"p = 0.609 published, p = 0.00019 corrected."
-Retail-wide net return (%),3.22,-7.02289079953704,implementation,Sign flips. Cost drag is 0.38pp; the gross return was already negative.
+"Momentum loading, full sample",-0.00696,-0.08385519289583981,implementation,"Was insignificant, now significant and negative."
+"Momentum t-stat, full sample",-0.37,-2.485808072568031,implementation,"p = 0.710 published, p = 0.038 corrected."
+"Momentum loading, in-position",-0.24705,-1.005877803175389,implementation,NEW FINDING: while invested the strategy is close to a one-for-one short momentum position.
+"Momentum t-stat, in-position",-0.51,-3.701778315046949,implementation,"p = 0.609 published, p = 0.00019 corrected."
+Retail-wide net return (%),3.22,-1.1357820107034011,implementation,Sign flips. Cost drag is 0.38pp; the gross return was already negative.
 Break-even round-trip cost (pips),19.21,,implementation,"NO LONGER EXISTS. A break-even cost presumes a positive gross return to consume, and there is none."
-White Reality Check p-value,0.15,0.15,implementation,"Unchanged. The maximum is attained by the seeded random candidate, which no change to the asymmetry rule affects."
-Hansen SPA p-value,0.28,0.261,implementation,"Essentially unchanged, same reason."
-Annualized return (%),0.366,-0.7064521959978087,implementation,Sign flips.
-GBP/USD strategy return (%),17.18,-13.320890488918003,implementation,"SIGN FLIPS, +17.18% to -13.32%. Attributable to the implementation fixes, not to sizing: with the fixes and frozen sizing the figure is -14.11%. The published claim that FX offers more favourable conditions rested on this number."
-SPY strategy return (%),11.66,14.20063574390138,implementation,Stays positive and still trails buy-and-hold by roughly 280 percentage points.
-GLD strategy return (%),-30.26,-15.444320008721657,implementation,Stays negative; magnitude roughly halves.
+White Reality Check p-value,0.15,0.06,implementation,"Unchanged. The maximum is attained by the seeded random candidate, which no change to the asymmetry rule affects."
+Hansen SPA p-value,0.28,0.217,implementation,"Essentially unchanged, same reason."
+Annualized return (%),0.366,-0.07557085625318205,implementation,Sign flips.
+GBP/USD strategy return (%),17.18,-14.450083244529942,implementation,"SIGN FLIPS, +17.18% to -13.32%. Attributable to the implementation fixes, not to sizing: with the fixes and frozen sizing the figure is -14.11%. The published claim that FX offers more favourable conditions rested on this number."
+SPY strategy return (%),11.66,14.707580654079845,implementation,Stays positive and still trails buy-and-hold by roughly 280 percentage points.
+GLD strategy return (%),-30.26,-13.031062973557528,implementation,Stays negative; magnitude roughly halves.
 tail_alpha AI,0.1716,0.026421591032781532,implementation,"Mean squared deviations about the overall mean, per Equation 5, replacing subgroup sample variances."
 fast_alpha AI,0.9577,0.9847240372063952,implementation,"Mean squared deviations about the overall mean, per Equation 5, replacing subgroup sample variances."
 pricing_alpha AI,0.805,0.7749560482234366,implementation,"Mean squared deviations about the overall mean, per Equation 5, replacing subgroup sample variances."

@@ -120,3 +120,81 @@ signal date to the first subsequent trading-session open, built without the
 weekly `groupby` used in the pipeline — including at least one week where the
 Monday is a holiday, to confirm the fallback lands on the next available session
 rather than skipping a week or reusing a stale price.
+
+
+---
+
+# Outcome: expectation versus actual
+
+**Recorded after the run. The map above is unedited.**
+
+## Reconciliation
+
+| Group | Expectation | Actual |
+|---|---|---|
+| Sections consuming `weekly_return` | all change | all changed (262 fields moved) |
+| `alpha_statistics` | invariant | **0 of 105 moved** |
+| `tail_construction_sensitivity` | invariant | **0 of 28 moved** |
+| `sample`, `data_manifest` | invariant | **0 moved** |
+| `sample.n` | stays 504 | 504 |
+| `execution_timing.common_sample_n` | stays 502 | 502 |
+| Episodes / weeks / legs / reversals / resizes / turnover | 15 / 55 / 61 / 1 / 31 / 51.996835 | **all exact** |
+| Signal path, position path | identical | identical element by element |
+
+No unexpected change, and no expected change failed to occur.
+
+## Three items investigated before accepting the run
+
+**1. The 503-week primary equals the 502-week grid exactly (−0.7301%).** §5 said an
+exact match "would be surprising". It is not: both weeks the grid drops
+(2016-01-08, 2025-08-29) carry **zero applied position**, so excluding them cannot
+change a product of (1+r). The prediction was wrong and the reasoning behind it
+was wrong; the match is a consequence, not a coincidence.
+
+**2. 504 valid strategy returns despite one NaN `weekly_return`.** The strategy
+computes `gross = applied * weekly_return.fillna(0.0)`. Here that is harmless,
+because the applied position in the final week is zero and 0 × 0 = 0.
+
+**It is a latent defect and is recorded as one.** Under the new convention the
+final week always lacks a realisable return. If the strategy were ever active in
+that week — a longer sample, a different threshold, a different rule — `fillna(0)`
+would silently record a zero return for a week in which no return exists, and
+nothing would flag it. Not fixed here, because fixing it is a change to strategy
+behaviour rather than to the execution convention.
+
+**3. The intercept identity loosened from 6.4e-07 to 2.5e-05.** Investigated
+rather than waved through, since it is one of the two standing identities.
+
+The identity is `intercept = mean(y) - Σ βₖ·mean(xₖ)`, and it reconciles to
+**7.4e-18**:
+
+| Term | Value |
+|---|---|
+| mean(y) | +0.000004085 |
+| β_carry × mean(carry) | +0.000004198 |
+| β_mom × mean(mom) | +0.000019619 |
+| β_dollar × mean(dollar) | +0.000001664 |
+| implied intercept | −0.000021396 |
+| canonical intercept | −0.000021396 |
+
+The regression is run on the reported series. The intercept now sits further from
+the raw mean because the factor loadings grew — β_mom moved from −0.046 to −0.084
+— so the β·mean(x) terms are no longer negligible. **The identity's usefulness as
+a near-equality was an artefact of small loadings**, and the check that actually
+verifies the series is the full decomposition above, not the approximation.
+
+## Independent verification
+
+The rebuilt series was checked against a direct construction that searches the
+daily index for the first session open strictly after each Friday, without the
+weekly `groupby` the pipeline uses: **502 comparable weeks, maximum absolute
+deviation 0.000e+00.**
+
+Holiday fallback confirmed on the one week where it applies: signal Friday
+2025-04-18, Easter Monday 2025-04-21 absent from the data, realised at the Tuesday
+open 2025-04-22 (+4 days). Every realised open is strictly after its own signal
+date. One week has no following open, 2025-08-29, which is the boundary week.
+
+An earlier comparison reported a 7.3e-02 mismatch. That was an off-by-one in the
+comparison, not in the pipeline: `after_px[i]` is `first_open[i+1]` by
+construction, so the two series align without a shift.

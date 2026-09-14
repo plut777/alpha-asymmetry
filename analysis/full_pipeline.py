@@ -106,7 +106,20 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
         d["hedge_alpha"] = corr.reindex(d.index) * -0.02
 
     w = d.resample("W-FRI").last()
-    w["weekly_return"] = w["Close"].pct_change(fill_method=None)
+    # Primary execution: a Friday signal is realised from the first trading-session
+    # open strictly AFTER it, held to the first open after the following Friday.
+    # first_open[i] is the first session open of the week ending on Friday F[i], so
+    # first_open[i+1] is the first open after F[i] -- the Monday open in an ordinary
+    # week, and the next available session open when that Monday is a holiday,
+    # because groupby().first() takes the first row that exists.
+    #
+    # The strategy applies position[j-1] to weekly_return[j], so a decision at
+    # F[j-1] earns first_open[j] -> first_open[j+1]: execution at the first open
+    # after its own signal, held to the first open after the next signal. Nothing
+    # is read before it exists.
+    first_open = daily_px.groupby(pd.Grouper(freq="W-FRI"))["Open"].first().reindex(w.index)
+    w["execution_open"] = first_open
+    w["weekly_return"] = first_open.shift(-1) / first_open - 1.0
     w = w.loc["2015-11-01":"2025-08-31"]
     w["fast_skew_20w"] = w["fast_alpha"].rolling(20, min_periods=10).apply(
         lambda x: stats.skew(x, nan_policy="omit", bias=False), raw=False
@@ -120,9 +133,11 @@ def build_weekly_alphas(daily_px: pd.DataFrame, dxy: pd.DataFrame | None = None)
     return w.dropna(subset=["fast_skew_20w", "price_skew_20w", "ai_20w"])
 
 
+PRIMARY_TIMING = "monday_open"
+
 EXECUTION_TIMINGS = {
-    "friday_close": "Friday close (reported baseline)",
-    "monday_open": "Monday open (published spec.)",
+    "friday_close": "Friday close",
+    "monday_open": "Monday open (reported baseline)",
     "monday_close": "Monday close",
     "tuesday_open": "Tuesday open",
 }
@@ -169,10 +184,15 @@ def execution_timing_grid(daily_px: pd.DataFrame, weekly: pd.DataFrame) -> dict:
         returns[key] = entry_price[key].shift(-1) / entry_price[key] - 1.0
     returns = pd.DataFrame(returns)
 
-    drift = (returns["friday_close"] - weekly["weekly_return"]).abs().max()
+    # The grid must reproduce the primary series exactly, whichever timing is
+    # primary. Re-pointed from friday_close to monday_open when the primary
+    # execution convention changed; deleting it because it started failing would
+    # have removed the only tie between this grid and the series everything else
+    # uses.
+    drift = (returns[PRIMARY_TIMING] - weekly["weekly_return"]).abs().max()
     if not drift < 1e-12:
         raise AssertionError(
-            f"friday_close must reproduce the pipeline's weekly_return; max deviation {drift}")
+            f"{PRIMARY_TIMING} must reproduce the pipeline's weekly_return; max deviation {drift}")
 
     common = returns.notna().all(axis=1)
     dropped = [str(d.date()) for d in weekly.index[~common]]
@@ -929,12 +949,12 @@ def main() -> int:
         f"dropped {execution_grid['dropped_weeks']}")
 
     results = {
-        "specification": {"execution": "Friday-close signal and execution proxy; position earns next Friday-close return (one shift)",
-                          "execution_proxy_is_a_choice": "Daily bars carry an Open column, so Monday-open execution is implementable; the Friday-close proxy is a deliberate choice, not a data limitation",
+        "specification": {"execution": "Friday-close signal; position executes at the first trading-session open after the signal (Monday open, or the next available session open after a holiday) and earns to the first open after the following Friday",
+                          "execution_proxy_is_a_choice": "The published specification entered at the Monday open following Friday signal generation; this is restored as primary. Friday close is retained as a robustness timing in the execution grid",
                           "max_holding_return_periods": 4, "simultaneous_signals": "flat", "weekly_resizing": True,
                           "position_size_units": "1.0 to 2.0 gross notional units; values above 1 imply leverage",
                           "hedge_alpha": "100-day rolling correlation multiplied by fixed -0.02 proxy",
-                          "evt_input": "absolute Friday-close-to-Friday-close returns, separate from daily tail-alpha flags"},
+                          "evt_input": "absolute weekly strategy-horizon returns under the primary execution convention (open-to-open), separate from daily tail-alpha flags"},
         "data_manifest": manifest,
         "sample": {"raw_weekly_start": "2015-11-06", "analysis_start": weekly.index[0], "analysis_end": weekly.index[-1], "n": n},
         "alpha_statistics": table_stats, "tail_construction_sensitivity": tail_sensitivity,
