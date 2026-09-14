@@ -2341,6 +2341,7 @@ the kind no numerical check can find.
 | 5 | Asking that the published tail construction be called "the weakest of the three" | a characterisation the data does not support; it has the largest point estimate, and is the sparsest |
 | 6 | Endorsing "harmless because the terminal position is zero" | **a dismissal accepted without asking whether the artificial value entered any downstream statistic** |
 | 7 | Instructing that the EVT interval "spans 2.3" | a width carried forward from the pre-restoration values without rechecking |
+| 8 | Calling the momentum loading "non-significant" | collapsed two disagreeing inference methods into a single verdict |
 
 The first three are claims stated more strongly than the evidence carried. The
 fourth is different in kind: no claim was overstated, a decision criterion was
@@ -2935,6 +2936,46 @@ All three were true of some canonical output and false of the current one, with
 every individual number in the surrounding text correct. The class is now
 sufficiently attested that it should be treated as the expected failure mode of a
 specification migration rather than as a recurring surprise.
+
+## Eighth instruction-level error: two methods collapsed into one verdict
+
+Tofik's summary described the momentum loading as "non-significant", and I had
+written the same thing into the manuscript, the response letter and the PR body
+as "does not clear the 5\% level". Both of us reduced two methods that disagree to
+a single verdict.
+
+What the reported inference actually says:
+
+| Method | Figure | At the 5% line |
+|---|---|---|
+| CR2, Bell--McCaffrey dof 10.21 | interval $[-1.27, -0.03]$, $p = 0.042$ | **excludes zero** |
+| Restricted wild cluster bootstrap | $p = 0.0506$ | **just above** |
+
+The 5% line falls *between* the two methods. Reporting either alone is a choice
+about which answer to give, and the choice was being made silently in the
+direction of whichever reading the surrounding sentence needed — first "nominally
+significant", then "does not clear 5%".
+
+**All five statements are corrected to report both figures and to say that
+inference is method-sensitive**, adding in each place that neither result touches
+the sample-selection problem, which is what the demotion rests on.
+
+This is the **eighth** instruction-level error, enumerated from the table above,
+and the **fourth instance of the derived-verbal-claim class**: "non-significant"
+is a derived verbal summary of two numbers that do not summarise that way.
+
+The class now has four attestations — the equal-threshold direction, the
+threshold-grid monotonicity, the GPD interval width, and this. Three of the four
+turned on collapsing or comparing quantities rather than on any quantity being
+stale. **Every number involved was current in all four cases.**
+
+### A note on why this one matters more than its size
+
+The demotion of the momentum result was never contingent on significance. It rests
+on the in-position sample being selected by the entry rules, which is true at any
+p-value. Getting the significance wording wrong therefore changed nothing about
+the paper's conclusion — which is exactly why it survived three documents and two
+review passes. **A claim that does not load-bear is a claim nobody checks.**
 
 ## Backlog — out of scope for this pull request
 

@@ -74,8 +74,15 @@ def run(weekly: pd.DataFrame | None = None) -> dict:
     results = {key: _metrics(weekly, key) for key in VARIANTS}
 
     # --- I2: the sample is unchanged ---
+    # Two distinct concepts, kept apart because conflating them is how a
+    # non-executable week gets counted as data:
+    #   analysis panel      -- every week the alpha signals are defined for;
+    #   executable strategy -- the weeks that carry a realisable return, which
+    #                          excludes the final week under post-signal-open
+    #                          execution, since no subsequent open exists.
     sample = {
-        "n": int(len(weekly)),
+        "analysis_panel_n": int(len(weekly)),
+        "executable_strategy_n": int(weekly["weekly_return"].notna().sum()),
         "start": str(weekly.index[0].date()),
         "end": str(weekly.index[-1].date()),
     }
@@ -112,4 +119,6 @@ if __name__ == "__main__":
         if not v["match"]:
             print(f"   MISMATCH {f}: committed {v['committed']} vs recomputed {v['recomputed']}")
     s = p["sample"]
-    print(f"I2 sample: n={s['n']} {s['start']} to {s['end']}")
+    print(f"I2 sample: analysis panel n={s['analysis_panel_n']}; "
+          f"executable strategy n={s['executable_strategy_n']}; "
+          f"{s['start']} to {s['end']}")

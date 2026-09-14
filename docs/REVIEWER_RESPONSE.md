@@ -64,7 +64,7 @@ have been enough, so we corrected for it:
 
 **What we withdraw.** The previous version reported $p = 0.00019$ and said it
 "clears that bar comfortably", referring to a Bonferroni threshold of 0.0083 at
-family size six. Under appropriate small-cluster inference, and with the momentum factor on the market-return basis its companion regressors use, the p-value is **0.0506** — which does not clear the 5% level at all. The revised text states that the loading does not clear the 5% level under the reported inference, and is therefore nowhere near the paper's pre-specified Bonferroni-adjusted threshold.
+family size six. Under appropriate small-cluster inference, and with the momentum factor on the market-return basis its companion regressors use, the two reported methods no longer agree: the CR2 interval [-1.27, -0.03] excludes zero at p = 0.042, while the restricted wild cluster bootstrap returns p = 0.0506, just above the 5% line. We report both rather than choosing the one that reads better. Neither resolves the sample-selection problem raised in round two. The revised text states that the loading does not clear the 5% level under the reported inference, and is therefore nowhere near the paper's pre-specified Bonferroni-adjusted threshold.
 
 **A later comment overtook this one.** Round-two comment 1 observes that the
 in-position sample is selected by the strategy's own entry rules, which are
@@ -352,7 +352,7 @@ result would confuse the two.
 | Change | Location |
 |---|---|
 | CR2 clustered by episode; wild cluster bootstrap primary; HAC withdrawn | §5.7, Tables 14–15 |
-| Bonferroni claim withdrawn; $p = 0.0506$ reported, below no conventional threshold | §5.7 |
+| Bonferroni claim withdrawn; CR2 $p = 0.042$ and bootstrap $p = 0.0506$ both reported | §5.7 |
 | Momentum loading demoted to a mechanical property of the entry rules | Abstract, §1, §5.7, Conclusions |
 | i.i.d. versus block bootstrap comparison | §3.2, Table 4 |
 | Tail-alpha interval attributed to sparsity, not dependence | §3.2 |

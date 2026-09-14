@@ -463,7 +463,7 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 85 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
+- 89 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
   convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
   periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
   causality suite run against all four entry rules, table- and prose-level

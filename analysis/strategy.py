@@ -407,6 +407,26 @@ def run_asymmetry_strategy(
     # calls this function at zero cost, so nothing is currently mispriced.  That
     # is a property of the callers, not of this default -- anyone adding costs to
     # the cross-market runs must set pip_size per market first.
+    # A pip is 0.01 only for pairs quoted to two decimals. Passing JPY pips to a
+    # four-decimal pair overstates cost by a factor of 100, and nothing in the
+    # arithmetic would object. The relationship that does hold across FX
+    # conventions is that one pip is on the order of 1e-4 of the quoted level:
+    # EUR/JPY 0.01/171 = 5.8e-5, GBP/USD 0.0001/1.27 = 7.9e-5. A JPY pip applied
+    # to a dollar-quoted pair lands near 8e-3, two orders out.
+    #
+    # The check runs only when cost is actually charged, so zero-cost callers --
+    # which is every cross-market run today -- are unaffected.
+    if round_trip_cost_pips > 0:
+        level = float(price.median())
+        ratio = pip_size / level if level > 0 else float("inf")
+        if not 1e-5 < ratio < 1e-3:
+            raise ValueError(
+                f"pip_size={pip_size} is implausible for a market quoted around "
+                f"{level:.4f} (ratio {ratio:.2e}, expected order 1e-4). A pip is "
+                f"0.01 for two-decimal pairs such as the JPY crosses and 0.0001 "
+                f"for four-decimal pairs. Pass the pip convention for this market "
+                f"explicitly before charging transaction costs.")
+
     # Two different zeros, which the previous .fillna(0.0) wrote identically.
     #
     # A zero-pip cost specification is an OBSERVED zero: the rate is identically

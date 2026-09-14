@@ -8,7 +8,8 @@
     "equal_threshold": "C - equalised confirmation threshold"
   },
   "sample": {
-    "n": 504,
+    "analysis_panel_n": 504,
+    "executable_strategy_n": 503,
     "start": "2016-01-08",
     "end": "2025-08-29"
   },

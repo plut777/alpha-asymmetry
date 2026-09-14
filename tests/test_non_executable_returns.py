@@ -177,3 +177,31 @@ def test_weeks_without_a_trade_are_never_charged_or_voided():
     quiet = ~traded & result.returns.notna()
     assert (result.net_returns[quiet] == result.returns[quiet]).all(), (
         "a week with no trade costs nothing, whether or not a price exists for it")
+
+
+def test_jpy_pip_size_is_rejected_on_a_four_decimal_market():
+    """The documented JPY-specific limitation, now enforced rather than described."""
+    frame = _cost_frame(price_missing_on_trade=False)
+    frame["Close"] = frame["Close"] / 135.0          # re-scale to a GBP/USD-like level
+    with pytest.raises(ValueError, match="implausible for a market quoted around"):
+        run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=2.0)
+
+
+def test_the_correct_pip_convention_is_accepted_on_that_market():
+    frame = _cost_frame(price_missing_on_trade=False)
+    frame["Close"] = frame["Close"] / 135.0
+    result = run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=2.0, pip_size=0.0001)
+    assert result.metrics["net_return"] == result.metrics["net_return"]
+
+
+def test_the_guard_does_not_fire_at_zero_cost():
+    """Cross-market runs charge no cost and must stay unaffected."""
+    frame = _cost_frame(price_missing_on_trade=False)
+    frame["Close"] = frame["Close"] / 135.0
+    result = run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=0.0)
+    assert result.metrics["net_return"] == pytest.approx(result.metrics["return"])
+
+
+def test_the_eurjpy_default_still_passes():
+    frame = _cost_frame(price_missing_on_trade=False)
+    run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=2.0)
