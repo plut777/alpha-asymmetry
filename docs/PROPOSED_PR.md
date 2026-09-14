@@ -442,7 +442,7 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 73 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
+- 77 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
   convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
   periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
   causality suite run against all four entry rules, table- and prose-level
@@ -456,7 +456,7 @@ statistics are unchanged in all four markets.
 - **Table provenance, with its coverage stated honestly.** Each covered table
   cell names the canonical output field it comes from, so a cell with no declared
   source fails rather than being matched against any equal-looking number.
-  Coverage is **10 of the 19 manuscript tables**: six semantically mapped
+  Coverage is **12 of the 19 manuscript tables**: six semantically mapped
   (`tab:backtest`, `tab:factors`, `tab:sevariants`, `tab:snooping`,
   `tab:exectiming`, `tab:entrysymmetry`) plus `tab:spec`, which is generated from
   the specification module and asserted against it. Among prose figures the

@@ -52,6 +52,28 @@ class EXTERNAL:
 
 _IP = "factor_attribution.in_position"
 
+_WF = "walk_forward"
+_TCOST = "transaction_costs"
+
+_WINDOW = EXTERNAL(
+    "expanding training window implied by the walk-forward protocol: 2016 to the "
+    "year before the test year. Determined by the design, not emitted as a field")
+
+
+def _oos_row(i: int) -> dict:
+    """Row label carries the test year; cells are window, threshold, new episodes."""
+    return {"label": [f"{_WF}.rows[{i}].year"],
+            "cells": [[_WINDOW, _WINDOW],
+                      f"{_WF}.rows[{i}].threshold",
+                      f"{_WF}.rows[{i}].new_episodes"]}
+
+
+def _tcost_row(i: int) -> dict:
+    return {"label": [], "cells": [f"{_TCOST}.rows[{i}].pips",
+                                   f"{_TCOST}.rows[{i}].net_return",
+                                   f"{_TCOST}.rows[{i}].sharpe"]}
+
+
 _AS = "alpha_statistics"
 _TC = "tail_construction_sensitivity.constructions"
 
@@ -136,6 +158,25 @@ PROVENANCE = {
     # set by dropna on the three alpha columns. Adopting a different execution
     # convention does not touch them. A mapping is field paths rather than values,
     # so it also survives a rerun that changes the values.
+    # Execution-dependent, and mapped deliberately as a Friday-close snapshot.
+    # The canonical paths do NOT name a timing: weekly_return is set in one place
+    # in build_weekly_alphas and every consumer reads it, so these paths denote
+    # "the primary specification's" walk-forward and cost results and would carry
+    # Monday-open values automatically if the baseline switched. The paths keep
+    # denoting the same manuscript quantity across that change; only the values
+    # move. Contrast execution_timing.timings.friday_close.*, which names a
+    # specific timing on purpose.
+    "tab:oos": {
+        **{str(2018 + i): _oos_row(i) for i in range(8)},
+        "Eight test years": {"label": [], "cells": [
+            NOT_NUMERIC,
+            EXTERNAL("summary of the eight rows above, not a separate field"),
+            f"{_WF}.pooled.new_episodes"]},
+    },
+    "tab:tcosts": {
+        "Zero Cost": _tcost_row(0), "Prime": _tcost_row(1), "Institutional": _tcost_row(2),
+        "Tight": _tcost_row(3), "Wide": _tcost_row(4),
+    },
     "tab:tests": {name: _tests_row(key) for name, key in _ALPHA_ROWS.items()},
     "tab:bootcompare": {name: _boot_row(key) for name, key in _ALPHA_ROWS.items()},
     "tab:tailagg": {
