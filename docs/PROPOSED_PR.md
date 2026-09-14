@@ -25,51 +25,73 @@ transaction costs, the 19.2-pip break-even — described that five percent of th
 sample. That is why the published null result had so little content: a strategy
 that is almost never invested cannot demonstrate much in either direction.
 
-The corrected strategy **loses 6.64% gross** over the decade, Sharpe **−0.153**,
-maximum drawdown **−12.56%**, across 15 holding episodes and 55 in-position
-weeks. The corrected analysis preserves the paper's qualitative conclusion while
-narrowing and strengthening the empirical basis for it.
+**Execution convention.** The published specification entered at the Monday open
+following Friday signal generation. An earlier draft of this revision entered at
+the Friday close — the same close from which the signal is computed — which
+Reviewer 3 identified as a simultaneous-execution assumption. The primary
+implementation is now restored: a position is realised at the **first executable
+trading-session open after its Friday signal**, the Monday open where available
+and the next available session open after a holiday. Signal and decision timing
+are unchanged; only the price pair used to realise the return changed. The
+**primary executable sample is 503 weeks** of a 504-week panel, the final week
+having no subsequent open.
 
-**What this revision contributes**, stated as narrowly as the manuscript now
-states it:
+Under that convention the strategy returns **-0.73% cumulative gross**, Sharpe
+**+0.005**, maximum drawdown **-10.64%**, across 15 holding episodes and
+55 in-position weeks.
 
-1. **A corrected implementation and corrected inference.** The strategy the
-   paper describes is now the strategy the code runs, and the inference applied
-   to it is appropriate to 15 clusters rather than to 504 independent weeks.
+**What this revision contributes:**
+
+1. **A corrected implementation and corrected inference.** The strategy the paper
+   describes is now the strategy the code runs, executed on information available
+   when the trade is placed, with inference appropriate to 15 clusters.
 2. **One surviving asymmetry result.** Of five alpha signal types, only the
-   volatility-expansion (coverage) signal has skewness that survives
-   block-bootstrap inference under the paper's primary construction
-   (γ̂₁ = 1.75, CI [1.18, 2.16]). The signed tail signal's point estimate is
-   *negative* (−1.48), not the pronounced positive value published — the published
-   figure described unsigned exceedance magnitude, which is right-skewed by
-   construction. Its interval [−3.10, 0.54] includes zero, so this corrects a sign
-   error rather than establishing negative skew.
+   volatility-expansion signal has skewness surviving block-bootstrap inference
+   under the paper's primary construction.
 3. **Documented specification sensitivity**, at magnitudes this sample cannot
    resolve, reported rather than resolved.
 
-Two further results follow from the correction and are worth naming because they
-replace published claims:
+**The economic conclusion, stated as the evidence supports it:** the analysis does
+**not establish a robust exploitable edge**. That is a weaker and more accurate
+statement than the previous draft's, which rested on a 6.64% gross loss produced
+by the same-close execution convention. At -0.73% with a Sharpe
+indistinguishable from zero, the result is not a demonstration that the rule loses
+money; it is a failure to demonstrate that it makes any. There is still no
+break-even cost, because the gross return remains negative.
 
-- **There is no break-even transaction cost.** Not a larger one — none. A
-  break-even presumes a gross profit to be consumed, and there is none. This
-  replaces the published 19.2-pip figure and is a cleaner statement of the null.
-- **The economic null is starker, not softer.** Walk-forward selection leaves the
-  rule nearly inert (one episode in eight out-of-sample years), and
-  data-snooping-corrected tests do not reject the null of no superior performance
-  against a zero-return benchmark across the twelve-strategy formal universe
-  (Reality Check *p* = 0.30, SPA *p* = 0.25). This is a failure to reject, not a
-  finding that every candidate's realised return was non-positive — several were
-  positive, buy-and-hold among them.
+Data-snooping corrections agree: neither White's Reality Check (0.30) nor
+Hansen's SPA (0.58) rejects the null of no superior performance against a
+zero-return benchmark across the twelve-strategy formal universe.
 
-**One candidate finding was demoted rather than reported.** The corrected factor
-regression shows the rule loading negatively on time-series momentum while
-invested. Reviewer 3 identified that the in-position sample is selected by the
+**Specification sensitivity is the strongest finding, and it strengthened.** Four
+pre-specified readings of the entry rule — which differs between its long and short
+legs in four respects the original specification never argued for — produce
+returns spanning 9.04 percentage points **including a change of sign**:
+-0.73% published hybrid, -3.48% pure-fast, **+5.57%** pure-pricing,
+-1.65% equal-threshold. The claim in the previous round that the economic
+failure is robust to symmetrization is **withdrawn**.
+
+The positive variant is reported because a pre-registration committed before any
+of these figures existed required all three symmetrizations to be disclosed
+whatever they produced. It is **not** offered as a preferred strategy: no
+comparative inference among the four was pre-specified or run, and nothing here
+establishes that it has positive expected alpha. What it establishes is that the
+economic conclusion is not stable across the pre-specified entry-rule
+constructions.
+
+**One candidate finding remains demoted.** The in-position regression loads
+negatively on time-series momentum ($\beta_2$ = -0.65, wild cluster bootstrap
+p = 0.0506). Reviewer 3 identified that the in-position sample is selected by the
 strategy's own entry rules, which are functions of the same prices the momentum
-factor is built from, so sample and regressor are jointly determined. The loading
-is reported as **a mechanical property of the entry rules**, not as an
-independently discovered factor exposure and not as an explanation of the
-strategy's losses. It is explicitly excluded from the revision's empirical
-contribution.
+factor is built from. It is reported as a mechanical property of the entry rules,
+is not offered as an explanation of the strategy's returns, and is excluded from
+the contribution. It does not clear the 5% level in any case.
+
+**Tail distribution.** The EVT analysis characterises the market return series —
+absolute Friday-close-to-Friday-close EUR/JPY returns — and is deliberately
+independent of the execution convention. Shape parameter -0.25, 95% CI
+[-1.49, 0.27]: an interval too wide to distinguish bounded from heavy tails,
+so no conclusion is drawn from its sign.
 
 The sample is unchanged: n = 504, 8 January 2016 to 29 August 2025.
 
@@ -131,9 +153,9 @@ and reported.
 
 | | weekly (proposed) | frozen (alternative) |
 |---|---|---|
-| Gross return | −6.64% | −7.57% |
-| Sharpe | −0.153 | −0.173 |
-| Max drawdown | −12.56% | −14.29% |
+| Gross return | -0.73% | -2.01% |
+| Sharpe | +0.005 | -0.023 |
+| Max drawdown | -10.64% | -12.17% |
 | In-position weeks | 55 | 55 |
 | Holding episodes | 15 | 15 |
 | Turnover | 52.00 | 49.15 |
@@ -325,8 +347,7 @@ Rademacher weights (*B* = 9,999, null imposed) for the *p*-value. Fifteen cluste
 is few, and both remain approximations at that number: the *p*-value should be
 read as indicative rather than exact.
 
-For the momentum loading this gives β₂ = −0.823, CR2 standard error 0.324,
-*t* = −2.54, CR2 interval [−1.54, −0.10], wild cluster bootstrap *p* = 0.038.
+For the momentum loading this gives β₂ = -0.652, CR2 standard error 0.280, *t* = -2.33, CR2 interval [-1.27, -0.03], wild cluster bootstrap *p* = 0.0506 — which does not clear the 5% level.
 
 ### Sample selection, and why the momentum loading is demoted
 
@@ -361,7 +382,7 @@ differs, and none of them is described as showing that the results are artefacts
 |---|---|
 | **Tail-signal aggregation** | Across three defensible aggregations of the identical daily rule, the skewness estimate **changes sign**, and under one of them the interval excludes zero. The sign and the inferential conclusion both move. |
 | **Execution timing** | Four entry timings applied to the identical signal, on a common sample of 502 weeks, give cumulative gross returns of −6.64% (Friday close), −0.73% (Monday open), −0.92% (Monday close) and −8.03% (Tuesday open). Point estimates move materially and **non-monotonically in delay**, while the **pre-specified paired contrasts all include zero**. |
-| **Entry-rule symmetry** | The published hybrid and three pre-specified symmetrizations give −6.64%, −1.65% (pure-fast), −4.13% (pure-pricing) and −7.86% (equal-threshold): a range of 6.21 points, nearly as large as the published hybrid's own 6.64% loss. **Every pre-specified variant remains gross-negative in this sample.** |
+| **Entry-rule symmetry** | The published hybrid and three pre-specified symmetrizations give -0.73%, -3.48% (pure-fast), **+5.57%** (pure-pricing) and -1.65% (equal-threshold): a range of 9.04 points **including a change of sign**. The earlier claim that every pre-specified variant is gross-negative is withdrawn. |
 
 On the third: the long and short legs of the published rule differ in four
 respects — skewness gate, confirmation series, confirmation threshold, and
@@ -406,14 +427,14 @@ Full table with per-item attribution in `analysis/before_after_results.csv`.
 | Metric | Published (`4d21c69`) | Corrected |
 |---|---|---|
 | **In-position weeks** | **25 of 504** | **55 of 504** |
-| Cumulative gross return | +3.60% | −6.64% |
-| Sharpe | 0.149 | −0.153 |
-| Maximum drawdown | −7.96% | −12.56% |
+| Cumulative gross return | +3.60% | -0.73% |
+| Sharpe | 0.149 | +0.005 |
+| Maximum drawdown | −7.96% | -10.64% |
 | Holding episodes / execution legs | 17 "trades" | 15 / 61 |
 | Break-even round-trip cost | 19.2 pips | does not exist |
-| Retail-wide net return | +3.22% | −7.02% |
-| Momentum loading (in-position) | −0.247, t = −0.51 | **−0.823, t = −3.73** |
-| Factor intercept (full sample) | +0.00008 | −0.00012 |
+| Retail-wide net return | +3.22% | -1.14% |
+| Momentum loading (in-position) | −0.247, t = −0.51 | -0.652, t = -2.33 (p = 0.0506) |
+| Factor intercept (full sample) | +0.00008 | +0.00000 |
 | In-position factor sample | 25 weeks | 55 weeks |
 | Walk-forward pooled return / episodes | +2.46%, 3 trades | +2.74%, 1 episode |
 | Walk-forward Sharpe / hit rate | 0.419 / 60.0% | withheld — one episode |
@@ -465,9 +486,7 @@ statistics are unchanged in all four markets.
 - The nine original provenance sentences are machine-checked for verbatim
   presence.
 - After every rerun: n = 504 spanning 2016-01-08 to 2025-08-29; the factor
-  intercept matches the strategy's own mean weekly return
-  (−0.00011964 against −0.00012029); the low- and high-VIX returns compound to
-  the full-sample return (−6.640684% against −6.640684%).
+  intercept reconciles to the strategy's own mean weekly return through the factor decomposition (intercept +0.00000351, mean +0.00000409, the gap being the sum of beta times factor mean); the low- and high-VIX returns compound to the full-sample return (-0.730055% against -0.730055%).
 
 ### The PDF was rebuilt and inspected
 
@@ -515,8 +534,7 @@ resolves to the newest version. After deposit, record the new version DOI in
 needs its own revision; Zenodo does not propagate to it.
 
 **We recommend posting a correction notice against the superseded record**, not
-merely depositing a new version. The headline result changes sign: +3.60% to
-−6.64%. A reader who lands on v2.0.1 through a citation or a search result has no
+merely depositing a new version. The headline result changes sign: +3.60% to -0.73%. A reader who lands on v2.0.1 through a citation or a search result has no
 way to know it has been superseded, and the specific claim they would take away —
 that the strategy earns a small positive gross return — is wrong rather than
 imprecise. Depositing a new version alone leaves that reader uninformed. This is
