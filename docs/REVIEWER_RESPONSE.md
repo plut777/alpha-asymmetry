@@ -249,6 +249,16 @@ grouped, and no conclusion in the section changes at any separation we tried.
 
 The table is now in the manuscript, and the text leads with the one-week result.
 
+**One clarification the execution change makes necessary.** The EVT analysis
+characterises the **market** return series — absolute Friday-close-to-Friday-close
+EUR/JPY returns — and is deliberately independent of the strategy's execution
+convention. When the primary execution moved to the first post-signal open, the
+EVT input was briefly and wrongly carried along with it; that is corrected, and
+the series is the one this section has always described. On the restored series
+$\hat{\xi} = -0.25$ with a 95% interval of $[-1.49, 0.27]$, which is wide and contains
+zero, so neither the sign of the shape parameter nor a bounded-versus-heavy-tail
+reading is established. The declustering conclusion above is unchanged.
+
 ## Comment 7 — temporal aliasing in the tail signal
 
 **Accepted as a limitation, and it is a real one. Two figures in the report are

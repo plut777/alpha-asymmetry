@@ -407,7 +407,16 @@ def run_asymmetry_strategy(
     # calls this function at zero cost, so nothing is currently mispriced.  That
     # is a property of the callers, not of this default -- anyone adding costs to
     # the cross-market runs must set pip_size per market first.
-    unit_cost = ((round_trip_cost_pips / 2.0) * pip_size / price).fillna(0.0)
+    # Two different zeros, which the previous .fillna(0.0) wrote identically.
+    #
+    # A zero-pip cost specification is an OBSERVED zero: the rate is identically
+    # zero whatever the price, because the numerator is zero. A missing price
+    # under a positive cost specification is UNDEFINED: the cost of that trade
+    # cannot be computed, and writing it as zero would report a free trade.
+    if round_trip_cost_pips == 0:
+        unit_cost = pd.Series(0.0, index=d.index)
+    else:
+        unit_cost = (round_trip_cost_pips / 2.0) * pip_size / price
     # Cost is charged strictly in proportion to the notional actually traded:
     # unit_cost is a per-unit rate, and every branch below multiplies it by a
     # quantity of notional.  There is no fixed per-leg or per-ticket term, so
@@ -430,8 +439,11 @@ def run_asymmetry_strategy(
                 opening_units.at[date] = delta
             else:
                 closing_units.at[date] = -delta
-    opening_cost = opening_units * unit_cost
-    closing_cost = closing_units * unit_cost
+    # A week with no trade costs nothing regardless of whether a price exists, so
+    # the undefined rate must not propagate there. Only a week that actually
+    # trades at an uncomputable rate is left undefined.
+    opening_cost = opening_units.mul(unit_cost).where(opening_units > 0, 0.0)
+    closing_cost = closing_units.mul(unit_cost).where(closing_units > 0, 0.0)
     cost = (opening_cost + closing_cost).rename("cost")
     net = (gross - cost).rename("net_return")
 

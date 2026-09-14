@@ -2340,6 +2340,7 @@ the kind no numerical check can find.
 | 4 | Directing that Friday close be kept because switching is expensive | **a recommendation resting on convenience rather than method** |
 | 5 | Asking that the published tail construction be called "the weakest of the three" | a characterisation the data does not support; it has the largest point estimate, and is the sparsest |
 | 6 | Endorsing "harmless because the terminal position is zero" | **a dismissal accepted without asking whether the artificial value entered any downstream statistic** |
+| 7 | Instructing that the EVT interval "spans 2.3" | a width carried forward from the pre-restoration values without rechecking |
 
 The first three are claims stated more strongly than the evidence carried. The
 fourth is different in kind: no claim was overstated, a decision criterion was
@@ -2739,7 +2740,7 @@ provenance mechanism catches a stale *number*; neither of these was a number.
 The EVT shape parameter changing sign is worth flagging on its own: the paper's
 tail-distribution section is built on a series that is now open-to-open rather
 than close-to-close, and both the point estimate and its interpretation moved.
-The interval still spans more than 2.3 and still contains zero, so the section's
+The interval is wide and contains zero, so the section's
 conclusion — that the tail estimate is imprecise and no conclusion turns on it —
 is unchanged.
 
@@ -2896,6 +2897,44 @@ were all **quiet**. They produced plausible output and survived review. A tool
 that corrupts markup visibly is a much smaller problem than a tool that produces
 a well-formed wrong number, and the difference is not the size of the error but
 whether anything downstream is capable of noticing it.
+
+## Seventh instruction-level error, and a third instance of the same class
+
+Tofik instructed that the manuscript be checked for a claim that the GPD interval
+"spans 2.3". The figure was his, carried forward from the pre-restoration values
+without rechecking: 2.3 was the width under the strategy-basis EVT
+($[-1.67, 0.69]$). The restored market-basis interval is
+$[-1.488, 0.270]$, a width of 1.758.
+
+Enumerated from the table above rather than inferred, this is the **seventh**
+instruction-level error on record. He identified it himself while giving the
+instruction.
+
+**It is the third instance of the derived-verbal-claim class**, after the
+equal-threshold direction and the threshold-grid monotonicity — and the first of
+the three that is his rather than mine. A width is a derived quantity: it is
+current only for as long as the interval it was computed from is current, and
+nothing in the provenance apparatus checks a number that appears in an instruction
+rather than in a document.
+
+The remedy adopted is his: **state that the interval is wide and contains zero, so
+neither the sign nor a bounded-versus-heavy-tail reading is established, and quote
+a width only where one is derived correctly.** The manuscript's remaining width
+claim, "spanning more than 1.7", is correct against 1.758 and is kept; the audit
+record's "2.3" is corrected.
+
+### Where the three instances leave the class
+
+| Instance | Origin | The derived claim |
+|---|---|---|
+| Equal-threshold "improves" | me | a comparison between two negative numbers |
+| Threshold grid "monotonically" | me | an ordering across four values |
+| GPD interval "spans 2.3" | Tofik | a width across two bounds |
+
+All three were true of some canonical output and false of the current one, with
+every individual number in the surrounding text correct. The class is now
+sufficiently attested that it should be treated as the expected failure mode of a
+specification migration rather than as a recurring surprise.
 
 ## Backlog — out of scope for this pull request
 

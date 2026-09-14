@@ -115,3 +115,65 @@ def test_a_non_executable_week_is_not_counted_as_a_losing_week():
     expected = float((exposed > 0).mean() * 100)
     assert result.metrics["hit"] == pytest.approx(expected), (
         "the hit rate must be computed over executable exposed weeks only")
+
+
+# ---------------------------------------------------------------------------
+# The same distinction, applied to transaction cost
+# ---------------------------------------------------------------------------
+
+def _cost_frame(price_missing_on_trade: bool):
+    """Panel that trades in a week whose execution price may be unavailable."""
+    idx = pd.date_range("2020-01-03", periods=40, freq="W-FRI")
+    rng = np.random.default_rng(7)
+    returns = rng.normal(0, 0.01, 40)
+    phase = np.arange(40) % 8
+    frame = pd.DataFrame(
+        {
+            "Close": 100 * np.cumprod(1 + returns),
+            "weekly_return": returns,
+            "fast_skew_20w": np.where(phase < 4, 1.5, -1.0),
+            "fast_alpha": np.where(phase < 4, 1.0, -1.0),
+            "price_skew_20w": np.full(40, -1.0),
+            "pricing_alpha": np.zeros(40),
+            "pricing_std_20w": np.ones(40),
+            "ai_20w": np.full(40, 1.5),
+        },
+        index=idx,
+    )
+    if price_missing_on_trade:
+        base = run_asymmetry_strategy(frame, 0.75)
+        trades = base.position_ledger["event_type"].isin(["entry", "exit", "reversal", "resize"])
+        first = int(np.argmax(trades.to_numpy()))
+        frame.iloc[first, frame.columns.get_loc("Close")] = np.nan
+    return frame
+
+
+def test_a_trade_at_an_uncomputable_price_is_not_charged_zero_cost():
+    frame = _cost_frame(price_missing_on_trade=True)
+    result = run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=2.0)
+    missing = frame["Close"].isna()
+    traded = result.position_ledger["event_type"].isin(["entry", "exit", "reversal", "resize"])
+    overlap = missing & traded
+    assert overlap.any(), "coverage precondition: the panel must trade where the price is absent"
+    assert result.net_returns[overlap].isna().all(), (
+        "a trade whose execution price is unavailable has an uncomputable cost. "
+        "Reporting it as zero records a free trade that never happened.")
+
+
+def test_a_zero_pip_specification_is_a_real_zero_not_a_missing_value():
+    """The other half: zero cost is observed, not undefined, whatever the price."""
+    frame = _cost_frame(price_missing_on_trade=True)
+    gross = run_asymmetry_strategy(frame, 0.75)
+    zero = run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=0.0)
+    pd.testing.assert_series_equal(
+        gross.returns, zero.net_returns, check_names=False,
+        obj="net return at zero cost must equal the gross return exactly")
+
+
+def test_weeks_without_a_trade_are_never_charged_or_voided():
+    frame = _cost_frame(price_missing_on_trade=True)
+    result = run_asymmetry_strategy(frame, 0.75, round_trip_cost_pips=2.0)
+    traded = result.position_ledger["event_type"].isin(["entry", "exit", "reversal", "resize"])
+    quiet = ~traded & result.returns.notna()
+    assert (result.net_returns[quiet] == result.returns[quiet]).all(), (
+        "a week with no trade costs nothing, whether or not a price exists for it")

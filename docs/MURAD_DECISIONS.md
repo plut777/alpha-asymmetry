@@ -1,11 +1,25 @@
 # Decisions for Murad
 
-Six items. Each is a genuine author decision: a choice where the evidence does
-not settle the answer, or where the answer is editorial. Anything with an
-objectively preferable technical resolution has been fixed rather than listed
-here, and is recorded in `docs/REVIEW_NOTES.md`.
+**Status: all six are now closed as working decisions.** Execution timing was
+ruled on by Murad directly. The remaining five are adopted as the recommendations
+already set out below — his own recommendations in each case, so nothing is
+decided against him — because they had been open across several rounds and were
+holding up a revision that is otherwise finished.
 
-Nothing below blocks the rest of the correction work.
+**Every one is reversible, and Murad reviews the completed package before it goes
+to the reviewer.** This is a decision to stop waiting, not a decision to proceed
+without him. Where a choice would be expensive to reverse the cost is stated.
+
+| # | Decision | Status |
+|---|---|---|
+| 1 | Tail aggregation: Friday-sampled remains primary; both all-days constructions remain disclosed sensitivity checks | working decision |
+| 2 | Execution timing: first post-signal executable open | **ruled by Murad** |
+| 3 | Entry symmetrization: remains in the main text | working decision |
+| 4 | Raw Yahoo files: remain uncommitted absent affirmative redistribution permission | working decision |
+| 5 | Versioning: new corrected version under the existing concept DOI, with explicit supersession | working decision |
+| 6 | Repository convention: manuscript outputs must originate from the canonical pipeline; standalone scripts may not independently define published results | working decision |
+
+The detail behind each follows, unchanged from when these were open questions.
 
 ---
 
