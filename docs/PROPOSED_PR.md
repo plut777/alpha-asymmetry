@@ -442,7 +442,7 @@ statistics are unchanged in all four markets.
 
 ## Verification
 
-- 77 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
+- 82 deterministic tests, all passing, run offline without credentials: the AI edge cases, the dated timing
   convention, entry, hold, expiry, reversal, simultaneous signals, no-signal
   periods, both sizing modes, resize and reversal cost accounting, a no-look-ahead
   causality suite run against all four entry rules, table- and prose-level
@@ -472,7 +472,7 @@ statistics are unchanged in all four markets.
 ### The PDF was rebuilt and inspected
 
 `paper/alpha-asymmetry.pdf` is rebuilt from the corrected source. It compiles
-clean: 36 pages, **zero** overfull boxes, **zero** underfull boxes, no undefined
+clean: 37 pages, **zero** overfull boxes, **zero** underfull boxes, no undefined
 references or citations, bibliography resolved against `references.bib`.
 
 Both figures were regenerated from the current pipeline and compared

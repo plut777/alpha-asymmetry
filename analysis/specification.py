@@ -46,7 +46,8 @@ SPEC = [
     ("position_upper", "Position size upper bound", 2.0, "gross notional units", "Equation 10"),
     ("sizing_mode", "Notional sizing", "weekly", "rebalance frequency", "Equation 10"),
     ("execution_lag", "Execution lag", 1, "weeks", "Timing convention"),
-    ("execution_price", "Execution price convention", "Friday close", "price", "Timing convention"),
+    ("execution_price", "Execution price convention", "first session open after signal", "price", "Timing convention"),
+    ("executable_n", "Weeks with a realisable return", 503, "weeks", "Sample"),
     # --- costs
     ("pip_size", "Pip size (JPY pairs)", 0.01, "price increment", "Cost model"),
     ("cost_tiers", "Round-trip cost tiers", "0.0, 0.3, 0.7, 1.3, 2.0", "pips", "Cost table"),

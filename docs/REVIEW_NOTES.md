@@ -2657,11 +2657,16 @@ Two further changes to statements that currently stand:
   6.21 points against a 6.64% loss and was described as "nearly as large as" the
   result. It is now **more than twelve times** the headline. The sentence needs
   rewriting and the earlier phrasing must not simply be inverted.
-- The direction of the equal-threshold comparison reverses. Under Friday close,
-  equalising the threshold **worsened** realised performance (−7.86% against
-  −6.64%); under Monday open it **improves** it (−1.65% against −0.73%). The
-  specification-search remark attached to the old direction no longer has that
-  direction to attach to.
+- ~~The direction of the equal-threshold comparison reverses.~~ **Withdrawn — this
+  was my error.** I wrote that under Monday open the equal-threshold variant
+  "improves" performance at −1.65% against −0.73%. It does not: −1.65% is *more*
+  negative than −0.73%, so C is worse than P under both conventions, by 1.22
+  points under Friday close and 0.92 under Monday open. **The direction does not
+  reverse** and that manuscript statement survives unchanged. I misread the sign
+  of a comparison between two negative numbers — the error the paper spends a
+  section on — while listing statements invalidated by a sign change elsewhere.
+  Caught by checking the arithmetic before rewriting the section around it. Only
+  **two** manuscript statements are falsified, not three.
 
 ### What does not change
 
@@ -2675,6 +2680,79 @@ argued for, is a statement about specification fragility rather than a discovery
 
 No new inference was introduced; the comparison above is descriptive, as
 pre-specified.
+
+## Manuscript migrated to the Monday-open canonical output
+
+Every execution-dependent figure regenerated from `full_pipeline_results.json`
+and `entry_symmetry_results.json` rather than edited by hand. Twelve mapped
+tables rebuilt from their declared field paths; the unmapped but stale ones
+(`tab:sensitivity`, `tab:crossmarket`, `tab:subsample`, `tab:gpd`,
+`tab:decluster`) rebuilt the same way. All 27 provenance tests pass, so every
+mapped cell now traces to canonical output. Build clean at 37 pages.
+
+### One tool error, caught and reverted
+
+A generic in-place cell rewriter matched the span count inside
+`\multicolumn{2}{c}{...}` as a data value and wrote `\multicolumn{11}`,
+corrupting the factor table. Reverted to HEAD and replaced with explicit per-table
+row construction. The lesson is narrow: a regex that finds "the numbers in a
+cell" cannot distinguish data from LaTeX arguments, and structure-aware
+generation is the right shape for this job.
+
+### Two claims of mine withdrawn
+
+**The equal-threshold direction does not reverse.** I reported last turn that
+under Monday open the equal-threshold variant "improves" performance at −1.65%
+against −0.73%. It does not: −1.65% is more negative. C is worse than P under
+both conventions, by 1.22 points under Friday close and 0.92 under Monday open,
+and that manuscript statement survives unchanged. **I misread the sign of a
+comparison between two negative numbers** while enumerating statements
+invalidated by a sign change elsewhere. Only two manuscript statements were
+falsified, not three. The memo to Murad was corrected before it went out.
+
+**The threshold-grid monotonicity claim flipped back.** Finding 10 corrected the
+manuscript's "Return does not behave monotonically" to a monotone reading, which
+was right under Friday close. Under Monday open the returns are −10.55%, −0.73%,
+−1.25%, +2.77% — not monotone, so the original sentence was right and my
+correction is now wrong. Rewritten to describe what the current grid actually
+shows: activity falls monotonically, return and Sharpe do not.
+
+Both are worth keeping because they are the same shape: **a derived verbal claim
+that was true of one canonical output and silently false of the next.** The
+provenance mechanism catches a stale *number*; neither of these was a number.
+
+### Results that moved materially
+
+| | Friday close | Monday open |
+|---|---|---|
+| Cumulative gross | −6.64% | **−0.73%** |
+| Sharpe | −0.153 | **+0.005** |
+| Maximum drawdown | −12.56% | −10.64% |
+| In-position momentum $\beta_2$ | −0.823 | **−1.006** |
+| Wild cluster bootstrap $p$ | 0.038 | **0.024** |
+| Full-sample momentum $\beta_2$ | −0.046 | −0.084 |
+| SPA $p$ (twelve real candidates) | 0.248 | **0.580** |
+| GPD shape $\xi$ | −0.25 | **+0.12** (sign change) |
+| Extremal index $\theta$ | 0.83 | 0.70 |
+| Threshold-grid returns | monotone | **not monotone** |
+
+The EVT shape parameter changing sign is worth flagging on its own: the paper's
+tail-distribution section is built on a series that is now open-to-open rather
+than close-to-close, and both the point estimate and its interpretation moved.
+The interval still spans more than 2.3 and still contains zero, so the section's
+conclusion — that the tail estimate is imprecise and no conclusion turns on it —
+is unchanged.
+
+### What the manuscript gained about the terminal return
+
+One paragraph in the sample description, stating the data-handling rule: the
+panel keeps 504 weeks, performance statistics use the 503 with a realisable
+return, and a week without an executable price is treated as missing rather than
+as a zero. No chronology, no incident. The detail stays here.
+
+`analysis/specification.py` now declares the execution price convention as "first
+session open after signal" and adds `executable_n = 503`, so the specification
+table states both sample sizes.
 
 ## Backlog — out of scope for this pull request
 

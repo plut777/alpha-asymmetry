@@ -38,18 +38,19 @@ episodes.
 | **B pure-pricing** | **+5.57%** | **+5.21%** | **+0.178** | −11.97% | 51 | 14 | **+11.8** |
 | C equal-threshold | −1.65% | −1.96% | −0.029 | −10.83% | 43 | 12 | −2.4 |
 
-## 4. Three statements now in the manuscript that are false
+## 4. Two statements now in the manuscript that are false
 
 1. **"Every pre-specified version remains gross-negative in this sample."** B is
    +5.57%.
 2. **The range is "nearly as large as" the published hybrid's own loss.** The
    spread is now 9.04 percentage points against a 0.73% loss — more than twelve
    times it, not comparable to it.
-3. **The directional reading of the equal-threshold variant.** Under Friday close,
-   equalising the confirmation threshold *worsened* realised performance and we
-   noted the direction was what a specification-search concern would predict.
-   Under Monday open it *improves* performance. The remark has lost the direction
-   it was attached to.
+
+**One statement survives and is worth noting because I initially reported that it
+had not.** The equal-threshold variant is worse than the published hybrid under
+both conventions: −1.22 points under Friday close, −0.92 points under Monday open.
+The direction does not reverse, so the observation that equalising the
+confirmation threshold does not improve matters still stands as written.
 
 ## 5. What B is and is not evidence for
 

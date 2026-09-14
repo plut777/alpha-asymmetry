@@ -158,24 +158,22 @@ An earlier version of this paper reported pronounced positive tail-signal
 skewness; that figure described the unsigned exceedance magnitude, which is
 right-skewed by construction, and we document the correction. The economic null
 is correspondingly stark. Under the corrected chronology and holding rule, a
-skewness-threshold strategy loses 6.64\% cumulative gross over the decade (15
+skewness-threshold strategy loses 0.73\% cumulative gross over the decade (15
 directional holding episodes, Sharpe $-0.15$), is nearly inert in walk-forward
 testing (one episode in eight out-of-sample years), and provides no evidence of
 a positive residual alpha against proxy carry, momentum, and dollar factors
-(intercept $t = -0.65$ on in-position weeks). Conditioning on the weeks it is
+(intercept $t = -0.87$ on in-position weeks). Conditioning on the weeks it is
 invested, the rule loads negatively on time-series momentum, but that sample is
 selected by the entry condition on the same prices the factor is built from, so
 we report the loading as a mechanical property of the rule rather than as a
 factor exposure. Transaction costs make an already negative gross
 result monotonically worse; no break-even cost exists, since the strategy does
 not break even at zero cost.
-Data-snooping corrections complete the null: neither White's Reality Check ($p = 0.30$)
-nor Hansen's SPA ($p = 0.25$) rejects the null of no superior performance against
+Data-snooping corrections complete the null: neither White's Reality Check ($p = 0.30$) nor Hansen's SPA ($p = 0.58$) rejects the null of no superior performance against
 a zero-return benchmark across a 12-candidate universe, and neither rejects it
 when a thirteenth candidate is included
 consisting of a seeded coin flip, which posts the highest realized mean of the
-set. The weekly-return GPD shape parameter is imprecisely estimated ($\xi = -0.25$),
-and tail clustering is weak ($\theta = 0.83$, 95\% CI $[0.60, 1.00]$). We conclude
+set. The weekly-return GPD shape parameter is imprecisely estimated ($\xi = +0.12$, 95\% CI $[-1.67, 0.69]$), and tail clustering is moderate ($\theta = 0.70$, 95\% CI $[0.49, 1.00]$). We conclude
 that the evidence does not support broad alpha signal asymmetry in this setting
 (with one distributional exception that does not yield a tradable edge) or its exploitability,
 and we caution that unsigned-magnitude constructions can manufacture an
@@ -213,7 +211,7 @@ We document a plausible-sounding trading idea that does not survive rigorous tes
 
 The FX factor literature has seen recent advances in factor construction methodology. \citet{fan2025optimizing} introduce a framework that dynamically optimizes currency factor strategies, including carry, momentum, and value, via spot and forward trading, evaluating 24,336 portfolio optimization approaches and demonstrating that optimized factors significantly outperform na\"{i}ve constructions after correcting for data snooping bias. Our work complements this optimization-focused agenda by examining a more fundamental question: whether the \textit{distributional asymmetry} in factor returns (long vs.\ short side) itself constitutes an exploitable signal. Where Fan et al.\ optimize how factors are constructed, we test whether the asymmetric properties of the resulting return distributions carry economic information. \citet{hertrich2025cvar} provides additional context through analysis of G10 carry, momentum, and value strategies under forward-looking Conditional Value-at-Risk conditioning, finding that the carry trade risk premium has remained unexpectedly low since the global financial crisis despite negative covariance with global FX volatility---suggesting a potential failure of currency pricing theory that our distributional analysis may help illuminate.
 
-Our empirical contribution is threefold, and we state it narrowly. First, we provide a systematic characterization of distributional properties across five distinct alpha types in EUR/JPY forex data, of which one---the volatility-expansion signal---survives dependence-robust inference under the paper's primary construction. Second, we report a corrected analysis of the trading rule: it loses money before frictions, walk-forward selection leaves it nearly dormant, and data-snooping-corrected tests do not reject the null of no superior performance against a zero-return benchmark across a twelve-strategy universe. Third, we document the specification sensitivity of those results to three choices the original specification did not argue for, whose statistical behaviour differs and which we therefore report separately: the weekly aggregation of the tail signal, under which the skewness estimate changes sign and the inferential conclusion with it; the execution timing, where point estimates move materially and non-monotonically in delay while the pre-specified paired contrasts include zero; and the symmetry of the entry rule, where realised loss magnitudes move materially while every pre-specified variant remains gross-negative in this sample. We do not claim a new empirical finding about factor exposure; the momentum loading reported in Section~\ref{sec:factors} is a property of the entry rules, not a discovery about the market.
+Our empirical contribution is threefold, and we state it narrowly. First, we provide a systematic characterization of distributional properties across five distinct alpha types in EUR/JPY forex data, of which one---the volatility-expansion signal---survives dependence-robust inference under the paper's primary construction. Second, we report a corrected analysis of the trading rule: it loses money before frictions, walk-forward selection leaves it nearly dormant, and data-snooping-corrected tests do not reject the null of no superior performance against a zero-return benchmark across a twelve-strategy universe. Third, we document the specification sensitivity of those results to three choices the original specification did not argue for, whose statistical behaviour differs and which we therefore report separately: the weekly aggregation of the tail signal, under which the skewness estimate changes sign and the inferential conclusion with it; the execution timing, where point estimates move materially and non-monotonically in delay while the pre-specified paired contrasts include zero; and the symmetry of the entry rule, where realised performance varies across the four pre-specified rules by an order of magnitude more than the reported result and changes sign. We do not claim a new empirical finding about factor exposure; the momentum loading reported in Section~\ref{sec:factors} is a property of the entry rules, not a discovery about the market.
 
 \section{Methodology}
 
@@ -221,7 +219,9 @@ Our empirical contribution is threefold, and we state it narrowly. First, we pro
 
 We sample EUR/JPY forex data from November 2015 to August 2025, sourced from Yahoo Finance (EURJPY=X). The raw weekly grid begins on 6 November 2015; after rolling-statistic warmup, the analysis-ready sample runs from 8 January 2016 to 29 August 2025 and contains 504 weekly observations. We note that Yahoo Finance quotes are indicative mid-rates rather than executable prices; accordingly, all transaction cost analysis (Section~\ref{sec:tcosts}) uses separate spread assumptions. The repository did not contain the raw snapshots used for the previously committed results, so this revision records retrieval times and SHA-256 hashes but does not claim bit-for-bit reproduction of that earlier run. The sample period encompasses multiple market regimes including the post-Brexit volatility spike (2016), COVID-19 pandemic shock (2020), and subsequent monetary policy divergence between the Federal Reserve, ECB, and Bank of Japan.
 
-\textbf{Data Frequency and Aggregation.} Alpha signals are computed daily using the specified rolling windows (5-day, 20-day, 60-day), then aggregated to weekly frequency using Friday closing values to align with institutional trading cycles. The 504 analysis-ready weekly observations represent end-of-week snapshots of daily-computed signals. Daily returns feed the alpha definitions and volatility estimates; strategy returns are Friday-close-to-Friday-close percentage changes.
+\textbf{Data Frequency and Aggregation.} \textbf{Executable Sample.} A position is realised from the first trading-session open after its signal, so the final week of the sample has no subsequent open and no realisable return. The analysis panel retains all 504 weeks, because the alpha signals are defined for every one of them, while performance statistics are computed over the 503 weeks that carry a realisable return. A week without an executable price is treated as missing rather than as a zero return: recording it as zero would place an observation that does not exist into the mean, the volatility, the bootstrap and the factor regression as though it had been observed.
+
+Alpha signals are computed daily using the specified rolling windows (5-day, 20-day, 60-day), then aggregated to weekly frequency using Friday closing values to align with institutional trading cycles. The 504 analysis-ready weekly observations represent end-of-week snapshots of daily-computed signals. Daily returns feed the alpha definitions and volatility estimates; strategy returns are Friday-close-to-Friday-close percentage changes.
 
 \label{sec:signals}
 The dataset includes five pre-computed alpha signals, each capturing distinct aspects of market dynamics:
@@ -368,7 +368,8 @@ Position size lower bound & 1 & gross notional units & Equation 10 \\
 Position size upper bound & 2 & gross notional units & Equation 10 \\
 Notional sizing & weekly & rebalance frequency & Equation 10 \\
 Execution lag & 1 & weeks & Timing convention \\
-Execution price convention & Friday close & price & Timing convention \\
+Execution price convention & first session open after signal & price & Timing convention \\
+Weeks with a realisable return & 503 & weeks & Sample \\
 Pip size (JPY pairs) & 0.01 & price increment & Cost model \\
 Round-trip cost tiers & 0.0, 0.3, 0.7, 1.3, 2.0 & pips & Cost table \\
 Skewness bootstrap block length & 13 & weeks & Circular block bootstrap \\
@@ -531,19 +532,19 @@ Table \ref{tab:backtest} compares the asymmetry strategy against the three bench
 \toprule
 Strategy & Return & Vol & Sharpe & Sortino & MDD & Episodes / Legs \\
 \midrule
-Asymmetry & $-$6.64\% & 4.08\% & $-$0.153 & $-$0.079 & $-$12.56\% & 15 / 61 \\
-Momentum (20w) & $-$18.92\% & 8.40\% & $-$0.215 & $-$0.309 & $-$31.32\% & 54 / 107 \\
-Mean Rev.\ (2.0$\sigma$) & 10.74\% & 3.02\% & 0.364 & 0.198 & $-$4.32\% & 27 / 54 \\
-Buy \& Hold & 33.53\% & 8.60\% & 0.390 & 0.584 & $-$15.78\% & 1 / 1 \\
+Asymmetry & $-$0.73\% & 4.42\% & 0.005 & 0.003 & $-$10.64\% & 15 / 61 \\
+Momentum (20w) & $-$23.48\% & 8.51\% & $-$0.282 & $-$0.393 & $-$34.77\% & 54 / 107 \\
+Mean Rev.\ (2.0$\sigma$) & $-$1.27\% & 3.48\% & $-$0.021 & $-$0.010 & $-$7.63\% & 27 / 54 \\
+Buy \& Hold & 34.63\% & 8.77\% & 0.394 & 0.608 & $-$15.40\% & 1 / 1 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
 \parbox{\linewidth}{\footnotesize Note: Return = cumulative gross return over 504 weeks; Vol = annualized volatility; MDD = maximum drawdown. A holding episode is one continuous directional position; a direct reversal closes one episode and opens another. Execution legs count entries and exits separately, so a reversal has two legs. Turnover, resizing, and reversals are also recorded in the dated ledgers. All strategies use one timing lag. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported benchmark rows (momentum $-15.66\%$, mean reversion $34.03\%$, buy-and-hold $2.31\%$) that traced to no committed code, and the buy-and-hold figure was inconsistent with the $+33.5\%$ EUR/JPY spot move over the sample; all benchmark rows have been recomputed from the replication pipeline.}
 \end{table}
 
-\textbf{Risk-Adjusted Performance.} The corrected asymmetry strategy loses 6.64\% gross, with a Sharpe ratio of $-0.153$, versus a 33.53\% buy-and-hold gain. It is invested for 55 of 504 realized-return weeks. Its low 4.08\% annualized volatility still largely reflects inactivity rather than skill. The 20-week momentum benchmark also loses money, while the simple mean-reversion and buy-and-hold benchmarks are positive.
+\textbf{Risk-Adjusted Performance.} The corrected asymmetry strategy loses 0.73\% gross, with a Sharpe ratio of $+0.005$ that is indistinguishable from zero, versus a 34.63\% buy-and-hold gain. It is invested for 55 of 504 realized-return weeks. Its low 4.42\% annualized volatility still largely reflects inactivity rather than skill. The 20-week momentum benchmark also loses money, while the simple mean-reversion and buy-and-hold benchmarks are positive.
 
-\textbf{Drawdown Analysis.} The asymmetry strategy's maximum drawdown is $-12.56\%$, against buy-and-hold's $-15.78\%$. Given that it is exposed in only 55 of 504 weeks, losing four-fifths of what a permanently invested position lost is not evidence of risk control. Mean reversion remains more contained at $-4.32\%$.
+\textbf{Drawdown Analysis.} The asymmetry strategy's maximum drawdown is $-10.64\%$, against buy-and-hold's $-15.40\%$. Given that it is exposed in only 55 of 504 weeks, losing two-thirds of what a permanently invested position lost is not evidence of risk control. Mean reversion remains more contained at $-7.63\%$.
 
 \textbf{Trading Frequency.} The corrected ledger records 15 asymmetry holding episodes, 61 execution legs, one direct reversal, 31 weekly resizings, and total absolute turnover of 52.00 units. The resizings more than double the leg count while adding only 5.8\% to turnover, because they are small: they average 0.19 units of notional against 1.64 units at entry, the asymmetry index being a twenty-week rolling statistic that moves slowly. Momentum has 54 directional episodes because every sign reversal closes one episode and opens another; dividing position-change events by two understated this count. These definitions separate economic holding episodes from executions and turnover.
 
@@ -569,10 +570,10 @@ To test whether the EUR/JPY findings generalize, we apply the identical alpha co
 \toprule
 Market & Tail Skew & Fast Skew & Pricing Skew & Coverage Skew & Strat.\ Ret. & B\&H Ret. \\
 \midrule
-EUR/JPY & $-$1.48 & 0.01 & $-$0.17 & 1.75 & $-$6.64\% & 33.53\% \\
-GBP/USD & 0.82 & 0.01 & $-$0.14 & 1.58 & $-$13.32\% & $-$7.63\% \\
-SPY & 0.94 & $-$0.21 & $-$1.09 & 1.85 & 14.20\% & 294.30\% \\
-GLD & 0.69 & $-$0.00 & $-$0.19 & 1.32 & $-$15.44\% & 200.97\% \\
+EUR/JPY & $-$1.48 & 0.01 & $-$0.17 & $-$0.73\% & 33.53\% \\
+GBP/USD & 0.82 & 0.01 & $-$0.14 & $-$14.45\% & $-$7.63\% \\
+SPY & 0.94 & $-$0.21 & $-$1.09 & 14.71\% & 294.30\% \\
+GLD & 0.69 & $-$0.00 & $-$0.19 & $-$13.03\% & 200.97\% \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
@@ -681,14 +682,12 @@ Table \ref{tab:subsample} partitions the sample into economically meaningful sub
 \toprule
 Subsample & $N$ & Tail Skew & Fast Skew & Price Skew & Strategy Ret. \\
 \midrule
-Pre-COVID (2016--2019) & 208 & -3.40 & -0.05 & 0.12 & $-$6.40\% \\
-COVID Shock (2020) & 52 & 5.02 & 0.09 & -0.07 & 2.74\% \\
-Post-COVID (2021--2025) & 244 & -0.73 & 0.05 & -0.38 & $-$2.91\% \\
-\midrule
-Low VIX (VIX $<$ 20) & 342 & -3.25 & 0.04 & -0.20 & $-$5.08\% \\
-High VIX (VIX $\geq$ 20) & 162 & 0.62 & -0.06 & -0.10 & $-$1.65\% \\
-\midrule
-Rate Hike Regime (2022--2025) & 191 & -0.71 & -0.13 & -0.53 & 3.47\% \\
+Pre-COVID (2016--2019) & 208 & -3.40 & -0.05 & 0.12 & $-$7.08\% \\
+COVID Shock (2020) & 52 & 5.02 & 0.09 & -0.07 & 2.77\% \\
+Post-COVID (2021--2025) & 244 & -0.73 & 0.05 & -0.38 & 3.96\% \\
+Low VIX (VIX $<$ 20) & 342 & -3.25 & 0.04 & -0.20 & $-$1.69\% \\
+High VIX (VIX $\geq$ 20) & 162 & 0.62 & -0.06 & -0.10 & 0.98\% \\
+Rate Hike Regime (2022--2025) & 191 & -0.71 & -0.13 & -0.53 & 7.21\% \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
@@ -712,9 +711,9 @@ The baseline skewness threshold (0.75) deserves scrutiny: is it arbitrary or rob
 \toprule
 Threshold & Episodes & Exposed Weeks & Return & Sharpe & Hit Rate \\
 \midrule
-0.50 & 25 & 89 & $-$9.61\% & $-$0.18 & 46.1\% \\
-0.75 & 15 & 55 & $-$6.64\% & $-$0.15 & 47.3\% \\
-1.00 & 4 & 16 & $-$2.59\% & $-$0.13 & 43.8\% \\
+0.50 & 25 & 89 & $-$10.55\% & $-$0.19 & 49.4\% \\
+0.75 & 15 & 55 & $-$0.73\% & 0.00 & 49.1\% \\
+1.00 & 4 & 16 & $-$1.25\% & $-$0.06 & 50.0\% \\
 1.25 & 1 & 4 & \multicolumn{3}{c}{\emph{single episode: not reported}} \\
 \bottomrule
 \end{tabular}
@@ -722,7 +721,7 @@ Threshold & Episodes & Exposed Weeks & Return & Sharpe & Hit Rate \\
 \parbox{\linewidth}{\footnotesize Note: Returns use the full asymmetry strategy specification of Section~2.4 with weekly position sizing. Activity is placed first because it is the stable feature of the grid: raising the threshold monotonically reduces the number of episodes and the weeks of exposure, while the return does not vary monotonically. \textbf{The 1.25 row reports no performance figures, for the same reason as Table~\ref{tab:oos} and in fact from the same episode:} one holding episode supplies no sample over which a Sharpe ratio or a hit rate can be computed. The replication pipeline applies this rule wherever such statistics arise rather than table by table, and records the suppressed values in \texttt{analysis/full\_pipeline\_results.json}.}
 \end{table}
 
-\textbf{Threshold Selection.} What the grid shows unambiguously is that activity falls as the threshold rises: 25 episodes and 89 exposed weeks at 0.50, down to a single episode and four exposed weeks at 1.25. Return, Sharpe and drawdown all improve monotonically as the threshold rises, while trading activity falls: every threshold with enough episodes to evaluate loses money, and the only one showing a positive return rests on a single episode. The 1.25 threshold is the same lone 2020 episode that the walk-forward selects, and it is reported here as an activity count rather than as a return for the reason given in Section~\ref{sec:robustness}: a single episode cannot distinguish an edge from a coin flip. Selecting it after seeing the full sample would in any case be data snooping rather than robustness. The prespecified 0.75 baseline remains the confirmatory result.
+\textbf{Threshold Selection.} What the grid shows unambiguously is that activity falls as the threshold rises: 25 episodes and 89 exposed weeks at 0.50, down to a single episode and four exposed weeks at 1.25. Activity falls monotonically as the threshold rises, but return and Sharpe do not: the return improves from $-$10.55\% to $-$0.73\%, falls back to $-$1.25\%, and turns positive only at the threshold with a single episode. Every threshold with enough episodes to evaluate loses money. The 1.25 threshold is the same lone 2020 episode that the walk-forward selects, and it is reported here as an activity count rather than as a return for the reason given in Section~\ref{sec:robustness}: a single episode cannot distinguish an edge from a coin flip. Selecting it after seeing the full sample would in any case be data snooping rather than robustness. The prespecified 0.75 baseline remains the confirmatory result.
 
 \subsection{Execution-Timing Sensitivity}
 \label{sec:exectiming}
@@ -738,8 +737,8 @@ The execution convention is a free choice that the published specification made 
 \toprule
 Entry timing & Cum.\ return & Mean weekly & Sharpe & MDD & Net at 2.0 pips \\
 \midrule
-Friday close (reported baseline) & $-$6.64\% & $-$1.21 bps & $-$0.154 & $-$12.56\% & $-$7.02\% \\
-Monday open (published spec.) & $-$0.73\% & $+$0.04 bps & $+$0.005 & $-$10.64\% & $-$1.14\% \\
+Friday close & $-$6.64\% & $-$1.21 bps & $-$0.154 & $-$12.56\% & $-$7.02\% \\
+Monday open (reported baseline) & $-$0.73\% & $+$0.04 bps & $+$0.005 & $-$10.64\% & $-$1.14\% \\
 Monday close & $-$0.92\% & 0.00 bps & 0.000 & $-$10.72\% & $-$1.32\% \\
 Tuesday open & $-$8.03\% & $-$1.50 bps & $-$0.185 & $-$17.19\% & $-$8.40\% \\
 \bottomrule
@@ -758,7 +757,7 @@ The interpretation rule was that the difference would be treated as weekend-spec
 
 What the grid establishes is narrow and worth stating plainly: the headline result is sensitive to a design choice the original specification did not argue for, at a magnitude this sample cannot resolve.
 
-Three choices the original specification did not argue for---the weekly aggregation of the tail signal, the execution timing, and the symmetry of the entry rule---each demonstrate material sensitivity of the reported results to under-justified analytical or design decisions. Their statistical behaviour is not the same, and they should not be read as one phenomenon. Under tail aggregation, the sign and the inferential conclusion change across reasonable constructions. Under execution timing, point estimates move materially and non-monotonically, while the pre-specified paired contrasts are not distinguishable from zero. Under entry symmetrization, realised loss magnitudes move materially, while every pre-specified version remains gross-negative in this sample. Section~\ref{sec:entrysymmetry} reports the last of these.
+Three choices the original specification did not argue for---the weekly aggregation of the tail signal, the execution timing, and the symmetry of the entry rule---each demonstrate material sensitivity of the reported results to under-justified analytical or design decisions. Their statistical behaviour is not the same, and they should not be read as one phenomenon. Under tail aggregation, the sign and the inferential conclusion change across reasonable constructions. Under execution timing, point estimates move materially and non-monotonically, while the pre-specified paired contrasts are not distinguishable from zero. Under entry symmetrization, realised performance varies across the four pre-specified rules by more than the reported result itself and changes sign, so the economic conclusion is not stable across them. Section~\ref{sec:entrysymmetry} reports the last of these.
 
 \subsection{Entry-Rule Symmetry}
 \label{sec:entrysymmetry}
@@ -776,21 +775,25 @@ Collapsing the asymmetry is underdetermined, because it requires choosing which 
 \toprule
 Entry rule & Gross & Net 2.0p & Sharpe & MDD & Eps. & Weeks & bps/week \\
 \midrule
-Published hybrid (reported baseline) & $-$6.64\% & $-$7.02\% & $-$0.153 & $-$12.56\% & 15 & 55 & $-$11.0 \\
-Pure-fast (both legs, fast alpha) & $-$1.65\% & $-$2.16\% & $-$0.020 & $-$8.59\% & 16 & 44 & $-$1.8 \\
-Pure-pricing (both legs, pricing alpha) & $-$4.13\% & $-$4.46\% & $-$0.106 & $-$16.01\% & 14 & 51 & $-$7.1 \\
-Equal-threshold hybrid & $-$7.86\% & $-$8.15\% & $-$0.221 & $-$13.70\% & 12 & 43 & $-$17.6 \\
+Published hybrid (reported baseline) & $-$0.73\% & $-$1.14\% & 0.005 & $-$10.64\% & 15 & 55 & 0.4 \\
+Pure-fast (both legs, fast alpha) & $-$3.48\% & $-$3.97\% & $-$0.067 & $-$12.05\% & 16 & 44 & $-$6.1 \\
+Pure-pricing (both legs, pricing alpha) & 5.57\% & 5.21\% & 0.178 & $-$11.97\% & 14 & 51 & 11.8 \\
+Equal-threshold hybrid & $-$1.65\% & $-$1.96\% & $-$0.029 & $-$10.83\% & 12 & 43 & $-$2.4 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
 \parbox{\linewidth}{\footnotesize Note: All four rules use the identical sample of 504 weeks, the identical sizing, exit and execution conventions, and differ only in the entry condition. ``Weeks'' counts in-position weeks and ``bps/week'' is the mean gross weekly return over those weeks, reported for every rule under the pre-registered exposure guard so that a rule which is out of the market more often cannot be read as safer. Net returns are quoted at 2.0 pips round-trip, the widest tier in the paper's cost table. Generated from \texttt{analysis/entry\_symmetry\_results.json}.}
 \end{table}
 
-The published hybrid and all three pre-specified symmetrizations produce negative realised gross returns in this sample; the magnitude varies materially across specifications. The realised gross returns span 6.21 percentage points, from $-$1.65\% to $-$7.86\%, a range nearly as large as the published hybrid's own cumulative loss of 6.64\%.
+Realised performance varies materially across the four pre-specified entry rules, and the variation includes a change of sign. The published hybrid loses 0.73\% gross; pure-fast loses 3.48\%; the equal-threshold hybrid loses 1.65\%; and \textbf{pure-pricing gains 5.57\% gross, 5.21\% net of the widest cost tier}. The spread is 9.04 percentage points, against a published-hybrid loss of 0.73\%---an order of magnitude larger than the result it surrounds.
 
-Pure-fast and pure-pricing hold positions in fewer weeks than the published rule---44 and 51 against 55---but both also remain negative per exposed week, at $-$1.8 and $-$7.1 basis points against $-$11.0. Their less negative cumulative performance is therefore not solely an artefact of lower exposure. Pure-pricing records the deepest drawdown of the four at $-$16.01\%.
+\textbf{What the positive variant does and does not establish.} Pure-pricing is a pre-specified variant, not a rule found by searching. Its return is reported because the pre-registration required all three symmetrizations to be disclosed whatever they produced, and that requirement was committed before the execution convention was decided and before any of these figures existed. It is \emph{not} offered as a preferred strategy, and no comparative inference among the four was pre-specified or run, so nothing here establishes that pure-pricing has positive expected alpha. What it establishes is narrower: \textbf{the sample does not support a stable performance conclusion across the pre-specified entry-rule constructions.}
 
-Equalising the confirmation threshold worsens realised performance in this sample. This is one comparison and is not evidence that the published threshold was tuned; its direction is merely consistent with what a specification-search concern would predict.
+The claim this paper made in an earlier draft---that the economic failure is robust to how the entry asymmetry is resolved---is no longer supportable, and we withdraw it rather than qualify it. Four defensible readings of one rule, differing only in a design choice the original specification never argued for, produce outcomes spanning from a 3.48\% loss to a 5.57\% gain.
+
+Exposure does not explain the spread. Pure-fast and pure-pricing hold positions in fewer weeks than the published rule---44 and 51 against 55---and the ordering is the same per exposed week as it is cumulatively: $-$6.1 and $+$11.8 basis points against the published rule's $+$0.4. A rule that is out of the market more often is not thereby made to look better here.
+
+Equalising the confirmation threshold worsens realised performance under both execution conventions, by 1.22 percentage points under Friday close and 0.92 under Monday open. This is one comparison and is not evidence that the published threshold was tuned; its direction is merely consistent with what a specification-search concern would predict.
 
 These are sensitivity exhibits. No variant is offered as a replacement rule, and realised performance was pre-specified not to determine which symmetrization is treated as defensible.
 
@@ -810,11 +813,11 @@ The EUR/JPY market is highly liquid, with typical spreads of 0.5--1.0 pips durin
 \toprule
 Cost Scenario & Round-Trip Cost (pips) & Net Return & Net Sharpe \\
 \midrule
-Zero Cost (Baseline) & 0.0 & $-$6.64\% & $-$0.153 \\
-Prime Brokerage & 0.3 & $-$6.70\% & $-$0.155 \\
-Institutional & 0.7 & $-$6.77\% & $-$0.157 \\
-Retail (Tight) & 1.3 & $-$6.89\% & $-$0.160 \\
-Retail (Wide) & 2.0 & $-$7.02\% & $-$0.164 \\
+Zero Cost (Baseline) & 0.0 & $-$0.73\% & 0.005 \\
+Prime Brokerage & 0.3 & $-$0.79\% & 0.003 \\
+Institutional & 0.7 & $-$0.87\% & 0.001 \\
+Retail (Tight) & 1.3 & $-$0.99\% & $-$0.001 \\
+Retail (Wide) & 2.0 & $-$1.14\% & $-$0.005 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
@@ -823,11 +826,11 @@ Retail (Wide) & 2.0 & $-$7.02\% & $-$0.164 \\
 
 \textbf{Cost Components.} We model spread and impact per dated execution leg, charged in proportion to the notional actually traded. Financing/carry is excluded uniformly because no suitable dated rate or forward series is present; the omission may matter for leveraged positions and should be addressed with owner-approved data in future work.
 
-\textbf{There Is No Break-Even Cost.} The published version of this paper reported a break-even round-trip cost of 19.2 pips, and read that figure as reassurance: costs would have to be implausibly wide before they consumed the strategy's edge. That number was meaningful only for as long as the gross return was positive. It is not that the corrected break-even is larger, or smaller, or harder to estimate. \textbf{It does not exist.} The corrected strategy returns $-6.64\%$ before any cost is applied, so there is no positive cost level at which it crosses zero; it begins below zero and every cost tier moves it further away. A break-even cost presumes a profit to be consumed, and there is none.
+\textbf{There Is No Break-Even Cost.} The published version of this paper reported a break-even round-trip cost of 19.2 pips, and read that figure as reassurance: costs would have to be implausibly wide before they consumed the strategy's edge. That number was meaningful only for as long as the gross return was positive. It is not that the corrected break-even is larger, or smaller, or harder to estimate. \textbf{It does not exist.} The corrected strategy returns $-0.73\%$ before any cost is applied, so there is no positive cost level at which it crosses zero; it begins below zero and every cost tier moves it further away. A break-even cost presumes a profit to be consumed, and there is none.
 
 This is a cleaner statement of the paper's null than the cost table it replaces. The earlier framing invited the reader to ask whether frictions were large enough to matter, which is the right question only when a gross edge exists to be eroded. Under the corrected specification the question does not arise. Costs are not the reason the strategy fails, and they are not exonerated either: they are simply downstream of a backtest that has already failed.
 
-\textbf{Cost Interpretation.} Execution costs make an already negative result more negative, monotonically and by little: gross $-6.64\%$ becomes $-7.02\%$ at two pips round-trip, a drag of 0.38 percentage points. The gross backtest fails first, and by a margin roughly seventeen times the widest cost tier considered.
+\textbf{Cost Interpretation.} Execution costs make an already negative result more negative, monotonically and by little: gross $-0.73\%$ becomes $-1.14\%$ at two pips round-trip, a drag of 0.41 percentage points. Under the previous execution convention the gross loss dwarfed that drag; it no longer does, and the cost tier is now of the same order as the gross result itself.
 
 \textbf{What This Cost Model Cannot See.} The immateriality of costs here is partly a property of the model and should not be over-read. Spread is charged strictly in proportion to notional traded, with no fixed or minimum per-order component. The corrected specification generates 31 weekly resizings averaging 0.19 units of notional---small orders, and exactly the population on which a fixed per-order charge falls hardest. A realistic commission schedule with any per-ticket element would price those 31 orders at something rather than nothing, and the drag reported above is correspondingly a lower bound. It would not change the sign of the result, but ``costs are immaterial'' is a claim this model is not equipped to make.
 
@@ -849,30 +852,29 @@ where the factors are single-market proxies constructible from our data rather t
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-& \multicolumn{2}{c}{Full sample ($n = 504$)} & \multicolumn{2}{c}{In-position weeks ($n = 55$)} \\
+& \multicolumn{2}{c}{Full sample ($n = 503$)} & \multicolumn{2}{c}{In-position weeks ($n = 55$)} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5}
 Variable & Coefficient & $t$-stat & Coefficient & $t$-stat \\
 \midrule
-Intercept ($\alpha$) & $-$0.00012 & $-$0.52 & $-$0.00131 & $-$0.65 \\
-Carry ($\beta_1$) & 0.0180 & 0.60 & 0.348 & 1.43 \\
-Momentum ($\beta_2$) & $-$0.0462 & $-$2.08$^{*}$ & $-$0.823 & $-$2.54$^{*}$ \\
-Dollar ($\beta_3$) & 0.0148 & 0.67 & 0.155 & 0.97 \\
-\midrule
-$R^2$ & \multicolumn{2}{c}{0.011} & \multicolumn{2}{c}{0.203} \\
-$F$-statistic & \multicolumn{2}{c}{2.12} & \multicolumn{2}{c}{4.32} \\
+Intercept ($\alpha$) & $-$0.00002 & $-$0.08 & $-$0.00200 & $-$0.87 \\
+Carry ($\beta_1$) & 0.0166 & 0.65 & 0.248 & 1.52 \\
+Momentum ($\beta_2$) & $-$0.0839 & $-$2.49$^{*}$ & $-$1.006 & $-$3.70$^{*}$ \\
+Dollar ($\beta_3$) & 0.0634 & 1.68 & 0.519 & 2.08 \\
+$R^2$ & \multicolumn{2}{c}{0.035} & \multicolumn{2}{c}{0.390} \\
+$F$-statistic & \multicolumn{2}{c}{2.32} & \multicolumn{2}{c}{10.88} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
 \parbox{\linewidth}{\footnotesize Note: Full-sample column uses Newey-West HAC standard errors with 4 lags. \textbf{The in-position column uses CR2 standard errors clustered by holding episode} (55 weeks in 15 clusters) with Bell--McCaffrey degrees of freedom, because those weeks are non-contiguous---they are drawn from separate episodes spread across a decade---and a lag-based correction presumes consecutive observations. The reported $p$-values for momentum come from a restricted wild cluster bootstrap; see Table~\ref{tab:sevariants}. $^{*}$ $p < 0.05$ (unadjusted). The full sample includes the flat weeks in which the dependent variable is structurally zero; the in-position sample of 55 weeks is the effective exposure sample and the economically interpretable one. The intercept is not significant in either specification. Momentum is the only factor that loads significantly, and it loads \emph{negatively} in both: $p = 0.038$ on the full sample and $p = 0.038$ on in-position weeks. Under the earlier specification the same coefficient was $-$0.007 ($t = -0.37$, $p = 0.71$) on the full sample and $-$0.247 ($t = -0.51$, $p = 0.61$) in position; the change is a consequence of correcting the holding rule and the execution lag, not of altering the regression. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a marginally significant intercept of 21 bps weekly (10.9\% annualized) with $F = 20.8$, which could not be reproduced and was internally inconsistent with its own $R^2$ and with the 3.60\% cumulative backtest return. Those figures describe the state of the paper at that time; the corresponding values here are an intercept of $-$1.2 bps weekly ($-$0.00012 in weekly decimal return) and $F = 2.12$, against a cumulative backtest return of $-6.64\%$.}
 \end{table}
 
-\textbf{No Evidence of Positive Residual Alpha.} The intercept is negative and statistically indistinguishable from zero in both specifications ($t = -0.52$ full sample; $t = -0.65$ on in-position weeks). This is evidence against a positive residual-alpha claim, not proof that the population intercept is exactly zero.
+\textbf{No Evidence of Positive Residual Alpha.} The intercept is negative and statistically indistinguishable from zero in both specifications ($t = -0.08$ full sample; $t = -0.87$ on in-position weeks). This is evidence against a positive residual-alpha claim, not proof that the population intercept is exactly zero.
 
 \textbf{What the In-Position Regression Can and Cannot Show.} Restricting the regression to in-position weeks is not a neutral choice of sample. Those weeks are selected by the strategy's own entry rules, and those rules are functions of the same price series from which the momentum factor is built: the short leg fires when pricing alpha is high, which is to say after price has risen relative to its sixty-day average, and a twelve-week time-series momentum rule is long in precisely those states. The sample and the regressor are jointly determined by the entry condition.
 
-The negative loading on in-position weeks ($\beta_2 = -0.823$, CR2 interval $[-1.54, -0.10]$, wild cluster bootstrap $p = 0.038$) should therefore be read as \textbf{a description of what the entry rules mechanically produce, not as an estimate of a factor exposure the strategy carries independently of them}. A rule that sells strength and buys weakness will load negatively on momentum during the weeks it is active whether or not any factor relationship exists in the underlying returns. We report the coefficient because it characterises the rule. We do not interpret it as explaining the strategy's losses, and we do not present it as an empirical finding about the market.
+The negative loading on in-position weeks ($\beta_2 = -1.006$, CR2 interval $[-1.64, -0.37]$, wild cluster bootstrap $p = 0.024$) should therefore be read as \textbf{a description of what the entry rules mechanically produce, not as an estimate of a factor exposure the strategy carries independently of them}. A rule that sells strength and buys weakness will load negatively on momentum during the weeks it is active whether or not any factor relationship exists in the underlying returns. We report the coefficient because it characterises the rule. We do not interpret it as explaining the strategy's losses, and we do not present it as an empirical finding about the market.
 
-The full-sample regression is reported alongside as an economically relevant description of the complete strategy return stream: it is what an investor holding the rule would have experienced, flat weeks included. There the loading is $\beta_2 = -0.046$ ($p = 0.038$), attenuated by the 449 weeks in which the dependent variable is structurally zero, and it does not meet the paper's Bonferroni-adjusted threshold. \textbf{It does not solve the identification problem either.} Including the inactive weeks changes what is being described; it does not make the active weeks independent of the entry rule that selected them. The intercept is indistinguishable from zero in both specifications, and neither supports a claim about residual alpha.
+The full-sample regression is reported alongside as an economically relevant description of the complete strategy return stream: it is what an investor holding the rule would have experienced, flat weeks included. There the loading is $\beta_2 = -0.084$ ($p = 0.013$), attenuated by the 448 weeks in which the dependent variable is structurally zero, and it does not meet the paper's Bonferroni-adjusted threshold. \textbf{It does not solve the identification problem either.} Including the inactive weeks changes what is being described; it does not make the active weeks independent of the entry rule that selected them. The intercept is indistinguishable from zero in both specifications, and neither supports a claim about residual alpha.
 
 \textbf{Inference Was Tightened Three Times, and That Was Not the Binding Problem.} The estimated significance of this loading moved substantially as the inferential treatment improved: $p = 0.00019$ under the Newey-West treatment first applied, $p = 0.0091$ once errors were clustered by holding episode, and $p \approx 0.038$ under CR2 with a restricted wild cluster bootstrap appropriate to fifteen clusters. Each step was a correction, and the first two were withdrawn as inapplicable rather than merely superseded. Fifteen clusters is few, and ordinary cluster-robust errors are asymptotic in the number of clusters rather than the number of observations, so they over-reject when clusters are scarce; the reported figures use the bias-reduced CR2 estimator of \citet{bell2002bias} with Satterthwaite degrees of freedom---10.2 here rather than the naive 14---and take the $p$-value from a restricted wild cluster bootstrap-$t$ with Rademacher weights \citep{cameron2008bootstrap}. Even these are approximations at fifteen clusters, and the $p$-value should be read as indicative rather than exact. Table~\ref{tab:sevariants} reports all of it.
 
@@ -885,15 +887,15 @@ The full-sample regression is reported alongside as an economically relevant des
 \toprule
 Inference & $\hat{\beta}_2$ & SE & $t$ & $p$ & Role \\
 \midrule
-Wild cluster bootstrap-$t$ & $-$0.823 & --- & $-$2.54 & \textbf{0.038} & \textbf{Primary} \\
-CR2, Bell--McCaffrey dof $= 10.2$ & $-$0.823 & 0.324 & $-$2.54 & 0.029 & Standard error and interval \\
-HC3 & $-$0.823 & 0.380 & $-$2.16 & 0.030 & Robustness \\
+Wild cluster bootstrap-$t$ & $-$1.006 & --- & $-$3.70 & \textbf{0.024} & \textbf{Primary} \\
+CR2, Bell--McCaffrey dof $= 7.6$ & $-$1.006 & 0.272 & $-$3.70 & 0.007 & Standard error and interval \\
+HC3 & $-$1.006 & 0.254 & $-$3.97 & 0.000 & Robustness \\
 \midrule
-Newey-West HAC, 4 lags & $-$0.823 & 0.221 & $-$3.73 & 0.0002 & \emph{Withdrawn} \\
+Newey-West HAC, 4 lags & $-$1.006 & 0.168 & $-$5.98 & 0.0000 & \emph{Withdrawn} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
-\parbox{\linewidth}{\footnotesize Note: 55 in-position weeks in 15 holding episodes. The point estimate is identical throughout; only the inference differs. Ordinary cluster-robust errors are asymptotic in the number of clusters, and fifteen is few, so CR2 supplies the standard error and the 95\% interval $[-1.54, -0.10]$, and a restricted wild cluster bootstrap-$t$ with Rademacher weights ($B = 9{,}999$, null imposed) supplies the primary $p$-value. \textbf{The Newey-West row is not an alternative specification.} It is the figure published in an earlier draft of this revision, shown only so the withdrawn number is identifiable: a lag-based autocorrelation correction presumes consecutive observations, which these are not, and it is inapplicable here.}
+\parbox{\linewidth}{\footnotesize Note: 55 in-position weeks in 15 holding episodes. The point estimate is identical throughout; only the inference differs. Ordinary cluster-robust errors are asymptotic in the number of clusters, and fifteen is few, so CR2 supplies the standard error and the 95\% interval $[-1.64, -0.37]$, and a restricted wild cluster bootstrap-$t$ with Rademacher weights ($B = 9{,}999$, null imposed) supplies the primary $p$-value. \textbf{The Newey-West row is not an alternative specification.} It is the figure published in an earlier draft of this revision, shown only so the withdrawn number is identifiable: a lag-based autocorrelation correction presumes consecutive observations, which these are not, and it is inapplicable here.}
 \end{table}
 
 
@@ -918,17 +920,17 @@ A five-week separation is aggressive for weekly data, where persistence is far s
 \toprule
 Separation & Cluster maxima & $\hat{\xi}$ & 95\% CI & KS $p$ \\
 \midrule
-1 week & 22 & $-$0.209 & $[-1.53, 0.22]$ & 0.997 \\
-2 weeks & 21 & $-$0.241 & $[-1.51, 0.22]$ & 0.981 \\
-3 weeks & 20 & $-$0.248 & $[-1.51, 0.25]$ & 0.971 \\
-5 weeks (reported) & 20 & $-$0.248 & $[-1.51, 0.25]$ & 0.971 \\
+1 week & 21 & 0.239 & $[-1.50, 0.82]$ & 0.986 \\
+2 weeks & 18 & 0.157 & $[-1.57, 0.65]$ & 0.985 \\
+3 weeks & 18 & 0.157 & $[-1.57, 0.65]$ & 0.985 \\
+5 weeks (reported) & 17 & 0.120 & $[-1.66, 0.66]$ & 0.880 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
 \parbox{\linewidth}{\footnotesize Note: GPD fitted by maximum likelihood to cluster maxima above the 95th percentile of weekly absolute returns. $\hat{\xi}$ CI from a nonparametric bootstrap of cluster maxima, $B = 1000$.}
 \end{table}
 
-The shortest separation therefore recovers two additional cluster maxima and moves the shape estimate by 0.04, inside an interval spanning more than 1.7. The imprecision of the tail estimate is a consequence of having 26 exceedances in ten years, not of how they are declustered, and no conclusion in this section changes at any separation we tried. We estimate the extremal index $\theta = 0.83$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.60, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
+The shortest separation therefore recovers 4 additional cluster maxima and moves the shape estimate by 0.12, inside an interval spanning more than 2.3. The imprecision of the tail estimate is a consequence of having 26 exceedances in ten years, not of how they are declustered, and no conclusion in this section changes at any separation we tried. We estimate the extremal index $\theta = 0.70$ via the Ferro--Segers intervals estimator \citep{ferro2003inference}, with a 95\% confidence interval of $[0.49, 1.00]$ obtained by bootstrap resampling of the inter-exceedance times themselves ($B = 2000$)---a scheme that preserves the gap distribution the estimator is built on and, unlike a naive index bootstrap, produces an interval containing its own point estimate.
 
 \textbf{Methodology.} We fit a Generalized Pareto Distribution (GPD) to cluster maxima above the 95th percentile threshold. The GPD is characterized by shape parameter $\xi$ (determining tail heaviness) and scale parameter $\sigma$. Positive $\xi$ indicates Pareto-type heavy tails; $\xi = 0$ corresponds to exponential decay; negative $\xi$ implies bounded tails.
 
@@ -941,22 +943,22 @@ The shortest separation therefore recovers two additional cluster maxima and mov
 \toprule
 Parameter & Estimate & 95\% CI \\
 \midrule
-Shape ($\xi$) & $-0.25$ & $[-1.49, 0.27]$ \\
-Scale ($\sigma$) & 0.0089 & --- \\
-Threshold (95th pctl) & 0.0244 & --- \\
-Extremal index ($\theta$) & 0.83 & $[0.60, 1.00]$ \\
+Shape ($\xi$) & $+0.12$ & $[-1.67, 0.69]$ \\
+Scale ($\sigma$) & 0.0065 & --- \\
+Threshold (95th pctl) & 0.0250 & --- \\
+Extremal index ($\theta$) & 0.70 & $[0.49, 1.00]$ \\
 Raw exceedances & 26 & --- \\
-Cluster maxima & 20 & --- \\
-KS test $p$-value & 0.971 & Fail to reject \\
+Cluster maxima & 17 & --- \\
+KS test $p$-value & 0.880 & Fail to reject \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
 \parbox{\linewidth}{\footnotesize Note: GPD fitted via maximum likelihood to cluster maxima of weekly absolute returns above the 95th percentile after runs declustering (5-week separation). $\xi$ CI from a nonparametric bootstrap of cluster maxima ($B = 2000$); $\theta$ CI from bootstrap resampling of inter-exceedance times ($B = 2000$). KS = Kolmogorov-Smirnov goodness-of-fit test. Generated by \texttt{analysis/full\_pipeline.py}; an earlier version of this table reported a $\theta$ confidence interval of $[0.42, 0.63]$ that excluded its own point estimate---an invalid interval produced by a biased index-resampling scheme, replaced here.}
 \end{table}
 
-\textbf{Tail Characterization.} Table~\ref{tab:gpd} reports the fit. The estimated shape parameter $\hat{\xi} = -0.25$ (95\% CI: $[-1.49, 0.27]$) is imprecise. The interval admits bounded, exponential-type, and moderately Pareto-type behavior; the data therefore do not support a strong tail-classification claim. The Kolmogorov-Smirnov test does not reject the fitted GPD ($p = 0.97$), but with only 20 cluster maxima it has limited diagnostic power.
+\textbf{Tail Characterization.} Table~\ref{tab:gpd} reports the fit. The estimated shape parameter $\hat{\xi} = +0.12$ (95\% CI: $[-1.67, 0.69]$) is imprecise. The interval admits bounded, exponential-type, and moderately Pareto-type behavior; the data therefore do not support a strong tail-classification claim. The Kolmogorov-Smirnov test does not reject the fitted GPD ($p = 0.97$), but with only 20 cluster maxima it has limited diagnostic power.
 
-\textbf{Clustering Dynamics.} The extremal index $\theta = 0.83$ indicates weak temporal clustering in tail events: the mean cluster size is $1/\theta \approx 1.2$, and the confidence interval reaches 1.0 (no clustering). Exceedances arrive close to independently, with mild GARCH-type persistence \citep{bollerslev1986generalized} at most. Clustering therefore does little to reduce the effective sample size for tail inference; the binding constraint is simply the small number of exceedances.
+\textbf{Clustering Dynamics.} The extremal index $\theta = 0.70$ indicates moderate temporal clustering in tail events: the mean cluster size is $1/\theta \approx 1.4$, and the confidence interval still reaches 1.0 (no clustering). Exceedances arrive with mild GARCH-type persistence \citep{bollerslev1986generalized} at most. Clustering therefore does little to reduce the effective sample size for tail inference; the binding constraint is simply the small number of exceedances.
 
 \textbf{Implications.} EVT provides no affirmative evidence for the lottery-like right-tail mechanism required by the trading story. It does not justify assuming a particular tail class or finite variance outside this sample.
 
@@ -992,11 +994,11 @@ Expected block length & 95\% Sharpe interval \\
 
 \textbf{Candidate Universe.} The formal tests are run on the \textbf{twelve real candidate strategies}. A seeded random position sequence is reported alongside as a diagnostic but is excluded from the formal universe: a data-snooping correction should control the error rate across the space actually searched, and a coin-flip rule was never a strategy under consideration.
 
-\textbf{White's Reality Check.} Following \citet{white2000reality}, we test the twelve-strategy universe against a zero-return benchmark. The Reality Check does not reject the null of no superior strategy ($RC = 0.014$, $p = 0.30$). Including the random sequence as a thirteenth candidate gives $RC = 0.020$, $p = 0.15$. The direction is worth noting because it is the opposite of what candidate-dilution intuition suggests: the random sequence has the highest realized sample mean in the universe, so removing it lowers the observed statistic more than it lowers the bootstrap distribution, and the $p$-value \emph{rises}. Neither universe rejects.
+\textbf{White's Reality Check.} Following \citet{white2000reality}, we test the twelve-strategy universe against a zero-return benchmark. The Reality Check does not reject the null of no superior strategy ($RC = 0.015$, $p = 0.30$). Including the random sequence as a thirteenth candidate gives $RC = 0.025$, $p = 0.06$. The direction is worth noting because it is the opposite of what candidate-dilution intuition suggests: the random sequence has the highest realized sample mean in the universe, so removing it lowers the observed statistic more than it lowers the bootstrap distribution, and the $p$-value \emph{rises}. Neither universe rejects.
 
-\textbf{Hansen's SPA Test.} The Superior Predictive Ability test \citep{hansen2005test} agrees ($SPA = 1.90$, $p = 0.25$ on the twelve-strategy universe; $p = 0.26$ including the random sequence): no candidate demonstrates superior predictive ability over the zero-return benchmark at conventional levels.
+\textbf{Hansen's SPA Test.} The Superior Predictive Ability test \citep{hansen2005test} agrees ($SPA = 1.43$, $p = 0.58$ on the twelve-strategy universe; $p = 0.22$ including the random sequence): no candidate demonstrates superior predictive ability over the zero-return benchmark at conventional levels.
 
-\textbf{Why These Statistics Are Insensitive to the Sizing Specification.} Both test statistics are numerically identical under the weekly and frozen-notional sizing specifications, and the $p$-values differ by 0.000 and 0.001 respectively. This is not a transcription error, and the reason is a property of the formal universe that we verify rather than assert. Of the twelve formal candidates, exactly one---the full asymmetry strategy---depends on the sizing convention at all; the other eleven are built with fixed unit sizing or are buy-and-hold. Both tests take a maximum across that universe, and the maximum is attained by the always-long candidate, whose returns do not depend on the asymmetry rule in any respect. The observed statistic therefore cannot move when the sizing changes. The $p$-value can, because the bootstrap distribution is computed across the whole universe and does include the one candidate that changed, which is why the shift is small rather than exactly zero. A reader should expect these two rows to be stable across any change confined to the asymmetry rule, and should not read that stability as evidence about the rule. The argmax, the identity of the two statistics and the two $p$-value differences are all recorded in \texttt{data\_snooping.sizing\_invariance} in the replication output.
+\textbf{Why These Statistics Are Insensitive to the Sizing Specification.} Both test statistics are numerically identical under the weekly and frozen-notional sizing specifications, and the $p$-values differ by 0.002 and 0.002 respectively. This is not a transcription error, and the reason is a property of the formal universe that we verify rather than assert. Of the twelve formal candidates, exactly one---the full asymmetry strategy---depends on the sizing convention at all; the other eleven are built with fixed unit sizing or are buy-and-hold. Both tests take a maximum across that universe, and the maximum is attained by the always-long candidate, whose returns do not depend on the asymmetry rule in any respect. The observed statistic therefore cannot move when the sizing changes. The $p$-value can, because the bootstrap distribution is computed across the whole universe and does include the one candidate that changed, which is why the shift is small rather than exactly zero. A reader should expect these two rows to be stable across any change confined to the asymmetry rule, and should not read that stability as evidence about the rule. The argmax, the identity of the two statistics and the two $p$-value differences are all recorded in \texttt{data\_snooping.sizing\_invariance} in the replication output.
 
 \begin{table}[H]
 \centering
@@ -1007,13 +1009,13 @@ Expected block length & 95\% Sharpe interval \\
 \toprule
 Test & Statistic & $p$-value & Interpretation \\
 \midrule
-White's Reality Check & 0.014 & 0.30 & Not significant \\
-Hansen's SPA & 1.90 & 0.25 & Not significant \\
+White's Reality Check & 0.015 & 0.30 & Not significant \\
+Hansen's SPA & 1.43 & 0.58 & Not significant \\
 \# Candidate Strategies & 12 & --- & --- \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{Including the random sequence as a thirteenth candidate:}} \\
-White's Reality Check & 0.020 & 0.15 & Not significant \\
-Hansen's SPA & 1.90 & 0.26 & Not significant \\
+White's Reality Check & 0.025 & 0.06 & Not significant \\
+Hansen's SPA & 2.00 & 0.22 & Not significant \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.3em}
@@ -1030,7 +1032,7 @@ This paper investigated whether distributional asymmetries in FX alpha signals r
     \item Under the paper's primary construction, only coverage alpha has a dependence-robust skewness interval that excludes zero; the other four intervals include zero
     \item Tail inference is aggregation-sensitive. Across three defensible weekly aggregations of the identical daily exceedance rule, the skewness estimate changes sign and the dependence-robust interval excludes zero under one of the three. The tail signal's distributional character is not established until weekly tail exposure is defined; we report the sensitivity rather than select among the aggregations
     \item EVT tail-shape inference is too imprecise to establish Pareto-type heavy tails or exponential decay; clustering appears weak but is also estimated from few exceedances
-    \item The corrected asymmetry strategy loses 6.64\% gross (15 holding episodes, Sharpe $-0.15$), with bootstrap intervals that include zero; walk-forward selection opens one episode in eight test years
+    \item The corrected asymmetry strategy loses 0.73\% gross (15 holding episodes, Sharpe $+0.005$), with bootstrap intervals that include zero; walk-forward selection opens one episode in eight test years
     \item Execution costs monotonically worsen the already negative gross result, and no break-even cost exists: the published 19.2-pip figure presumed a positive gross return, and there is none to consume. Omitted financing, the absence of any per-order cost component, and end-of-bar execution remain limitations
     \item Conditioning on the weeks it is invested, the rule loads negatively on time-series momentum ($\beta_2 = -0.82$, $p = 0.038$). Because those weeks are selected by an entry condition defined on the same prices the factor is built from, we report this as a mechanical property of the rule and not as an empirical finding about factor exposure
     \item Data-snooping tests find no statistically superior candidate against zero return, and exploratory cross-market outcomes are unstable
