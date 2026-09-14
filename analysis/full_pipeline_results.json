@@ -10,7 +10,7 @@
     "evt_input": "absolute Friday-close-to-Friday-close EURJPY returns, independent of the execution convention, separate from daily tail-alpha flags"
   },
   "data_manifest": {
-    "manifest_generated_at_utc": "2026-09-14T11:07:16.361504+00:00",
+    "manifest_generated_at_utc": "2026-09-14T11:11:15.738738+00:00",
     "requested_start": "2014-06-01",
     "requested_end_exclusive": "2025-09-01",
     "original_snapshot_available": false,
