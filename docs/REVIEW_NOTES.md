@@ -2485,6 +2485,84 @@ Residual transcription risk remains in the unmapped tables. Numeric provenance
 over the mapped ones certifies their arithmetic and says nothing about the prose
 around them.
 
+## Response-letter audit
+
+The letter was drafted before the round-two work and had drifted from both the
+manuscript and the branch. Audited comment by comment.
+
+### Two numeric defects, both already known in other documents
+
+| # | Location | Manuscript value | Canonical | Class |
+|---|---|---|---|---|
+| 12 | letter, comment 6 table, HC3 $t$ | −2.17 | −2.164926 → −2.16 | B |
+| 13 | letter, comment 2 table, Reality Check statistic | 0.015 | 0.0144767 → 0.014 | B |
+
+Both are the letter's copies of findings 1 and 7, which were fixed in the
+manuscript and not in the letter. **Fixing a figure in one document does not fix
+it in another**, and nothing checked the letter: the provenance mechanism covers
+manuscript tables only.
+
+### Stale cross-references throughout
+
+Every table and section reference in the summary table was wrong, because two new
+subsections and a new table were inserted after the letter was written. Examples:
+the factor tables were cited as Tables 9–10 and are 14–15; the specification table
+as Table 6, and it is Table 1; the snooping table as Table 11, and it is 19;
+Factor Attribution as §5.5, and it is §5.7. Recomputed from the source by
+numbering `\label` occurrences and section nesting, not by hand.
+
+Also stale: the provenance-coverage sentence still said six of nineteen tables,
+which was true when written and is now twelve of nineteen.
+
+### The letter answered one of six round-two comments
+
+| Round-two comment | Status before | Now |
+|---|---|---|
+| 1 — endogeneity in the in-position regression | **no response**, though the demotion was done | response added |
+| 2 — sparse Friday sampling of tail alpha | **no response** | response added, cross-referencing round-one comment 7 |
+| 3 — seeded random candidate | **no response**, already adopted in round one | response added |
+| 4 — asymmetric entry rules | answered | unchanged |
+| 5 — look-ahead from Friday-close execution | **no response**, grid run, decision open | response added, stating the change is before the corresponding author |
+| 6 — JB statistic reported among p-values | **no response, and not fixed** | fixed and answered |
+
+Five of six unanswered is a larger gap than the staleness. Work that was done and
+correct was simply not written up, so a reader of the letter would conclude it had
+not been done.
+
+### Comment 6 (round two) was a real defect, and unfixed
+
+§3.2 listed "SW $p = 0.55$, JB $\approx 0$, $K^2$ $p = 0.99$". Two are p-values,
+the middle is a test statistic, so "JB ≈ 0" reads as a p-value indicating strong
+rejection — contradicting the sentence it sits in. Canonical `fast_alpha.jb` is
+0.00466, the statistic, which is compatibility with the Gaussian null. The
+substance was right and the presentation invited the opposite reading. Now labelled
+"JB \emph{statistic}". Recorded as **finding 14**, class: presentation defect
+identified by the reviewer, not caught by us.
+
+### Comment 6 (round one) framing had been overtaken
+
+The response to the round-one Newey-West comment closed by saying the loading "is
+nominally significant at the 5% level under each reported inference specification
+but does not meet the paper's pre-specified Bonferroni-adjusted threshold". That
+is still true and is no longer the point. Round-two comment 1 changed what the
+coefficient can be used for regardless of its standard errors. A cross-reference
+now says so, rather than leaving two responses in the same letter implying
+different statuses for the same coefficient.
+
+### What this says about the apparatus
+
+The letter is a document full of empirical claims with **no provenance mechanism
+of any kind**. Two numeric defects sat in it after being fixed elsewhere, every
+cross-reference had gone stale, and five completed responses were missing. None of
+that is detectable by anything currently in the test suite, which checks the
+manuscript and the PR document only.
+
+Not proposing another guard for it here. The observation worth keeping is that
+**each verification mechanism covers exactly the artefact it was pointed at**, and
+the audit has now found defects in four separate documents — manuscript, PR
+description, audit record, and response letter — three of which had no checking at
+the time the defect entered.
+
 ## Backlog — out of scope for this pull request
 
 Recorded so they are not lost. None of these are actioned here.

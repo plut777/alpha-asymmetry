@@ -59,7 +59,7 @@ have been enough, so we corrected for it:
 |---|---|---|---|---|---|
 | **Wild cluster bootstrap-$t$** | −0.823 | — | −2.54 | **0.038** | **Primary** |
 | CR2, BM dof = 10.2 | −0.823 | 0.324 | −2.54 | 0.029 | SE and interval |
-| HC3 | −0.823 | 0.380 | −2.17 | 0.030 | Robustness |
+| HC3 | −0.823 | 0.380 | −2.16 | 0.030 | Robustness |
 | Newey-West HAC, 4 lags | −0.823 | 0.221 | −3.73 | 0.0002 | *Withdrawn* |
 
 **What we withdraw.** The previous version reported $p = 0.00019$ and said it
@@ -70,6 +70,16 @@ the 5% level under each reported inference specification but does not meet the
 paper's pre-specified Bonferroni-adjusted threshold — and that the appropriate
 inference places it an order of magnitude away from that threshold rather than
 below it.
+
+**A later comment overtook this one.** Round-two comment 1 observes that the
+in-position sample is selected by the strategy's own entry rules, which are
+functions of the same prices the momentum factor is built from. We accept that,
+and it changes what this coefficient can be used for regardless of how its
+standard errors are computed. The loading is now reported as a mechanical
+property of the entry rules rather than as a factor exposure, and is excluded
+from the paper's stated contribution. The inference corrections above stand as
+corrections; they are no longer the binding constraint on the claim. See our
+response to round-two comment 1.
 
 The CR2 interval is $[-1.54, -0.10]$, wider than the $[-1.26, -0.39]$ previously
 reported. We have propagated it to the abstract, the discussion and the
@@ -195,7 +205,7 @@ way:
 
 | Universe | RC | RC $p$ | SPA | SPA $p$ | Best candidate |
 |---|---|---|---|---|---|
-| 12 real strategies | 0.015 | **0.30** | 1.90 | 0.25 | always-long |
+| 12 real strategies | 0.014 | **0.30** | 1.90 | 0.25 | always-long |
 | 13, including random | 0.020 | **0.15** | 1.90 | 0.26 | random sequence |
 
 Removing the random sequence **doubles** the Reality Check $p$-value. The reason
@@ -337,29 +347,130 @@ result would confuse the two.
 
 | Change | Location |
 |---|---|
-| CR2 clustered by episode; wild cluster bootstrap primary; HAC withdrawn | §5.5, Tables 9–10 |
-| Bonferroni claim withdrawn; $p = 0.038$ reported | §5.5 |
-| i.i.d. versus block bootstrap comparison | §3.2, Table 3 |
+| CR2 clustered by episode; wild cluster bootstrap primary; HAC withdrawn | §5.7, Tables 14–15 |
+| Bonferroni claim withdrawn; $p = 0.038$ reported | §5.7 |
+| Momentum loading demoted to a mechanical property of the entry rules | Abstract, §1, §5.7, Conclusions |
+| i.i.d. versus block bootstrap comparison | §3.2, Table 4 |
 | Tail-alpha interval attributed to sparsity, not dependence | §3.2 |
 | $AI_t$ window stated (20 weeks, minimum 10 observations) | §2.4, Eq. 10 |
-| Intercept units corrected to −1.2 bps | Table 9 note |
-| Bootstrap scheme justification; block-length sensitivity | §5.7, Table 12 |
-| Formal universe reduced to 12; random sequence a diagnostic | §5.7, Table 11 |
-| Declustering sensitivity, 1 to 5 weeks | §5.6, Table 8 |
-| Complete specification table generated from the code | §2.4, Table 6 |
+| Intercept units corrected to −1.2 bps | Table 14 note |
+| Bootstrap scheme justification; block-length sensitivity | §5.9, Table 18 |
+| Formal universe reduced to 12; random sequence a diagnostic | §5.9, Table 19 |
+| Declustering sensitivity, 1 to 5 weeks | §5.8, Table 16 |
+| Complete specification table generated from the code | §2.4, Table 1 |
 | Tail-signal aliasing disclosed | §2.2, §4.3 |
-| Tail aggregation sensitivity: three constructions reported | §3.2, Table 4 |
-| Claims depending on the tail construction qualified | Abstract, §3.2, §4.1, §5, §5.7, Conclusions |
+| Tail aggregation sensitivity: three constructions reported | §3.2, Table 5 |
+| Execution-timing grid, four entry points on the identical signal | §5.4, Table 11 |
+| Entry-rule symmetrization, three pre-specified variants | §5.5, Table 12 |
+| Claims depending on the tail construction qualified | Abstract, §3.2, §4.1, §5, §5.9, Conclusions |
 
 The tables carrying the headline performance, factor and data-snooping results
 are tied cell by cell to named fields of the replication output, and the analysis
-is covered by deterministic tests. That mechanism currently reaches six of the
-nineteen tables; the remainder are checked less formally. The sample is unchanged:
+is covered by deterministic tests. That mechanism currently reaches 12 of the
+19 manuscript tables; the remainder are checked less formally. The sample is unchanged:
 $n = 504$, 8 January 2016 to 29 August 2025.
 
 ---
 
 # Round two
+
+## Comment 1 — endogeneity in the in-position factor regression
+
+**Accepted, and it changes an interpretation rather than a number.**
+
+The reviewer is right. The in-position regression runs on the 55 weeks the
+strategy chose to hold, and those weeks are selected by entry rules that are
+functions of the same price series the momentum factor is built from: the short
+leg fires after price has risen against its sixty-day average, and a twelve-week
+time-series momentum rule is long in exactly those states. Sample and regressor
+are jointly determined.
+
+The loading is close to arithmetic on that reading. A rule that sells strength
+will look short momentum during the weeks it is active whether or not any factor
+relationship exists in the underlying returns.
+
+We retain the coefficient because it describes what the rule is, and we no longer
+present it as an empirical finding. It is not offered as an explanation of the
+strategy's losses and is excluded from the paper's stated contribution. The
+abstract, the contribution statement, the Discussion heading and §5.7 were all cut
+back accordingly.
+
+One point we think worth recording: inference on this coefficient was tightened
+three times, and each step was a genuine correction that made the estimate less
+impressive. None of them touched this problem. Better standard errors fix the
+uncertainty attached to a coefficient given a specification; they cannot make a
+selected sample unselected.
+
+---
+
+## Comment 2 — sparse Friday sampling of tail alpha
+
+**Accepted; this extends round-one comment 7 and is answered there in detail.**
+
+The signal is constructed from daily exceedances and read only on Fridays, so 70
+of the 105 weeks containing an exceedance enter the weekly panel as zeros and 35
+of 504 observations are non-zero. Every tail-alpha statistic inherits that
+sparsity, which is the proximate reason the skewness interval is so wide.
+
+Table 5 now reports the identical daily rule under three weekly aggregations. The
+point estimate changes sign across them and the interval excludes zero under one
+of the three. We report that sensitivity rather than resolve it: selecting an
+aggregation on the result it produces is the practice this paper criticises
+elsewhere. The published Friday-sampled construction remains primary and is the
+sparsest of the three, resting its estimate on 35 non-zero observations against
+105 for both alternatives.
+
+---
+
+## Comment 3 — the seeded random candidate
+
+**Already adopted in response to round-one comment 2; nothing further has
+changed.** The formal tests run on the twelve real candidates, with the random
+sequence reported as a diagnostic outside the formal universe. As noted there,
+the direction of the effect in this sample is the opposite of the one the
+reviewer's reasoning predicts, and we report that rather than let the adopted
+recommendation carry an explanation that does not hold here.
+
+---
+
+## Comment 5 — look-ahead bias from Friday-close execution
+
+**Accepted as a real objection. The convention is under revision and the decision
+is not ours alone to make.**
+
+The reviewer is right that observing the close, computing rolling statistics from
+it, and executing at that same close is not implementable. The published
+specification entered at the Monday open following Friday signal generation, and
+this revision departed from it without adequate justification.
+
+§5.4 and Table 11 now report four entry timings applied to the identical signal on
+a common sample of 502 weeks: Friday close −6.64%, Monday open −0.73%, Monday
+close −0.92%, Tuesday open −8.03%. The point estimates move materially and
+non-monotonically in delay, while the pre-specified paired contrasts all include
+zero, so the grid does not identify a uniquely correct convention.
+
+Because it does not, we take the choice to rest on specification fidelity and
+information timing rather than on which return estimate is preferable, and on
+those grounds Monday open is the better primary. That change is before the
+corresponding author; it moves the headline sample to 503 weeks, dropping one week
+for want of a following open, and it would change every figure derived from
+strategy returns. We will report the outcome rather than pre-empt it.
+
+---
+
+## Comment 6 — JB statistic reported alongside p-values
+
+**Accepted and corrected. The reviewer identified a genuine ambiguity.**
+
+§3.2 listed "SW $p = 0.55$, JB $\approx 0$, $K^2$ $p = 0.99$". Two of those three
+are p-values and the middle one is a test statistic, so "JB ≈ 0" reads as a
+p-value indicating strong rejection — the opposite of the sentence containing it.
+The value is the Jarque-Bera statistic (0.005 for fast alpha), which is
+compatibility with the Gaussian null, not rejection of it. The text now says "JB
+*statistic* ≈ 0" explicitly. The substance was correct; the presentation invited
+exactly the reading the reviewer gave it.
+
+---
 
 ## Comment 4 — the long and short entry rules are not symmetric
 
